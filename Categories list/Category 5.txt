@@ -1,0 +1,14 @@
+CATEGORY 5: Creative Category - Sponsored by Avanade
+In this category, students are invited to identify one real‑world problem that truly matters to them and propose an innovative, AI‑powered solution. The goal is to encourage bold thinking, creativity, and imaginative use of AI to address meaningful global challenges.
+
+To ground ideas in real‑world impact, student submissions must align with the United Nations Sustainable Development Goals (SDGs)Links to an external site..
+
+Challenge Prompt
+
+Identify a real‑world problem that you are passionate about and clearly describe why it matters.
+Select up to three (3) UN Sustainable Development Goals (SDGs) that are most relevant to this problem.
+Explain how each chosen SDG connects to the problem and why it is important to address.
+Propose a creative and original solution powered by AI that helps address the problem and advances progress toward your selected SDGs.
+Describe how AI is used (e.g., data analysis, prediction, automation, personalization, accessibility, decision support).
+Explain the potential impact of your solution, including who benefits and how it could make a meaningful difference at a local, national, or global level.
+Highlight what makes your idea innovative, including how it differs from existing approaches or reimagines what’s possible with AI.
