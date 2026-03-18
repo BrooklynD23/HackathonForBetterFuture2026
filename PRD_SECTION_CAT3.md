@@ -1,5 +1,19 @@
+---
+doc_role: canonical
+authority_scope:
+- category.3.feature_detail
+canonical_upstreams:
+- Category 3 - IA West Smart Match CRM/docs/SPRINT_PLAN.md
+- MASTER_SPRINT_PLAN.md
+- STRATEGIC_REVIEW.md
+last_reconciled: '2026-03-16'
+managed_by: repo-governance
+---
+
 ## Category 3: IA SmartMatch --- Intelligent Speaker-Event Matching CRM
 **Sponsor:** IA West | **CTO Tier:** 1 (Highest Win Probability) | **Verdict:** Approved with Revisions
+
+> **Governance notice (repo-governance):** This document owns category feature-detail narrative. It must not override execution, staffing, milestone, or gating decisions from its canonical upstreams: `Category 3 - IA West Smart Match CRM/docs/SPRINT_PLAN.md`, `MASTER_SPRINT_PLAN.md`, `STRATEGIC_REVIEW.md`.
 
 ### Problem Statement
 
@@ -93,7 +107,7 @@ Note: OpenAI also offers Batch API at 50% discount ($0.01/1M tokens for embeddin
 - **CTO Tier:** 1 (Highest Win Probability)
 - **Independent Analysis:** This category has the strongest combination of factors: (1) pre-provided structured data eliminates the cold-start problem that plagues other categories, (2) the technical implementation (embeddings + cosine similarity + LLM extraction) is well within a 2-week timeline, (3) the judging criteria explicitly reward written deliverables (Growth Strategy + Measurement Plan = 40% of points), which can be prepared in parallel with coding, and (4) the demo moment --- live automated discovery of a real university event, matched to a real board member, with a generated outreach email --- is visually compelling and easy to rehearse. The main competitive risk is another team building a similar CRM; differentiation comes from explainable AI (match cards), pipeline visualization (funnel chart), and the live scraping demo.
 - **Demo Moment:** "A new hackathon was just announced at UCLA. SmartMatch automatically detected it from the UCLA events page, matched Travis Miller (SVP Sales, Ventura region) as the top judge candidate with an 87% match score, generated a personalized outreach email referencing his data collection expertise, and added him to the pipeline tracker --- all in under 60 seconds, live on stage." The funnel visualization then updates in real time, showing the new engagement flowing through the pipeline.
-- **Overall Win Probability:** **High (65-75%)**. The pre-existing data, moderate technical complexity, and heavy weighting on written deliverables (which can be polished regardless of technical blockers) make this the most controllable outcome in the hackathon. The primary downside scenario is a competing team with an exceptionally polished demo; the primary upside is that the 40% written-deliverable weight rewards preparation over raw coding speed.
+- **Overall Win Probability:** **High (55-75%)**. The pre-existing data, moderate technical complexity, and heavy weighting on written deliverables (which can be polished regardless of technical blockers) make this the most controllable outcome in the hackathon. The primary downside scenario is a competing team with an exceptionally polished demo; the primary upside is that the 40% written-deliverable weight rewards preparation over raw coding speed.
 
 ### Existing Assets Inventory
 

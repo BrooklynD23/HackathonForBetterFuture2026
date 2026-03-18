@@ -1,5 +1,20 @@
+---
+doc_role: background
+authority_scope:
+- category.5.background_analysis
+canonical_upstreams:
+- PRD_SECTION_CAT5.md
+- Category 5 - Avanade Creative SDG/SPRINT_PLAN.md
+- MASTER_SPRINT_PLAN.md
+- STRATEGIC_REVIEW.md
+last_reconciled: '2026-03-16'
+managed_by: repo-governance
+---
+
 # Category 5 — Avanade Creative Category: AI-Powered SDG Solution
 **Sponsor:** Avanade | **Event:** CPP AI Hackathon "AI for a Better Future" | April 16, 2026
+
+> **Governance notice (repo-governance):** This file is background analysis only. Use it for ideation and history, not as an authority for current planning decisions. Canonical upstreams: `PRD_SECTION_CAT5.md`, `Category 5 - Avanade Creative SDG/SPRINT_PLAN.md`, `MASTER_SPRINT_PLAN.md`, `STRATEGIC_REVIEW.md`.
 
 > **Status update (2026-03-15):** This file is now background ideation only. Canonical planning decisions live in `SPRINT_PLAN.md`, `../MASTER_SPRINT_PLAN.md`, and `../STRATEGIC_REVIEW.md`. Current MVP scope is a 3-system Streamlit build: Azure Custom Vision + Azure OpenAI + Open-Meteo. Earlier references to broader Microsoft platform options are not implementation authority.
 

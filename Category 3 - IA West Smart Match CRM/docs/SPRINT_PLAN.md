@@ -1,4 +1,17 @@
+---
+doc_role: canonical
+authority_scope:
+- category.3.execution_plan
+canonical_upstreams:
+- MASTER_SPRINT_PLAN.md
+- STRATEGIC_REVIEW.md
+last_reconciled: '2026-03-16'
+managed_by: repo-governance
+---
+
 # Category 3 — IA SmartMatch CRM: Sprint Plan (Dual-Track)
+
+> **Governance notice (repo-governance):** This document owns category execution decisions for this track. Portfolio schedule, ranking, and conflict-resolution context must follow: `MASTER_SPRINT_PLAN.md`, `STRATEGIC_REVIEW.md`.
 
 **Prep Window:** March 15 - April 15, 2026 (14 working days before April 16 hackathon)
 **Track A (Person B):** Code — Days 1-14 (~100-112 hours, ~7-8h/day)

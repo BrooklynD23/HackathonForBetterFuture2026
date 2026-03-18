@@ -68,8 +68,11 @@ HackathonForBetterFuture2026/
 ├── docs/                      # Shared team documentation
 │   ├── setup.md               # Dev environment setup guide
 │   ├── team.md                # Team roles and ownership
-│   └── architecture.md        # Architecture principles + data flow
+│   ├── architecture.md        # Architecture principles + data flow
+│   └── governance/            # Canonical planning map, reference index, reports
 │
+├── .agents/skills/            # Repo-local Codex skills
+│   └── repo-governance/       # Planning governance audit and reconcile workflow
 ├── .claude/agents/            # Claude sub-agent definitions
 ├── .memory/                   # Persistent team memory (decisions, blockers, context)
 │
@@ -108,11 +111,13 @@ IDEA → FEATURES → DOC → MEMORY → VERIFY → TEST → DRIFT → COMMIT
 
 **Fast-Track (final 48 hrs):** `IDEA → FEATURES → TEST → COMMIT` — skip middle stages when the change is < 2 hrs and modifies existing code.
 
+**Planning governance checkpoint:** run `repo-steward` whenever planning docs change, category-level decisions change, or before handing planning work off. `drift-detector` stays reserved for code-vs-doc checks after implementation.
+
 ---
 
 ## Claude Sub-Agents
 
-Six custom agents live in `.claude/agents/` and slot into the pipeline above. See [`AGENTS_QUICK_START.md`](./AGENTS_QUICK_START.md) for full usage.
+Seven custom agents live in `.claude/agents/` and slot into the workflow above. See [`AGENTS_QUICK_START.md`](./AGENTS_QUICK_START.md) for full usage.
 
 | Agent | When to use |
 |-------|-------------|
@@ -120,8 +125,9 @@ Six custom agents live in `.claude/agents/` and slot into the pipeline above. Se
 | `idea-capture` | Stage 1: logging a new idea or problem statement |
 | `feature-spec` | Stage 2: turning ideas into scoped, testable features |
 | `agent-doc-gen` | Stage 3: generating docs from existing feature specs |
+| `repo-steward` | Planning-doc governance: canonical source audits, safe reconciliations, handoff prep |
 | `plan-verifier` | Stage 5: independent audit of a plan (different session) |
-| `drift-detector` | Stage 7: checking code vs. docs for misalignment |
+| `drift-detector` | Stage 7: checking implemented code vs. docs for misalignment |
 
 ---
 
@@ -148,6 +154,8 @@ Six custom agents live in `.claude/agents/` and slot into the pipeline above. Se
 | [`HACKATHON_PRD.md`](./HACKATHON_PRD.md) | Full strategy, feasibility, and scoring for all 5 tracks |
 | [`CTO_REVIEW_OUTPUT.md`](./CTO_REVIEW_OUTPUT.md) | Tier rankings + specific CTO recommendations |
 | [`PRD_SECTION_CAT[N].md`](./PRD_SECTION_CAT1.md) | Detailed feature specs per category |
+| [`docs/governance/canonical-map.yaml`](./docs/governance/canonical-map.yaml) | Machine-readable canonical source registry |
+| [`docs/governance/REPO_REFERENCE.md`](./docs/governance/REPO_REFERENCE.md) | Current source-of-truth map and drift review links |
 | [`docs/setup.md`](./docs/setup.md) | Dev environment setup (venv, API keys, Streamlit) |
 | [`docs/team.md`](./docs/team.md) | Team roles and ownership assignments |
 | [`docs/architecture.md`](./docs/architecture.md) | Architecture principles and data flow |

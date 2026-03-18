@@ -1,4 +1,17 @@
+---
+doc_role: canonical
+authority_scope:
+- category.2.execution_plan
+canonical_upstreams:
+- MASTER_SPRINT_PLAN.md
+- STRATEGIC_REVIEW.md
+last_reconciled: '2026-03-16'
+managed_by: repo-governance
+---
+
 # Category 2 — PhishGuard AI: Sprint Plan
+
+> **Governance notice (repo-governance):** This document owns category execution decisions for this track. Portfolio schedule, ranking, and conflict-resolution context must follow: `MASTER_SPRINT_PLAN.md`, `STRATEGIC_REVIEW.md`.
 
 **Owner:** Person A (dedicated lead, full 2 weeks)
 **Prep Window:** March 15 -- March 28, 2026 (14 days)

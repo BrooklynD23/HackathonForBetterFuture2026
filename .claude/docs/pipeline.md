@@ -12,6 +12,27 @@
 | TEST → DRIFT | All tests pass. New code coverage ≥ 80% |
 | DRIFT → COMMIT | drift-detector verdict is CLEAN or MINOR-DRIFT. If MAJOR-DRIFT, fix docs first |
 
+## Planning Governance Checkpoint
+
+Run `repo-steward` outside the numbered stage gates whenever:
+
+- planning docs change
+- category-level decisions change
+- a planning handoff is about to happen
+
+Invocation contract:
+
+- Codex: `Use repo-governance to audit and reconcile the repo governance state for <scope>`
+- Claude: `/agent repo-steward`
+
+Supported scopes:
+
+- `portfolio`
+- `category:<n>`
+- `doc:<path>`
+
+Keep `drift-detector` focused on post-implementation docs-vs-code verification after tests pass.
+
 ## Pre-Credited Stages
 
 All 5 categories already have substantial planning complete. Do not re-do this work.

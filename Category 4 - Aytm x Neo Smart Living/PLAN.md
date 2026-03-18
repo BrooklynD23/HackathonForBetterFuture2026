@@ -1,5 +1,20 @@
+---
+doc_role: background
+authority_scope:
+- category.4.background_analysis
+canonical_upstreams:
+- PRD_SECTION_CAT4.md
+- Category 4 - Aytm x Neo Smart Living/docs/SPRINT_PLAN.md
+- MASTER_SPRINT_PLAN.md
+- STRATEGIC_REVIEW.md
+last_reconciled: '2026-03-16'
+managed_by: repo-governance
+---
+
 # Category 4 — Aytm × Neo Smart Living: Open-Source Simulated Market Research
 **Sponsors:** Aytm (insights tech) + Neo Smart Living (prefab homes) | **Event:** CPP AI Hackathon | April 16, 2026
+
+> **Governance notice (repo-governance):** This file is background analysis only. Use it for ideation and history, not as an authority for current planning decisions. Canonical upstreams: `PRD_SECTION_CAT4.md`, `Category 4 - Aytm x Neo Smart Living/docs/SPRINT_PLAN.md`, `MASTER_SPRINT_PLAN.md`, `STRATEGIC_REVIEW.md`.
 
 ---
 

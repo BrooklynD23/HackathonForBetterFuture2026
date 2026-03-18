@@ -1,5 +1,19 @@
+---
+doc_role: canonical
+authority_scope:
+- category.1.feature_detail
+canonical_upstreams:
+- Category 1 - Avanade AI Wellbeing/SPRINT_PLAN.md
+- MASTER_SPRINT_PLAN.md
+- STRATEGIC_REVIEW.md
+last_reconciled: '2026-03-16'
+managed_by: repo-governance
+---
+
 ## Category 1: BalanceIQ — AI Wellbeing Advisor for Tech Workers
 **Sponsor:** Avanade | **CTO Tier:** 3/Optional | **Verdict:** Approved with Revisions
+
+> **Governance notice (repo-governance):** This document owns category feature-detail narrative. It must not override execution, staffing, milestone, or gating decisions from its canonical upstreams: `Category 1 - Avanade AI Wellbeing/SPRINT_PLAN.md`, `MASTER_SPRINT_PLAN.md`, `STRATEGIC_REVIEW.md`.
 
 **Planning Note (2026-03-15):** For implementation sequencing and staffing, treat `STRATEGIC_REVIEW.md`, `MASTER_SPRINT_PLAN.md`, and `Category 1 - Avanade AI Wellbeing/SPRINT_PLAN.md` as the source of truth. This category is optional and should only be staffed with a 5th team member.
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Repo Governance"
+  short_description: "Audit and reconcile canonical planning-doc authority"
+  default_prompt: "Use repo-governance to audit and reconcile the repo governance state for <scope>."

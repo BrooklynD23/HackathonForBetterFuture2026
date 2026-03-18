@@ -1,5 +1,20 @@
+---
+doc_role: background
+authority_scope:
+- category.2.background_analysis
+canonical_upstreams:
+- PRD_SECTION_CAT2.md
+- Category 2 - ISACA Cyber Safety Coach/SPRINT_PLAN.md
+- MASTER_SPRINT_PLAN.md
+- STRATEGIC_REVIEW.md
+last_reconciled: '2026-03-16'
+managed_by: repo-governance
+---
+
 # Category 2 — ISACA OC: "AI for Everyone: Personal Cyber Safety Coach"
 **Sponsor:** ISACA Orange County Chapter | **Event:** CPP AI Hackathon "AI for a Better Future" | April 16, 2026
+
+> **Governance notice (repo-governance):** This file is background analysis only. Use it for ideation and history, not as an authority for current planning decisions. Canonical upstreams: `PRD_SECTION_CAT2.md`, `Category 2 - ISACA Cyber Safety Coach/SPRINT_PLAN.md`, `MASTER_SPRINT_PLAN.md`, `STRATEGIC_REVIEW.md`.
 
 ---
 

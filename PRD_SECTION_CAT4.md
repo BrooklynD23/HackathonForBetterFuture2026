@@ -1,5 +1,19 @@
+---
+doc_role: canonical
+authority_scope:
+- category.4.feature_detail
+canonical_upstreams:
+- Category 4 - Aytm x Neo Smart Living/docs/SPRINT_PLAN.md
+- MASTER_SPRINT_PLAN.md
+- STRATEGIC_REVIEW.md
+last_reconciled: '2026-03-16'
+managed_by: repo-governance
+---
+
 ## Category 4: Simulated Market Research — AI-Powered Consumer Insights Engine
 **Sponsor:** Aytm x Neo Smart Living | **CTO Tier:** 2 (Strong Contender) | **Verdict:** Approved with Revisions
+
+> **Governance notice (repo-governance):** This document owns category feature-detail narrative. It must not override execution, staffing, milestone, or gating decisions from its canonical upstreams: `Category 4 - Aytm x Neo Smart Living/docs/SPRINT_PLAN.md`, `MASTER_SPRINT_PLAN.md`, `STRATEGIC_REVIEW.md`.
 
 ### Problem Statement
 
@@ -117,7 +131,7 @@ Each synthetic interview (8 questions, ~1,500 token response) costs approximatel
 - **CTO Tier:** 2 (Strong Contender)
 - **Independent Analysis:** This category has the strongest existing codebase advantage of any hackathon category — a fully functional Python pipeline with 13 files, 2 Streamlit dashboards (13 tabs), pre-generated sample data, and comprehensive documentation. The 48-hour clock effectively starts at hour 20+ because the prototype already runs. The dual-LLM reliability methodology (STAMP) and ground truth validation angle give academic credibility that most hackathon projects lack. The $0.08 vs. $24K cost comparison is a memorable opening hook. The primary risk is that the improvements feel incremental rather than transformative — the team must frame this as OWNERSHIP of a methodology, not just bug fixes on someone else's code.
 - **Demo Moment:** Open with the cost comparison: "We just ran a complete market research study for Neo Smart Living. The traditional version costs $24,000 and takes 6 weeks. Ours costs 8 cents and takes 3 minutes." Then show the ground truth comparison: "Here are the real research results. Here are ours. They agree on [X], they disagree on [Y], and here is exactly why that matters for Tony Koo's next product launch decision." Close with the Tony Koo recommendation: a single slide that says "Neo Smart Living should lead with the [Adventure/Home Office] positioning for [segment], validated by dual-LLM consensus and ground truth comparison."
-- **Overall Win Probability:** Medium-High (45-60%). The existing codebase provides a massive head start, the methodology is academically grounded, and the sponsor alignment is strong (Aytm benefits from open-source research tooling that complements Skipper). The main competition risk is a team that builds something more visually spectacular from scratch in a different category. Executing on ground truth comparison and the Tony Koo recommendation will be the differentiators.
+- **Overall Win Probability:** Medium-High (25-65%). The existing codebase provides a massive head start, the methodology is academically grounded, and the sponsor alignment is strong (Aytm benefits from open-source research tooling that complements Skipper). The main competition risk is a team that builds something more visually spectacular from scratch in a different category. Executing on ground truth comparison and the Tony Koo recommendation will be the differentiators.
 
 ### Existing Assets Inventory
 

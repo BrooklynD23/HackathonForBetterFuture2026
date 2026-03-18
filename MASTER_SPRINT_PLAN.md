@@ -1,4 +1,19 @@
+---
+doc_role: canonical
+authority_scope:
+- portfolio.rankings
+- portfolio.win_probabilities
+- portfolio.calendar
+- portfolio.staffing_model
+canonical_upstreams:
+- STRATEGIC_REVIEW.md
+last_reconciled: '2026-03-16'
+managed_by: repo-governance
+---
+
 # Master Sprint Plan — CPP AI Hackathon 2026
+
+> **Governance notice (repo-governance):** This document owns portfolio rankings, win-probability ranges, the canonical day-number schedule, and the staffing model.
 
 **Generated:** 2026-03-15 | **Hackathon:** April 16, 2026
 **Prep Window:** 14 days | **Team Size:** 3-5 people

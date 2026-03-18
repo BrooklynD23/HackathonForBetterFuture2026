@@ -1,5 +1,20 @@
+---
+doc_role: background
+authority_scope:
+- category.1.background_analysis
+canonical_upstreams:
+- PRD_SECTION_CAT1.md
+- Category 1 - Avanade AI Wellbeing/SPRINT_PLAN.md
+- MASTER_SPRINT_PLAN.md
+- STRATEGIC_REVIEW.md
+last_reconciled: '2026-03-16'
+managed_by: repo-governance
+---
+
 # Category 1 — Avanade Challenge: AI for Wellbeing (Option B)
 **Sponsor:** Avanade | **Event:** CPP AI Hackathon "AI for a Better Future" | April 16, 2026
+
+> **Governance notice (repo-governance):** This file is background analysis only. Use it for ideation and history, not as an authority for current planning decisions. Canonical upstreams: `PRD_SECTION_CAT1.md`, `Category 1 - Avanade AI Wellbeing/SPRINT_PLAN.md`, `MASTER_SPRINT_PLAN.md`, `STRATEGIC_REVIEW.md`.
 
 > **Status update (2026-03-15):** This file is now background ideation only. Canonical planning decisions live in `SPRINT_PLAN.md`, `../MASTER_SPRINT_PLAN.md`, and `../STRATEGIC_REVIEW.md`. Corrected pricing is `$6/user/month` for Viva Insights as an add-on, and the current positioning is "teams outside the Microsoft ecosystem," not "Viva for non-E5."
 

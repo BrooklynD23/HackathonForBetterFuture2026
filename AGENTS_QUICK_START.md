@@ -2,7 +2,7 @@
 
 **For: Team members using Claude Code to build hackathon submissions**
 
-This guide explains the 6 custom agents and how to use them. You don't need to understand how they work internally — just know when to call them and what to expect.
+This guide explains the 7 custom agents and how to use them. You don't need to understand how they work internally — just know when to call them and what to expect.
 
 ---
 
@@ -22,6 +22,8 @@ Every feature goes through these stages:
 ```
 
 **Stages 1-3** = Planning. **Stages 5-8** = Implementation & verification.
+
+**Planning governance checkpoint:** when planning docs change, category-level decisions change, or you are about to hand planning work to someone else, run `/agent repo-steward`. `drift-detector` is only for post-implementation docs-vs-code checks.
 
 ---
 
@@ -127,6 +129,40 @@ These docs are **agent-readable** — the downstream agents (implementers, teste
 
 ---
 
+### Planning Governance: Reconcile Canonical Sources 🧭
+
+**Agent:** `repo-steward`
+
+**When to use:**
+- After editing planning docs such as `PLAN.md`, `SPRINT_PLAN.md`, `PRD_SECTION_CAT<n>.md`, or `.status.md`
+- When category-level decisions change
+- Before handing planning work to another teammate or agent
+
+**How to invoke:**
+```
+/agent repo-steward
+```
+
+Then provide a scope:
+- `portfolio`
+- `category:<n>`
+- `doc:<path>`
+
+**What it does:**
+1. Reads `docs/governance/canonical-map.yaml`
+2. Audits governed fields and authority roles
+3. Applies safe reconciliations only
+4. Regenerates `docs/governance/REPO_REFERENCE.md`
+5. Writes a dated governance report to `docs/governance/reports/`
+
+**What you get:**
+- Updated governance frontmatter and notices
+- Refreshed `.status.md` governance metadata
+- A generated repo reference map
+- An explicit list of anything that still needs a human decision
+
+---
+
 ### Stage 5: Get a Second Opinion ✅
 
 **Agent:** `plan-verifier`
@@ -200,6 +236,8 @@ Tell it to read the test spec (from stage 3) and implement the features.
 - After tests pass and code is implemented
 - Before you commit
 - To verify docs still match what you built
+
+**Do not use drift-detector for planning-doc authority cleanup.** That belongs to `repo-steward`.
 
 **How to invoke:**
 ```
@@ -310,8 +348,11 @@ tdd-guide: "Read test spec. Writing tests for explanation_engine.py...
   Refactoring for readability...
   Coverage: 82%"
 
+You: /agent repo-steward
+repo-steward: "Scope `category:2` audited. Governance frontmatter refreshed, REPO_REFERENCE.md regenerated, no unresolved planning conflicts."
+
 You: /agent drift-detector
-drift-detector: "Checking docs vs. code...
+drift-detector: "Checking docs vs. code after implementation...
   CLEAN. All docs match implementation."
 
 You: git add . && git commit -m "feat(cat2): add phishing explanation engine"
@@ -328,6 +369,7 @@ Done! ✨
 | "I have an idea I want to capture" | **idea-capture** |
 | "I have an idea document, turn it into a feature list" | **feature-spec** |
 | "I have a feature spec, generate implementation docs" | **agent-doc-gen** |
+| "I changed planning docs, reconcile source-of-truth ownership" | **repo-steward** |
 | "I have a plan, ask someone else to review it" | **plan-verifier** (diff session) |
 | "I have code, make sure docs still match" | **drift-detector** |
 | "I don't know what to do next" | **hackathon-orchestrator** |
@@ -354,7 +396,7 @@ Go back to the feature-spec or idea-capture agent. Fix the blocking issues. Re-r
 
 ### Q: Do I really need to run drift-detector?
 
-Yes, if you've modified any docs during implementation. It's fast (2 min) and catches drift that could cause confusion for teammates.
+Yes, after code changes. If you only changed planning docs, run `repo-steward` instead. Use both when you changed planning docs first and then implemented code from them.
 
 ### Q: What if two people work on the same category at the same time?
 

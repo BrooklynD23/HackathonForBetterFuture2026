@@ -1,5 +1,19 @@
+---
+doc_role: canonical
+authority_scope:
+- category.5.feature_detail
+canonical_upstreams:
+- Category 5 - Avanade Creative SDG/SPRINT_PLAN.md
+- MASTER_SPRINT_PLAN.md
+- STRATEGIC_REVIEW.md
+last_reconciled: '2026-03-16'
+managed_by: repo-governance
+---
+
 ## Category 5: CropSense AI — Precision Agriculture for Smallholder Farmers
 **Sponsor:** Avanade (Creative SDG Track) | **CTO Tier:** 1.5 (conditional on Day 4 gate) | **Verdict:** Approved with Revisions
+
+> **Governance notice (repo-governance):** This document owns category feature-detail narrative. It must not override execution, staffing, milestone, or gating decisions from its canonical upstreams: `Category 5 - Avanade Creative SDG/SPRINT_PLAN.md`, `MASTER_SPRINT_PLAN.md`, `STRATEGIC_REVIEW.md`.
 
 **Planning Note (2026-03-15):** For implementation sequencing and canonical scope, treat `STRATEGIC_REVIEW.md`, `MASTER_SPRINT_PLAN.md`, and `Category 5 - Avanade Creative SDG/SPRINT_PLAN.md` as the source of truth. Canonical MVP scope is a 3-system Streamlit build: Azure Custom Vision + Azure OpenAI + Open-Meteo.
 

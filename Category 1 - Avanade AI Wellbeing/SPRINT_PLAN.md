@@ -1,4 +1,17 @@
+---
+doc_role: canonical
+authority_scope:
+- category.1.execution_plan
+canonical_upstreams:
+- MASTER_SPRINT_PLAN.md
+- STRATEGIC_REVIEW.md
+last_reconciled: '2026-03-16'
+managed_by: repo-governance
+---
+
 # Category 1 — BalanceIQ Sprint Plan
+
+> **Governance notice (repo-governance):** This document owns category execution decisions for this track. Portfolio schedule, ranking, and conflict-resolution context must follow: `MASTER_SPRINT_PLAN.md`, `STRATEGIC_REVIEW.md`.
 
 **Category:** Avanade AI Wellbeing | **Tier:** 3/Optional | **Win Probability:** 25-35% ceiling
 **Prep Window:** 14 days (April 2-15, 2026) | **Hackathon Demo:** April 16, 2026

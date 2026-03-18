@@ -1,4 +1,16 @@
+---
+doc_role: canonical
+authority_scope:
+- portfolio.strategy_rationale
+- portfolio.conflict_resolution
+canonical_upstreams: []
+last_reconciled: '2026-03-16'
+managed_by: repo-governance
+---
+
 # Strategic Review — PM/CTO Final Assessment
+
+> **Governance notice (repo-governance):** This document owns strategic rationale and conflict-resolution guidance. Mirrored portfolio values must stay aligned with the canonical portfolio sources when referenced: `MASTER_SPRINT_PLAN.md`.
 
 **Reviewer:** PM/CTO Agent | **Date:** 2026-03-15
 **Inputs:** 5 Adversarial Review Reports, CTO Review, 5 PRD Sections, 5 PLAN.md files

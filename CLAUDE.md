@@ -21,6 +21,8 @@ SECONDARY_CATEGORY: TBD
 8. COMMIT    → git commit (conventional format)
 ```
 
+**Planning governance checkpoint:** invoke `repo-steward` whenever planning docs change, category-level decisions change, or before handing planning work to another teammate or agent. `drift-detector` remains the post-implementation docs-vs-code check only.
+
 **Fast-track** (final 48h, <2h change, existing code, team agrees): `IDEA → FEATURES → TEST → COMMIT`
 
 For stage gates and pre-credited work → [`.claude/docs/pipeline.md`](.claude/docs/pipeline.md)
@@ -34,6 +36,7 @@ For stage gates and pre-credited work → [`.claude/docs/pipeline.md`](.claude/d
 3. Agents write to `.memory/` when they make decisions.
 4. Agents update `.status.md` after completing a stage.
 5. `plan-verifier` must run in a **different session** than the one that created the plan.
+6. Use `repo-steward` for planning-doc governance; use `drift-detector` only after code changes.
 
 ---
 
@@ -62,6 +65,7 @@ Scopes: `cat1` `cat2` `cat3` `cat4` `cat5` `infra` `memory`
 | When you need to… | Read |
 |---|---|
 | Understand stage gates / pre-credited work | [`.claude/docs/pipeline.md`](.claude/docs/pipeline.md) |
+| Audit canonical planning ownership | [`docs/governance/REPO_REFERENCE.md`](docs/governance/REPO_REFERENCE.md) |
 | Write or find a memory entry | [`.claude/docs/memory.md`](.claude/docs/memory.md) |
 | Check the tech stack | [`.claude/docs/tech-stack.md`](.claude/docs/tech-stack.md) |
 | Use the custom agents | [`AGENTS_QUICK_START.md`](AGENTS_QUICK_START.md) |
@@ -69,5 +73,6 @@ Scopes: `cat1` `cat2` `cat3` `cat4` `cat5` `infra` `memory`
 | See tier rankings per category | [`CTO_REVIEW_OUTPUT.md`](CTO_REVIEW_OUTPUT.md) |
 | Get detailed feature specs | `PRD_SECTION_CAT[N].md` |
 | See category challenge analysis | `Category N/PLAN.md` |
+| Run planning governance reconciliation | `.claude/agents/repo-steward.md` |
 | Review past decisions & blockers | [`.memory/INDEX.md`](.memory/INDEX.md) |
 | Read agent definitions | `.claude/agents/*.md` |

@@ -1,5 +1,20 @@
+---
+doc_role: background
+authority_scope:
+- category.3.background_analysis
+canonical_upstreams:
+- PRD_SECTION_CAT3.md
+- Category 3 - IA West Smart Match CRM/docs/SPRINT_PLAN.md
+- MASTER_SPRINT_PLAN.md
+- STRATEGIC_REVIEW.md
+last_reconciled: '2026-03-16'
+managed_by: repo-governance
+---
+
 # Category 3 — IA West: Smart Match CRM
 **Sponsor:** Insights Association West Chapter | **Event:** CPP AI Hackathon "AI for a Better Future" | April 16, 2026
+
+> **Governance notice (repo-governance):** This file is background analysis only. Use it for ideation and history, not as an authority for current planning decisions. Canonical upstreams: `PRD_SECTION_CAT3.md`, `Category 3 - IA West Smart Match CRM/docs/SPRINT_PLAN.md`, `MASTER_SPRINT_PLAN.md`, `STRATEGIC_REVIEW.md`.
 
 ---
 

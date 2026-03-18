@@ -1,5 +1,19 @@
+---
+doc_role: canonical
+authority_scope:
+- category.2.feature_detail
+canonical_upstreams:
+- Category 2 - ISACA Cyber Safety Coach/SPRINT_PLAN.md
+- MASTER_SPRINT_PLAN.md
+- STRATEGIC_REVIEW.md
+last_reconciled: '2026-03-16'
+managed_by: repo-governance
+---
+
 ## Category 2: PhishGuard AI -- Cyber Safety Coach for Everyone
 **Sponsor:** ISACA Orange County | **CTO Tier:** 1 (Highest Win Probability) | **Verdict:** Approved
+
+> **Governance notice (repo-governance):** This document owns category feature-detail narrative. It must not override execution, staffing, milestone, or gating decisions from its canonical upstreams: `Category 2 - ISACA Cyber Safety Coach/SPRINT_PLAN.md`, `MASTER_SPRINT_PLAN.md`, `STRATEGIC_REVIEW.md`.
 
 ### Problem Statement
 
@@ -112,7 +126,7 @@ PhishGuard AI is a conversational cyber safety coach that classifies suspicious 
 - **CTO Tier:** 1
 - **Independent Analysis:** This category has the strongest alignment between technical feasibility and sponsor expectations of any category. ISACA's rubric explicitly de-emphasizes technical sophistication in favor of user experience, clarity, impact, and feasibility -- which is exactly where a well-polished Streamlit prototype excels. The challenge brief itself states "a strong hackathon solution often wins on user experience + clarity + impact + feasibility." The tech stack is proven (API calls, no ML training, no complex infrastructure), the cost is near-zero, and the sponsor's domain (cybersecurity literacy) naturally produces compelling demo narratives. The promotion of all stretch goals to MVP (per CTO review) is achievable within 2 weeks because each stretch goal is a self-contained feature addition, not a foundational architecture change. The primary risk is other teams also recognizing this as the "easiest" category and producing competitive submissions, but the education layer (micro-lessons), privacy-by-design (live PII redaction), and multi-layer conflict resolution provide differentiation.
 - **Demo Moment:** The "Maria Moment" -- a live walkthrough where a fictional college student receives a text saying her Netflix account will be suspended unless she clicks a link immediately. The presenter pastes the message into PhishGuard AI. In 8 seconds, the screen lights up red with "High Risk," three plain-English reasons appear (urgency language, mismatched domain, credential request), an action checklist tells Maria exactly what to do, the PII redaction toggle shows her phone number was anonymized before processing, and a 30-second micro-lesson teaches her to always verify account issues by going directly to netflix.com. Then the presenter toggles to Spanish and the same explanation appears in Maria's first language. Finally, one-click exports a report she can forward to her university IT department.
-- **Overall Win Probability:** **High (70-80%)**. Tier 1 is justified. The combination of low technical risk, near-zero cost, strong sponsor alignment (ISACA's mission is cyber literacy), a naturally compelling demo narrative, and a rubric that rewards exactly what this solution delivers (clarity, impact, feasibility, trust) makes this the highest-probability category in the hackathon. The only downside risk is a competitor team that also executes well on UX polish in this same category.
+- **Overall Win Probability:** **High (55-85%)**. Tier 1 is justified. The combination of low technical risk, near-zero cost, strong sponsor alignment (ISACA's mission is cyber literacy), a naturally compelling demo narrative, and a rubric that rewards exactly what this solution delivers (clarity, impact, feasibility, trust) makes this the highest-probability category in the hackathon. The only downside risk is a competitor team that also executes well on UX polish in this same category.
 
 ### Existing Assets Inventory
 

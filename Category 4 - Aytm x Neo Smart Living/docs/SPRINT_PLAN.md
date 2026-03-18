@@ -1,5 +1,18 @@
+---
+doc_role: canonical
+authority_scope:
+- category.4.execution_plan
+canonical_upstreams:
+- MASTER_SPRINT_PLAN.md
+- STRATEGIC_REVIEW.md
+last_reconciled: '2026-03-16'
+managed_by: repo-governance
+---
+
 # Category 4 Sprint Plan -- Compressed 5-Day Build
 ## Simulated Market Research (Aytm x Neo Smart Living)
+
+> **Governance notice (repo-governance):** This document owns category execution decisions for this track. Portfolio schedule, ranking, and conflict-resolution context must follow: `MASTER_SPRINT_PLAN.md`, `STRATEGIC_REVIEW.md`.
 
 **Owner:** Person C | **Days Available:** 0-5 (~40 productive hours)
 **Tier:** 2 (Strong Contender) | **Win Probability:** 25-65%, target 50%+

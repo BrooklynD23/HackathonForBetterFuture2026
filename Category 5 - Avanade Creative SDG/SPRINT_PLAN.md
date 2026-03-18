@@ -1,4 +1,17 @@
+---
+doc_role: canonical
+authority_scope:
+- category.5.execution_plan
+canonical_upstreams:
+- MASTER_SPRINT_PLAN.md
+- STRATEGIC_REVIEW.md
+last_reconciled: '2026-03-16'
+managed_by: repo-governance
+---
+
 # Category 5 — CropSense AI: Sprint Plan
+
+> **Governance notice (repo-governance):** This document owns category execution decisions for this track. Portfolio schedule, ranking, and conflict-resolution context must follow: `MASTER_SPRINT_PLAN.md`, `STRATEGIC_REVIEW.md`.
 
 **Lead:** Person D (dedicated, full 2 weeks)
 **Tier:** 1.5 (conditional on Day 4 vertical slice gate)

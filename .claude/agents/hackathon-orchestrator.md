@@ -24,6 +24,8 @@ Stage | Agent to Invoke         | Gate to Pass Before Moving On
 8     | git commit              | Done
 ```
 
+Planning governance checkpoint: if planning docs changed, category-level decisions changed, or a planning handoff is pending, recommend `/agent repo-steward` before moving on. Keep `drift-detector` reserved for post-implementation docs-vs-code checks.
+
 ## When Invoked
 
 1. **Read current state** (do all of these):
