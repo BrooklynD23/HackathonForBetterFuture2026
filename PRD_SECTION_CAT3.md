@@ -4,16 +4,16 @@ authority_scope:
 - category.3.feature_detail
 canonical_upstreams:
 - Category 3 - IA West Smart Match CRM/docs/SPRINT_PLAN.md
-- MASTER_SPRINT_PLAN.md
-- STRATEGIC_REVIEW.md
-last_reconciled: '2026-03-16'
+- archived/general_project_docs/MASTER_SPRINT_PLAN.md
+- archived/general_project_docs/STRATEGIC_REVIEW.md
+last_reconciled: '2026-03-17'
 managed_by: repo-governance
 ---
 
 ## Category 3: IA SmartMatch --- Intelligent Speaker-Event Matching CRM
 **Sponsor:** IA West | **CTO Tier:** 1 (Highest Win Probability) | **Verdict:** Approved with Revisions
 
-> **Governance notice (repo-governance):** This document owns category feature-detail narrative. It must not override execution, staffing, milestone, or gating decisions from its canonical upstreams: `Category 3 - IA West Smart Match CRM/docs/SPRINT_PLAN.md`, `MASTER_SPRINT_PLAN.md`, `STRATEGIC_REVIEW.md`.
+> **Governance notice (repo-governance):** This document owns category feature-detail narrative. It must not override execution, staffing, milestone, or gating decisions from its canonical upstreams: `Category 3 - IA West Smart Match CRM/docs/SPRINT_PLAN.md`, `archived/general_project_docs/MASTER_SPRINT_PLAN.md`, `archived/general_project_docs/STRATEGIC_REVIEW.md`.
 
 ### Problem Statement
 
@@ -116,11 +116,13 @@ The team starts with a significant data advantage. Four structured CSV files are
 | File | Rows | Key Fields | Strategic Value |
 |------|------|-----------|----------------|
 | `data_speaker_profiles.csv` | 18 records | Name, Board Role, Metro Region, Company, Title, Expertise Tags | Complete supply-side data. 18 board members across 6 metro regions (Ventura, LA West, SF, LA Long Beach, Portland, San Diego, Seattle) with rich expertise tags ready for embedding. |
-| `data_cpp_events_contacts.csv` | 15 records | Event/Program, Category, Recurrence, Host/Unit, Volunteer Roles, Primary Audience, URL, Contact Name, Contact Email | Complete demand-side data for CPP. 15 distinct engagement opportunities (hackathons, case competitions, career fairs, research symposia) with real contact info. |
-| `data_cpp_course_schedule.csv` | 35 records | Instructor, Course, Section, Title, Days, Times, Enrollment Cap, Mode, Guest Lecture Fit (High/Medium/Low) | 35 course sections with pre-labeled guest lecture fit ratings (10 High, 17 Medium, 8 Low). Enables immediate guest lecture matching without manual curation. |
+| `data_cpp_events_contacts.csv` | 15 records | Event / Program, Category, Recurrence, Host / Unit, Volunteer Roles (fit), Primary Audience, Public URL, Contact Name, Contact Email | Complete demand-side data for CPP. 15 distinct engagement opportunities (hackathons, case competitions, career fairs, research symposia) with real contact info. |
+| `data_cpp_course_schedule.csv` | 35 records | Instructor, Course, Section, Title, Days, Start Time, End Time, Enrl Cap, Mode, Guest Lecture Fit | 35 course sections with pre-labeled guest lecture fit ratings (10 High, 17 Medium, 8 Low). Enables immediate guest lecture matching without manual curation. |
 | `data_event_calendar.csv` | 9 records | IA Event Date, Region, Nearby Universities, Suggested Lecture Window, Course Alignment | 9 IA West events across 2026 with pre-mapped university partnerships and timing windows. Directly feeds calendar-fit scoring. |
 
 **Total: 77 structured records across 4 files, covering both supply (speakers) and demand (events/courses) sides of the matching problem.**
+
+Implementation note: Sprint 0 loads all 77 rows, but only 68 rows are embedded (18 speakers + 15 events + 35 course sections). The 9 calendar rows remain tabular inputs for `calendar_fit`.
 
 Additional assets:
 - `IA_West_Smart_Match_Challenge.docx` --- Full challenge specification with detailed judging rubric

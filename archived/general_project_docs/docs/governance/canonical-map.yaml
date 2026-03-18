@@ -1,48 +1,48 @@
 version: 1
 managed_by: repo-governance
-generated_on: 2026-03-17
+generated_on: 2026-03-16
 decision_domains:
   portfolio.strategy_rationale:
-    owner: archived/general_project_docs/STRATEGIC_REVIEW.md
+    owner: STRATEGIC_REVIEW.md
     description: Strategic rationale and category-level revision mandates.
   portfolio.conflict_resolution:
-    owner: archived/general_project_docs/STRATEGIC_REVIEW.md
+    owner: STRATEGIC_REVIEW.md
     description: Final tie-break guidance when planning sources disagree.
   portfolio.rankings:
-    owner: archived/general_project_docs/MASTER_SPRINT_PLAN.md
+    owner: MASTER_SPRINT_PLAN.md
     description: Canonical portfolio tier rankings across categories.
   portfolio.win_probabilities:
-    owner: archived/general_project_docs/MASTER_SPRINT_PLAN.md
+    owner: MASTER_SPRINT_PLAN.md
     description: Canonical portfolio win-probability ranges.
   portfolio.calendar:
-    owner: archived/general_project_docs/MASTER_SPRINT_PLAN.md
+    owner: MASTER_SPRINT_PLAN.md
     description: Canonical day-number schedule and shared timeline.
   portfolio.staffing_model:
-    owner: archived/general_project_docs/MASTER_SPRINT_PLAN.md
+    owner: MASTER_SPRINT_PLAN.md
     description: Canonical staffing allocation across team-size scenarios.
   category.1.execution_plan:
-    owner: archived/Category 1 - Avanade AI Wellbeing/SPRINT_PLAN.md
+    owner: Category 1 - Avanade AI Wellbeing/SPRINT_PLAN.md
     description: Category 1 stack, scope, staffing, milestones, and gating rules.
   category.1.feature_detail:
-    owner: archived/prd_documents/PRD_SECTION_CAT1.md
+    owner: PRD_SECTION_CAT1.md
     description: Category 1 feature-detail narrative.
   category.1.status:
-    owner: archived/Category 1 - Avanade AI Wellbeing/.status.md
+    owner: Category 1 - Avanade AI Wellbeing/.status.md
     description: Category 1 pipeline stage state.
   category.1.background_analysis:
-    owner: archived/Category 1 - Avanade AI Wellbeing/PLAN.md
+    owner: Category 1 - Avanade AI Wellbeing/PLAN.md
     description: Category 1 ideation and historical analysis.
   category.2.execution_plan:
-    owner: archived/Category 2 - ISACA Cyber Safety Coach/SPRINT_PLAN.md
+    owner: Category 2 - ISACA Cyber Safety Coach/SPRINT_PLAN.md
     description: Category 2 stack, scope, staffing, milestones, and gating rules.
   category.2.feature_detail:
-    owner: archived/prd_documents/PRD_SECTION_CAT2.md
+    owner: PRD_SECTION_CAT2.md
     description: Category 2 feature-detail narrative.
   category.2.status:
-    owner: archived/Category 2 - ISACA Cyber Safety Coach/.status.md
+    owner: Category 2 - ISACA Cyber Safety Coach/.status.md
     description: Category 2 pipeline stage state.
   category.2.background_analysis:
-    owner: archived/Category 2 - ISACA Cyber Safety Coach/PLAN.md
+    owner: Category 2 - ISACA Cyber Safety Coach/PLAN.md
     description: Category 2 ideation and historical analysis.
   category.3.execution_plan:
     owner: Category 3 - IA West Smart Match CRM/docs/SPRINT_PLAN.md
@@ -57,33 +57,33 @@ decision_domains:
     owner: Category 3 - IA West Smart Match CRM/PLAN.md
     description: Category 3 ideation and historical analysis.
   category.4.execution_plan:
-    owner: archived/Category 4 - Aytm x Neo Smart Living/docs/SPRINT_PLAN.md
+    owner: Category 4 - Aytm x Neo Smart Living/docs/SPRINT_PLAN.md
     description: Category 4 stack, scope, staffing, milestones, and gating rules.
   category.4.feature_detail:
-    owner: archived/prd_documents/PRD_SECTION_CAT4.md
+    owner: PRD_SECTION_CAT4.md
     description: Category 4 feature-detail narrative.
   category.4.status:
-    owner: archived/Category 4 - Aytm x Neo Smart Living/.status.md
+    owner: Category 4 - Aytm x Neo Smart Living/.status.md
     description: Category 4 pipeline stage state.
   category.4.background_analysis:
-    owner: archived/Category 4 - Aytm x Neo Smart Living/PLAN.md
+    owner: Category 4 - Aytm x Neo Smart Living/PLAN.md
     description: Category 4 ideation and historical analysis.
   category.5.execution_plan:
-    owner: archived/Category 5 - Avanade Creative SDG/SPRINT_PLAN.md
+    owner: Category 5 - Avanade Creative SDG/SPRINT_PLAN.md
     description: Category 5 stack, scope, staffing, milestones, and gating rules.
   category.5.feature_detail:
-    owner: archived/prd_documents/PRD_SECTION_CAT5.md
+    owner: PRD_SECTION_CAT5.md
     description: Category 5 feature-detail narrative.
   category.5.status:
-    owner: archived/Category 5 - Avanade Creative SDG/.status.md
+    owner: Category 5 - Avanade Creative SDG/.status.md
     description: Category 5 pipeline stage state.
   category.5.background_analysis:
-    owner: archived/Category 5 - Avanade Creative SDG/PLAN.md
+    owner: Category 5 - Avanade Creative SDG/PLAN.md
     description: Category 5 ideation and historical analysis.
 documents:
   - id: strategic-review
     label: Strategic Review
-    path: archived/general_project_docs/STRATEGIC_REVIEW.md
+    path: STRATEGIC_REVIEW.md
     doc_kind: strategic_review
     doc_role: canonical
     category: null
@@ -93,7 +93,7 @@ documents:
     canonical_upstreams: []
   - id: master-sprint-plan
     label: Master Sprint Plan
-    path: archived/general_project_docs/MASTER_SPRINT_PLAN.md
+    path: MASTER_SPRINT_PLAN.md
     doc_kind: master_sprint_plan
     doc_role: canonical
     category: null
@@ -103,105 +103,105 @@ documents:
       - portfolio.calendar
       - portfolio.staffing_model
     canonical_upstreams:
-      - archived/general_project_docs/STRATEGIC_REVIEW.md
+      - STRATEGIC_REVIEW.md
   - id: category-1-prd
     label: Category 1 PRD Section
-    path: archived/prd_documents/PRD_SECTION_CAT1.md
+    path: PRD_SECTION_CAT1.md
     doc_kind: prd_section
     doc_role: canonical
     category: 1
     authority_scope:
       - category.1.feature_detail
     canonical_upstreams:
-      - archived/Category 1 - Avanade AI Wellbeing/SPRINT_PLAN.md
-      - archived/general_project_docs/MASTER_SPRINT_PLAN.md
-      - archived/general_project_docs/STRATEGIC_REVIEW.md
+      - Category 1 - Avanade AI Wellbeing/SPRINT_PLAN.md
+      - MASTER_SPRINT_PLAN.md
+      - STRATEGIC_REVIEW.md
   - id: category-1-plan
     label: Category 1 PLAN
-    path: archived/Category 1 - Avanade AI Wellbeing/PLAN.md
+    path: Category 1 - Avanade AI Wellbeing/PLAN.md
     doc_kind: plan
     doc_role: background
     category: 1
     authority_scope:
       - category.1.background_analysis
     canonical_upstreams:
-      - archived/prd_documents/PRD_SECTION_CAT1.md
-      - archived/Category 1 - Avanade AI Wellbeing/SPRINT_PLAN.md
-      - archived/general_project_docs/MASTER_SPRINT_PLAN.md
-      - archived/general_project_docs/STRATEGIC_REVIEW.md
+      - PRD_SECTION_CAT1.md
+      - Category 1 - Avanade AI Wellbeing/SPRINT_PLAN.md
+      - MASTER_SPRINT_PLAN.md
+      - STRATEGIC_REVIEW.md
   - id: category-1-sprint
     label: Category 1 Sprint Plan
-    path: archived/Category 1 - Avanade AI Wellbeing/SPRINT_PLAN.md
+    path: Category 1 - Avanade AI Wellbeing/SPRINT_PLAN.md
     doc_kind: sprint_plan
     doc_role: canonical
     category: 1
     authority_scope:
       - category.1.execution_plan
     canonical_upstreams:
-      - archived/general_project_docs/MASTER_SPRINT_PLAN.md
-      - archived/general_project_docs/STRATEGIC_REVIEW.md
+      - MASTER_SPRINT_PLAN.md
+      - STRATEGIC_REVIEW.md
   - id: category-1-status
     label: Category 1 Status
-    path: archived/Category 1 - Avanade AI Wellbeing/.status.md
+    path: Category 1 - Avanade AI Wellbeing/.status.md
     doc_kind: status
     doc_role: canonical
     category: 1
     authority_scope:
       - category.1.status
     canonical_upstreams:
-      - archived/prd_documents/PRD_SECTION_CAT1.md
-      - archived/Category 1 - Avanade AI Wellbeing/SPRINT_PLAN.md
-      - archived/general_project_docs/MASTER_SPRINT_PLAN.md
-      - archived/general_project_docs/STRATEGIC_REVIEW.md
+      - PRD_SECTION_CAT1.md
+      - Category 1 - Avanade AI Wellbeing/SPRINT_PLAN.md
+      - MASTER_SPRINT_PLAN.md
+      - STRATEGIC_REVIEW.md
   - id: category-2-prd
     label: Category 2 PRD Section
-    path: archived/prd_documents/PRD_SECTION_CAT2.md
+    path: PRD_SECTION_CAT2.md
     doc_kind: prd_section
     doc_role: canonical
     category: 2
     authority_scope:
       - category.2.feature_detail
     canonical_upstreams:
-      - archived/Category 2 - ISACA Cyber Safety Coach/SPRINT_PLAN.md
-      - archived/general_project_docs/MASTER_SPRINT_PLAN.md
-      - archived/general_project_docs/STRATEGIC_REVIEW.md
+      - Category 2 - ISACA Cyber Safety Coach/SPRINT_PLAN.md
+      - MASTER_SPRINT_PLAN.md
+      - STRATEGIC_REVIEW.md
   - id: category-2-plan
     label: Category 2 PLAN
-    path: archived/Category 2 - ISACA Cyber Safety Coach/PLAN.md
+    path: Category 2 - ISACA Cyber Safety Coach/PLAN.md
     doc_kind: plan
     doc_role: background
     category: 2
     authority_scope:
       - category.2.background_analysis
     canonical_upstreams:
-      - archived/prd_documents/PRD_SECTION_CAT2.md
-      - archived/Category 2 - ISACA Cyber Safety Coach/SPRINT_PLAN.md
-      - archived/general_project_docs/MASTER_SPRINT_PLAN.md
-      - archived/general_project_docs/STRATEGIC_REVIEW.md
+      - PRD_SECTION_CAT2.md
+      - Category 2 - ISACA Cyber Safety Coach/SPRINT_PLAN.md
+      - MASTER_SPRINT_PLAN.md
+      - STRATEGIC_REVIEW.md
   - id: category-2-sprint
     label: Category 2 Sprint Plan
-    path: archived/Category 2 - ISACA Cyber Safety Coach/SPRINT_PLAN.md
+    path: Category 2 - ISACA Cyber Safety Coach/SPRINT_PLAN.md
     doc_kind: sprint_plan
     doc_role: canonical
     category: 2
     authority_scope:
       - category.2.execution_plan
     canonical_upstreams:
-      - archived/general_project_docs/MASTER_SPRINT_PLAN.md
-      - archived/general_project_docs/STRATEGIC_REVIEW.md
+      - MASTER_SPRINT_PLAN.md
+      - STRATEGIC_REVIEW.md
   - id: category-2-status
     label: Category 2 Status
-    path: archived/Category 2 - ISACA Cyber Safety Coach/.status.md
+    path: Category 2 - ISACA Cyber Safety Coach/.status.md
     doc_kind: status
     doc_role: canonical
     category: 2
     authority_scope:
       - category.2.status
     canonical_upstreams:
-      - archived/prd_documents/PRD_SECTION_CAT2.md
-      - archived/Category 2 - ISACA Cyber Safety Coach/SPRINT_PLAN.md
-      - archived/general_project_docs/MASTER_SPRINT_PLAN.md
-      - archived/general_project_docs/STRATEGIC_REVIEW.md
+      - PRD_SECTION_CAT2.md
+      - Category 2 - ISACA Cyber Safety Coach/SPRINT_PLAN.md
+      - MASTER_SPRINT_PLAN.md
+      - STRATEGIC_REVIEW.md
   - id: category-3-prd
     label: Category 3 PRD Section
     path: PRD_SECTION_CAT3.md
@@ -212,8 +212,8 @@ documents:
       - category.3.feature_detail
     canonical_upstreams:
       - Category 3 - IA West Smart Match CRM/docs/SPRINT_PLAN.md
-      - archived/general_project_docs/MASTER_SPRINT_PLAN.md
-      - archived/general_project_docs/STRATEGIC_REVIEW.md
+      - MASTER_SPRINT_PLAN.md
+      - STRATEGIC_REVIEW.md
   - id: category-3-plan
     label: Category 3 PLAN
     path: Category 3 - IA West Smart Match CRM/PLAN.md
@@ -225,8 +225,8 @@ documents:
     canonical_upstreams:
       - PRD_SECTION_CAT3.md
       - Category 3 - IA West Smart Match CRM/docs/SPRINT_PLAN.md
-      - archived/general_project_docs/MASTER_SPRINT_PLAN.md
-      - archived/general_project_docs/STRATEGIC_REVIEW.md
+      - MASTER_SPRINT_PLAN.md
+      - STRATEGIC_REVIEW.md
   - id: category-3-sprint
     label: Category 3 Sprint Plan
     path: Category 3 - IA West Smart Match CRM/docs/SPRINT_PLAN.md
@@ -236,8 +236,8 @@ documents:
     authority_scope:
       - category.3.execution_plan
     canonical_upstreams:
-      - archived/general_project_docs/MASTER_SPRINT_PLAN.md
-      - archived/general_project_docs/STRATEGIC_REVIEW.md
+      - MASTER_SPRINT_PLAN.md
+      - STRATEGIC_REVIEW.md
   - id: category-3-status
     label: Category 3 Status
     path: Category 3 - IA West Smart Match CRM/.status.md
@@ -249,103 +249,103 @@ documents:
     canonical_upstreams:
       - PRD_SECTION_CAT3.md
       - Category 3 - IA West Smart Match CRM/docs/SPRINT_PLAN.md
-      - archived/general_project_docs/MASTER_SPRINT_PLAN.md
-      - archived/general_project_docs/STRATEGIC_REVIEW.md
+      - MASTER_SPRINT_PLAN.md
+      - STRATEGIC_REVIEW.md
   - id: category-4-prd
     label: Category 4 PRD Section
-    path: archived/prd_documents/PRD_SECTION_CAT4.md
+    path: PRD_SECTION_CAT4.md
     doc_kind: prd_section
     doc_role: canonical
     category: 4
     authority_scope:
       - category.4.feature_detail
     canonical_upstreams:
-      - archived/Category 4 - Aytm x Neo Smart Living/docs/SPRINT_PLAN.md
-      - archived/general_project_docs/MASTER_SPRINT_PLAN.md
-      - archived/general_project_docs/STRATEGIC_REVIEW.md
+      - Category 4 - Aytm x Neo Smart Living/docs/SPRINT_PLAN.md
+      - MASTER_SPRINT_PLAN.md
+      - STRATEGIC_REVIEW.md
   - id: category-4-plan
     label: Category 4 PLAN
-    path: archived/Category 4 - Aytm x Neo Smart Living/PLAN.md
+    path: Category 4 - Aytm x Neo Smart Living/PLAN.md
     doc_kind: plan
     doc_role: background
     category: 4
     authority_scope:
       - category.4.background_analysis
     canonical_upstreams:
-      - archived/prd_documents/PRD_SECTION_CAT4.md
-      - archived/Category 4 - Aytm x Neo Smart Living/docs/SPRINT_PLAN.md
-      - archived/general_project_docs/MASTER_SPRINT_PLAN.md
-      - archived/general_project_docs/STRATEGIC_REVIEW.md
+      - PRD_SECTION_CAT4.md
+      - Category 4 - Aytm x Neo Smart Living/docs/SPRINT_PLAN.md
+      - MASTER_SPRINT_PLAN.md
+      - STRATEGIC_REVIEW.md
   - id: category-4-sprint
     label: Category 4 Sprint Plan
-    path: archived/Category 4 - Aytm x Neo Smart Living/docs/SPRINT_PLAN.md
+    path: Category 4 - Aytm x Neo Smart Living/docs/SPRINT_PLAN.md
     doc_kind: sprint_plan
     doc_role: canonical
     category: 4
     authority_scope:
       - category.4.execution_plan
     canonical_upstreams:
-      - archived/general_project_docs/MASTER_SPRINT_PLAN.md
-      - archived/general_project_docs/STRATEGIC_REVIEW.md
+      - MASTER_SPRINT_PLAN.md
+      - STRATEGIC_REVIEW.md
   - id: category-4-status
     label: Category 4 Status
-    path: archived/Category 4 - Aytm x Neo Smart Living/.status.md
+    path: Category 4 - Aytm x Neo Smart Living/.status.md
     doc_kind: status
     doc_role: canonical
     category: 4
     authority_scope:
       - category.4.status
     canonical_upstreams:
-      - archived/prd_documents/PRD_SECTION_CAT4.md
-      - archived/Category 4 - Aytm x Neo Smart Living/docs/SPRINT_PLAN.md
-      - archived/general_project_docs/MASTER_SPRINT_PLAN.md
-      - archived/general_project_docs/STRATEGIC_REVIEW.md
+      - PRD_SECTION_CAT4.md
+      - Category 4 - Aytm x Neo Smart Living/docs/SPRINT_PLAN.md
+      - MASTER_SPRINT_PLAN.md
+      - STRATEGIC_REVIEW.md
   - id: category-5-prd
     label: Category 5 PRD Section
-    path: archived/prd_documents/PRD_SECTION_CAT5.md
+    path: PRD_SECTION_CAT5.md
     doc_kind: prd_section
     doc_role: canonical
     category: 5
     authority_scope:
       - category.5.feature_detail
     canonical_upstreams:
-      - archived/Category 5 - Avanade Creative SDG/SPRINT_PLAN.md
-      - archived/general_project_docs/MASTER_SPRINT_PLAN.md
-      - archived/general_project_docs/STRATEGIC_REVIEW.md
+      - Category 5 - Avanade Creative SDG/SPRINT_PLAN.md
+      - MASTER_SPRINT_PLAN.md
+      - STRATEGIC_REVIEW.md
   - id: category-5-plan
     label: Category 5 PLAN
-    path: archived/Category 5 - Avanade Creative SDG/PLAN.md
+    path: Category 5 - Avanade Creative SDG/PLAN.md
     doc_kind: plan
     doc_role: background
     category: 5
     authority_scope:
       - category.5.background_analysis
     canonical_upstreams:
-      - archived/prd_documents/PRD_SECTION_CAT5.md
-      - archived/Category 5 - Avanade Creative SDG/SPRINT_PLAN.md
-      - archived/general_project_docs/MASTER_SPRINT_PLAN.md
-      - archived/general_project_docs/STRATEGIC_REVIEW.md
+      - PRD_SECTION_CAT5.md
+      - Category 5 - Avanade Creative SDG/SPRINT_PLAN.md
+      - MASTER_SPRINT_PLAN.md
+      - STRATEGIC_REVIEW.md
   - id: category-5-sprint
     label: Category 5 Sprint Plan
-    path: archived/Category 5 - Avanade Creative SDG/SPRINT_PLAN.md
+    path: Category 5 - Avanade Creative SDG/SPRINT_PLAN.md
     doc_kind: sprint_plan
     doc_role: canonical
     category: 5
     authority_scope:
       - category.5.execution_plan
     canonical_upstreams:
-      - archived/general_project_docs/MASTER_SPRINT_PLAN.md
-      - archived/general_project_docs/STRATEGIC_REVIEW.md
+      - MASTER_SPRINT_PLAN.md
+      - STRATEGIC_REVIEW.md
   - id: category-5-status
     label: Category 5 Status
-    path: archived/Category 5 - Avanade Creative SDG/.status.md
+    path: Category 5 - Avanade Creative SDG/.status.md
     doc_kind: status
     doc_role: canonical
     category: 5
     authority_scope:
       - category.5.status
     canonical_upstreams:
-      - archived/prd_documents/PRD_SECTION_CAT5.md
-      - archived/Category 5 - Avanade Creative SDG/SPRINT_PLAN.md
-      - archived/general_project_docs/MASTER_SPRINT_PLAN.md
-      - archived/general_project_docs/STRATEGIC_REVIEW.md
+      - PRD_SECTION_CAT5.md
+      - Category 5 - Avanade Creative SDG/SPRINT_PLAN.md
+      - MASTER_SPRINT_PLAN.md
+      - STRATEGIC_REVIEW.md
