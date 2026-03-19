@@ -23,6 +23,9 @@ from src.embeddings import (  # noqa: E402
 from src.ui.matches_tab import render_matches_tab as render_matches_tab_ui  # noqa: E402
 from src.ui.discovery_tab import render_discovery_tab  # noqa: E402
 from src.ui.pipeline_tab import render_pipeline_tab  # noqa: E402
+from src.ui.expansion_map import render_expansion_map  # noqa: E402
+from src.ui.volunteer_dashboard import render_volunteer_dashboard  # noqa: E402
+from src.feedback.acceptance import render_feedback_sidebar  # noqa: E402
 from src.utils import format_course_identifier, summarize_missing_keys  # noqa: E402
 
 logger = logging.getLogger(__name__)
@@ -231,10 +234,12 @@ def main() -> None:
                     "to let the app generate it automatically."
                 )
 
-    tab_matches, tab_discovery, tab_pipeline = st.tabs([
+    tab_matches, tab_discovery, tab_pipeline, tab_expansion, tab_volunteers = st.tabs([
         "🎯 Matches",
         "🔍 Discovery",
         "📊 Pipeline",
+        "🗺️ Expansion",
+        "👥 Volunteers",
     ])
 
     with tab_matches:
@@ -266,6 +271,42 @@ def main() -> None:
 
     with tab_pipeline:
         render_pipeline_tab(datasets)
+
+    with tab_expansion:
+        threshold = st.slider(
+            "Proximity Threshold",
+            min_value=0.0,
+            max_value=1.0,
+            value=0.30,
+            step=0.05,
+            key="expansion_threshold",
+        )
+        fig = render_expansion_map(datasets.speakers, threshold)
+        st.plotly_chart(fig, use_container_width=True, key="expansion_map")
+
+    with tab_volunteers:
+        from src.feedback.acceptance import init_feedback_state
+        init_feedback_state()
+        feedback_log = st.session_state.get("feedback_log", [])
+        # Use cached match results from Matches tab if available, otherwise empty
+        import pandas as pd_vol
+        match_results = st.session_state.get(
+            "match_results_df",
+            pd_vol.DataFrame(columns=[
+                "event_id", "speaker_id", "total_score",
+                "topic_relevance", "role_fit", "geographic_proximity",
+                "calendar_fit", "historical_conversion", "student_interest",
+            ]),
+        )
+        render_volunteer_dashboard(
+            speakers_df=datasets.speakers,
+            match_results=match_results,
+            events_df=datasets.events,
+            feedback_log=feedback_log,
+        )
+
+    # Feedback summary in sidebar
+    render_feedback_sidebar()
 
 
 if __name__ == "__main__":
