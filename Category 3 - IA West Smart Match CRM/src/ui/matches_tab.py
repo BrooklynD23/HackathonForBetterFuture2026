@@ -16,6 +16,7 @@ from src.matching.explanations import (
     generate_match_explanation,
     load_cached_explanation,
 )
+from src.ui.email_panel import render_email_preview
 from src.utils import format_course_display_name, format_course_identifier
 
 logger = logging.getLogger(__name__)
@@ -260,6 +261,20 @@ def _render_match_card(
                 key=f"ics_{rank}_{match['speaker_name']}",
                 disabled=True,
             )
+
+        # --- Email preview panel ---
+        pending = st.session_state.get("pending_email_match")
+        if pending and pending.get("speaker_name") == match.get("speaker_name"):
+            speaker_dict = {
+                "Name": match.get("speaker_name", ""),
+                "Title": match.get("speaker_title", ""),
+                "Company": match.get("speaker_company", ""),
+                "Board Role": match.get("speaker_board_role", ""),
+                "Metro Region": match.get("speaker_metro_region", ""),
+                "Expertise Tags": match.get("speaker_expertise_tags", ""),
+            }
+            event_dict = event.to_dict() if hasattr(event, "to_dict") else dict(event)
+            render_email_preview(speaker_dict, event_dict, match)
 
 
 def _render_match_explanation(match: dict, event: pd.Series) -> None:
