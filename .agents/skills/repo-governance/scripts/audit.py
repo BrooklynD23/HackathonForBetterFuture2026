@@ -60,6 +60,8 @@ def audit_repo(repo_root: Path, manifest_path: Path, scope: str, today: str) -> 
     manifest = load_manifest(manifest_path)
     by_path = manifest_entries_by_path(manifest)
     selected = select_manifest_entries(manifest, scope)
+    master_plan_path = repo_root / manifest["decision_domains"]["portfolio.rankings"]["owner"]
+    strategic_review_path = repo_root / manifest["decision_domains"]["portfolio.strategy_rationale"]["owner"]
 
     managed_paths = {entry["path"] for entry in manifest["documents"]}
     unmanaged_paths = []
@@ -80,10 +82,10 @@ def audit_repo(repo_root: Path, manifest_path: Path, scope: str, today: str) -> 
                 )
             )
 
-    master_doc = read_markdown(repo_root / "MASTER_SPRINT_PLAN.md")
+    master_doc = read_markdown(master_plan_path)
     master_portfolio = extract_master_portfolio(master_doc.body)
 
-    strategic_doc = read_markdown(repo_root / "STRATEGIC_REVIEW.md")
+    strategic_doc = read_markdown(strategic_review_path)
     strategic_tiers = extract_strategic_tiers(strategic_doc.body)
     strategic_win_probabilities = extract_strategic_win_probabilities(strategic_doc.body)
 

@@ -8,6 +8,7 @@ import numpy as np
 import pytest
 
 from src.embeddings import (
+    SPEAKER_METADATA_FILE,
     _get_api_key,
     compose_course_text,
     compose_event_text,
@@ -15,7 +16,9 @@ from src.embeddings import (
     embed_courses,
     embed_events,
     embed_speakers,
+    generate_embedding_lookup_dicts,
     generate_embeddings,
+    load_embedding_lookup_dicts,
 )
 
 
@@ -176,7 +179,7 @@ class TestEmbedSpeakersCaching:
             embeddings, metadata = embed_speakers(df, cache_dir=tmp_path)
 
         assert (tmp_path / "speaker_embeddings.npy").exists()
-        assert (tmp_path / "speaker_metadata.pkl").exists()
+        assert (tmp_path / SPEAKER_METADATA_FILE).exists()
         assert (tmp_path / "cache_manifest.json").exists()
         assert embeddings.shape == (2, 1536)
         assert len(metadata) == 2
@@ -252,3 +255,51 @@ class TestEmbedSpeakersCaching:
         assert "generated_at" in manifest["speaker_embeddings"]
         assert manifest["speaker_embeddings"]["row_count"] == 2
         assert "text_hash" in manifest["speaker_embeddings"]
+
+    def test_lookup_dicts_round_trip_from_json_cache(self, tmp_path: Path) -> None:
+        import pandas as pd
+
+        speakers_df = self._make_speakers_df()
+        events_df = pd.DataFrame({
+            "Event / Program": ["AI Hackathon"],
+            "Category": ["AI / Hackathon"],
+            "Volunteer Roles (fit)": ["Judge"],
+            "Primary Audience": ["Students"],
+            "Host / Unit": ["CPP"],
+            "Public URL": ["https://example.com"],
+        })
+        courses_df = pd.DataFrame({
+            "Instructor": ["Prof A"],
+            "Course": ["BUS 101"],
+            "Section": ["01"],
+            "Title": ["Marketing Research"],
+            "Days": ["MW"],
+            "Start Time": ["10:00"],
+            "End Time": ["11:15"],
+            "Enrl Cap": [40],
+            "Mode": ["In Person"],
+            "Guest Lecture Fit": ["High"],
+        })
+        fake_arrays = [
+            np.full((2, 1536), 1.0, dtype=np.float32),
+            np.full((1, 1536), 2.0, dtype=np.float32),
+            np.full((1, 1536), 3.0, dtype=np.float32),
+        ]
+
+        with patch("src.embeddings.generate_embeddings", side_effect=fake_arrays):
+            generated = generate_embedding_lookup_dicts(
+                speakers_df=speakers_df,
+                events_df=events_df,
+                courses_df=courses_df,
+                cache_dir=tmp_path,
+            )
+
+        loaded = load_embedding_lookup_dicts(cache_dir=tmp_path)
+
+        assert (tmp_path / SPEAKER_METADATA_FILE).exists()
+        assert set(generated[0]) == {"Alice", "Bob"}
+        assert set(generated[1]) == {"AI Hackathon"}
+        assert set(generated[2]) == {"BUS 101-01"}
+        assert np.array_equal(loaded[0]["Alice"], generated[0]["Alice"])
+        assert np.array_equal(loaded[1]["AI Hackathon"], generated[1]["AI Hackathon"])
+        assert np.array_equal(loaded[2]["BUS 101-01"], generated[2]["BUS 101-01"])

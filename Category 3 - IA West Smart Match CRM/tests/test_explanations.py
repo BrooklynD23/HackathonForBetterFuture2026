@@ -104,6 +104,17 @@ class TestCachePersistence:
 
             assert load_cached_explanation(match_result) is None
 
+    def test_missing_source_field_is_treated_as_stale_cache(self, tmp_path: Path) -> None:
+        match_result = _make_match_result()
+        with patch("src.matching.explanations.EXPLANATION_CACHE_DIR", str(tmp_path)):
+            key = _cache_key(match_result)
+            (tmp_path / f"{key}.json").write_text(
+                json.dumps({"explanation": "Old cache entry."}),
+                encoding="utf-8",
+            )
+
+            assert load_cached_explanation(match_result) is None
+
 
 class TestFallbackExplanation:
     """Fallback explanation behavior."""
@@ -178,3 +189,15 @@ class TestGenerateMatchExplanation:
             cached = load_cached_explanation(match_result)
 
         assert cached == "LLM explanation to cache."
+
+    def test_api_error_does_not_cache_fallback(self, tmp_path: Path) -> None:
+        match_result = _make_match_result()
+        with (
+            patch("src.matching.explanations.EXPLANATION_CACHE_DIR", str(tmp_path)),
+            patch("src.matching.explanations.generate_text", side_effect=RuntimeError("API unreachable")),
+        ):
+            result = generate_match_explanation(match_result, use_cache=True)
+            cached = load_cached_explanation(match_result)
+
+        assert result == _fallback_explanation(match_result)
+        assert cached is None

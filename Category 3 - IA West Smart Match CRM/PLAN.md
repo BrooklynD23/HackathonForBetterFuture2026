@@ -7,7 +7,7 @@ canonical_upstreams:
 - Category 3 - IA West Smart Match CRM/docs/SPRINT_PLAN.md
 - archived/general_project_docs/MASTER_SPRINT_PLAN.md
 - archived/general_project_docs/STRATEGIC_REVIEW.md
-last_reconciled: '2026-03-17'
+last_reconciled: '2026-03-18'
 managed_by: repo-governance
 ---
 
@@ -228,7 +228,7 @@ Return JSON array with:
 |---|---|
 | Frontend/Dashboard | Streamlit (fast, Python-native) |
 | Vector matching | Gemini `gemini-embedding-001` + cosine similarity |
-| LLM for email gen + extraction | GPT-4o-mini (fast, cheap) or Claude Haiku |
+| LLM for email gen + extraction | Gemini `gemini-2.5-flash-lite` |
 | Web scraping | BeautifulSoup + requests / Playwright for JS pages |
 | Data storage | CSV files → Pandas (hackathon scope) or Airtable |
 | Visualization | Plotly (Sankey/funnel) + Streamlit charts |

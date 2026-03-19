@@ -2,9 +2,9 @@
 
 ## Decision
 
-The planned provider for new LLM work in Category 3 is the Gemini Developer API via Google AI Studio, not OpenAI.
+The provider for Category 3 LLM and embedding work is the Gemini Developer API via Google AI Studio, not OpenAI.
 
-This is a documentation-level decision only. The checked-in Python code still uses OpenAI-specific config and clients until the implementation migration is completed.
+The checked-in Python runtime now uses Gemini-specific config and REST helpers for embeddings and text generation.
 
 ## Recommended Models
 
@@ -55,7 +55,7 @@ Published shutdown dates to plan around:
 
 ## Suggested Environment Target
 
-When the code migration starts, target variables like:
+The current runtime targets variables like:
 
 ```dotenv
 GEMINI_API_KEY=...
@@ -66,9 +66,9 @@ EMBEDDING_DIMENSION=1536
 
 ## Migration Path
 
-### Lowest-code-churn path
+### Historical lowest-code-churn path
 
-Because the current codebase already uses the `openai` Python client, the fastest migration path is to use Gemini's OpenAI-compatible endpoint first:
+Before the runtime migration was completed, the lowest-code-churn path was to use Gemini's OpenAI-compatible endpoint first:
 
 - keep the existing client pattern temporarily
 - switch API key source to Gemini
