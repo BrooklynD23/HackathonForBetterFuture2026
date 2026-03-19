@@ -119,13 +119,138 @@ def create_funnel_chart(
     return fig
 
 
+def _has_real_data(datasets: object) -> bool:
+    """Check whether *datasets* carries enough real prototype data."""
+    if datasets is None:
+        return False
+    mr = getattr(datasets, "match_results", None)
+    if mr is None or (isinstance(mr, pd.DataFrame) and mr.empty):
+        return False
+    return True
+
+
+def compute_real_funnel_data(
+    scraped_events: list[dict],
+    match_results: pd.DataFrame,
+    feedback_log: list[dict],
+    emails_generated: int,
+) -> dict:
+    """Compute funnel stage counts from real prototype data.
+
+    Stages:
+    1. Discovered — CPP events (15 known) + scraped university events.
+    2. Matched — top-3 speaker-event pairs per event.
+    3. Contacted — emails generated (or 80 % of matched as fallback).
+    4. Confirmed — accepted feedback entries (or 45 % of contacted).
+    5. Attended — 75 % of confirmed.
+    6. Member Inquiry — 15 % of attended.
+
+    Returns dict with ``stages``, ``counts``, ``hover_text``, and
+    ``annotations`` keys.
+    """
+    cpp_event_count = 15
+    scraped_count = len(scraped_events)
+    discovered = cpp_event_count + scraped_count
+
+    # Stage 2: Matched (top-3 per event)
+    matched = 0
+    match_annotations: list[str] = []
+    if not match_results.empty and "event_id" in match_results.columns:
+        for event_id in match_results["event_id"].unique():
+            event_top3 = match_results[
+                match_results["event_id"] == event_id
+            ].nlargest(3, "total_score")
+            matched += len(event_top3)
+            for _, row in event_top3.iterrows():
+                match_annotations.append(
+                    f"{row['speaker_id']} -> {event_id} "
+                    f"({row['total_score']:.0%})"
+                )
+
+    # Stage 3: Contacted
+    contacted = emails_generated if emails_generated > 0 else int(matched * 0.80)
+
+    # Stage 4: Confirmed
+    accepted_from_feedback = sum(
+        1 for f in feedback_log if f.get("decision") == "accept"
+    )
+    confirmed = (
+        accepted_from_feedback
+        if accepted_from_feedback > 0
+        else int(contacted * 0.45)
+    )
+
+    # Stage 5: Attended
+    attended = int(confirmed * 0.75)
+
+    # Stage 6: Member Inquiry
+    member_inquiry = int(attended * 0.15)
+
+    universities = set(e.get("university", "") for e in scraped_events)
+
+    return {
+        "stages": [
+            "Discovered", "Matched", "Contacted",
+            "Confirmed", "Attended", "Member Inquiry",
+        ],
+        "counts": [
+            discovered, matched, contacted,
+            confirmed, attended, member_inquiry,
+        ],
+        "hover_text": [
+            (
+                f"{cpp_event_count} CPP events + {scraped_count} scraped "
+                f"from {len(universities)} universities"
+            ),
+            (
+                f"Top-3 matches per event<br>"
+                + "<br>".join(match_annotations[:5])
+                + (
+                    f"<br>...and {len(match_annotations) - 5} more"
+                    if len(match_annotations) > 5
+                    else ""
+                )
+            ),
+            f"{contacted} outreach emails generated",
+            (
+                f"{confirmed} volunteers confirmed "
+                f"({'real feedback' if accepted_from_feedback > 0 else 'projected at 45%'})"
+            ),
+            f"{attended} events attended (projected at 75% of confirmed)",
+            f"{member_inquiry} membership inquiries (projected at 15% of attended)",
+        ],
+        "annotations": match_annotations,
+    }
+
+
 def render_pipeline_tab(datasets: object) -> None:
-    """Render the Pipeline tab with engagement funnel tracking."""
+    """Render the Pipeline tab with engagement funnel tracking.
+
+    Prefers real prototype data from *datasets* when available;
+    falls back to CSV-based pipeline data otherwise.
+    """
     st.header("Engagement Pipeline")
 
-    df = load_pipeline_data()
-    stage_counts = aggregate_funnel_stages(df)
-    fig = create_funnel_chart(df, stage_counts)
+    if _has_real_data(datasets):
+        funnel = compute_real_funnel_data(
+            scraped_events=getattr(datasets, "scraped_events", []),
+            match_results=getattr(datasets, "match_results", pd.DataFrame()),
+            feedback_log=getattr(datasets, "feedback_log", []),
+            emails_generated=getattr(datasets, "emails_generated", 0),
+        )
+        stage_counts: OrderedDict[str, int] = OrderedDict(
+            zip(funnel["stages"], funnel["counts"])
+        )
+        # Build a slim DataFrame for the data table / hover helpers
+        df = pd.DataFrame({
+            "stage": funnel["stages"],
+            "count": funnel["counts"],
+        })
+        fig = create_funnel_chart(df, stage_counts)
+    else:
+        df = load_pipeline_data()
+        stage_counts = aggregate_funnel_stages(df)
+        fig = create_funnel_chart(df, stage_counts)
 
     st.plotly_chart(fig, use_container_width=True, key="pipeline_funnel")
 
