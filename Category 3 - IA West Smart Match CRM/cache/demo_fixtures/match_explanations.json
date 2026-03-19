@@ -1,0 +1,14 @@
+{
+  "speaker": "Travis Miller",
+  "event": "AI for a Better Future Hackathon",
+  "match_score": 0.87,
+  "explanation": "Travis Miller (SVP Sales & Client Development, PureSpectrum) is a strong match for the AI for a Better Future Hackathon because his expertise in data collection and MR technology innovation directly aligns with the event's focus on AI applications in business (Topic Relevance: 0.85). As IA West President, his leadership visibility enhances the chapter's brand presence at Cal Poly Pomona (Role Fit: 0.90). Ventura/Thousand Oaks is within reasonable commuting distance to Pomona (Geographic Proximity: 0.82).",
+  "factor_scores": {
+    "topic_relevance": 0.85,
+    "role_fit": 0.90,
+    "geographic_proximity": 0.82,
+    "calendar_fit": 0.88,
+    "historical_conversion": 0.50,
+    "student_interest": 0.75
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "connections": [
+    {
+      "speaker": "Travis Miller",
+      "speaker_metro": "Ventura / Thousand Oaks",
+      "university": "Cal Poly Pomona",
+      "geographic_proximity": 0.82,
+      "expertise_cluster": "Data & Analytics"
+    },
+    {
+      "speaker": "Jessica Chen",
+      "speaker_metro": "Los Angeles — West",
+      "university": "UCLA",
+      "geographic_proximity": 0.95,
+      "expertise_cluster": "Consumer Insights"
+    },
+    {
+      "speaker": "Michael Torres",
+      "speaker_metro": "San Diego",
+      "university": "SDSU",
+      "geographic_proximity": 0.93,
+      "expertise_cluster": "Market Research"
+    },
+    {
+      "speaker": "Sarah Kim",
+      "speaker_metro": "Portland",
+      "university": "Portland State",
+      "geographic_proximity": 0.97,
+      "expertise_cluster": "UX Research"
+    },
+    {
+      "speaker": "David Nguyen",
+      "speaker_metro": "Los Angeles — East",
+      "university": "Cal Poly Pomona",
+      "geographic_proximity": 0.90,
+      "expertise_cluster": "AI & Technology"
+    }
+  ],
+  "generated_at": "2026-03-17T10:00:00Z"
+}

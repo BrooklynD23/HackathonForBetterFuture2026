@@ -1,0 +1,28 @@
+{
+  "university": "UCLA",
+  "url": "https://career.ucla.edu/events/",
+  "scraped_at": "2026-03-17T10:00:00Z",
+  "method": "playwright",
+  "events": [
+    {
+      "event_name": "UCLA Data Analytics Hackathon",
+      "category": "hackathon",
+      "date_or_recurrence": "April 2026",
+      "volunteer_roles": ["Judge", "Mentor"],
+      "primary_audience": "Graduate and undergraduate students",
+      "contact_name": "UCLA Career Center",
+      "contact_email": "career@ucla.edu",
+      "url": "https://career.ucla.edu/events/data-analytics-hackathon"
+    },
+    {
+      "event_name": "Bruin Entrepreneurs Pitch Night",
+      "category": "entrepreneurship",
+      "date_or_recurrence": "Monthly, Spring 2026",
+      "volunteer_roles": ["Judge", "Guest Speaker"],
+      "primary_audience": "Entrepreneurship students",
+      "contact_name": "Bruin Entrepreneurs",
+      "contact_email": "entrepreneurs@ucla.edu",
+      "url": "https://career.ucla.edu/events/pitch-night"
+    }
+  ]
+}
