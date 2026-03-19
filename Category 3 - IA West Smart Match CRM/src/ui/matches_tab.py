@@ -256,10 +256,29 @@ def _render_match_card(
                 ),
             )
         with col_ics:
-            st.button(
-                "Generate .ics",
+            from src.outreach.ics_generator import generate_ics, ICS_CONTENT_TYPE
+
+            _event_name = match.get("event_name", "Event")
+            _event_date = event.get("IA Event Date", event.get(
+                "Date", event.get("date_or_recurrence"),
+            ))
+            _event_location = event.get("Host / Unit", event.get("university"))
+            _event_desc = (
+                f"{_event_name} — Speaker: {match.get('speaker_name', '')}"
+            )
+            _ics_content = generate_ics(
+                event_name=_event_name,
+                date_str=str(_event_date) if _event_date is not None else None,
+                location=str(_event_location) if _event_location is not None else None,
+                description=_event_desc,
+            )
+            _safe_name = _event_name.replace(" ", "_")
+            st.download_button(
+                label="Download .ics",
+                data=_ics_content,
+                file_name=f"{_safe_name}.ics",
+                mime=ICS_CONTENT_TYPE,
                 key=f"ics_{rank}_{match['speaker_name']}",
-                disabled=True,
             )
 
         # --- Email preview panel ---
