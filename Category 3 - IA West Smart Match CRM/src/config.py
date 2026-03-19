@@ -253,6 +253,12 @@ EXPLANATION_TEMPERATURE: Final[float] = 0.4
 
 
 # ---------- Email Generation Config ----------
+# ---------- Extraction Config ----------
+EXTRACTION_CACHE_DIR: Final[str] = "cache/extractions"
+EXTRACTION_MODEL: Final[str] = GEMINI_TEXT_MODEL
+EXTRACTION_MAX_TOKENS: Final[int] = 4000
+EXTRACTION_TEMPERATURE: Final[float] = 0.1
+
 EMAIL_CACHE_DIR: Final[str] = "cache/emails"
 EMAIL_MODEL: Final[str] = GEMINI_TEXT_MODEL
 EMAIL_MAX_TOKENS: Final[int] = 500
