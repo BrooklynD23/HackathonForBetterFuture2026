@@ -32,7 +32,16 @@
       "Bash(.venv/bin/python -c \":*)",
       "Bash(.venv/bin/python3 -m pytest tests/ --tb=line -q)",
       "Bash(.venv/bin/python3 _gen_pipeline_tmp.py)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "mcp__claude-swarm__orchestrator_init",
+      "mcp__claude-swarm__set_dependencies",
+      "mcp__claude-swarm__configure_verification",
+      "mcp__claude-swarm__set_feature_context",
+      "mcp__claude-swarm__start_parallel_workers",
+      "mcp__claude-swarm__check_all_workers",
+      "mcp__claude-swarm__check_worker",
+      "mcp__claude-swarm__mark_complete",
+      "mcp__claude-swarm__commit_progress"
     ]
   },
   "outputStyle": "Explanatory",
