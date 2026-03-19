@@ -16,6 +16,7 @@ from src.matching.explanations import (
     generate_match_explanation,
     load_cached_explanation,
 )
+from src.feedback.acceptance import render_feedback_buttons
 from src.outreach.ics_generator import ICS_CONTENT_TYPE, generate_ics
 from src.ui.email_panel import render_email_preview
 from src.utils import format_course_display_name, format_course_identifier
@@ -297,6 +298,15 @@ def _render_match_card(
                 mime=ICS_CONTENT_TYPE,
                 key=f"ics_{rank}",
             )
+
+        # --- Feedback buttons ---
+        _event_id = match.get("event_name", "Event")
+        render_feedback_buttons(
+            event_id=_event_id,
+            speaker_id=match.get("speaker_name", ""),
+            match_score=match.get("total_score", 0.0),
+            factor_scores=match.get("factor_scores", {}),
+        )
 
         # --- Email preview panel ---
         pending = st.session_state.get("pending_email_match")
