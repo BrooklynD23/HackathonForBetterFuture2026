@@ -21,6 +21,7 @@ from src.embeddings import (  # noqa: E402
     load_embedding_lookup_dicts,
 )
 from src.ui.matches_tab import render_matches_tab as render_matches_tab_ui  # noqa: E402
+from src.ui.pipeline_tab import render_pipeline_tab  # noqa: E402
 from src.utils import format_course_identifier, summarize_missing_keys  # noqa: E402
 
 logger = logging.getLogger(__name__)
@@ -167,24 +168,6 @@ def render_discovery_tab(datasets) -> None:
     st.subheader("IA West Event Calendar")
     st.dataframe(
         datasets.calendar,
-        use_container_width=True,
-        hide_index=True,
-    )
-
-
-# ── Tab: Pipeline ───────────────────────────────────────────────────────────
-
-def render_pipeline_tab(datasets) -> None:
-    """Render the Pipeline tab with engagement funnel tracking."""
-    st.header("Engagement Pipeline")
-    st.info(
-        "Pipeline funnel visualization will be activated in Sprint 2. "
-        "Tracks: Discovered -> Matched -> Contacted -> Confirmed -> Attended -> Member Inquiry."
-    )
-
-    st.subheader("Course Schedule (Guest Lecture Opportunities)")
-    st.dataframe(
-        datasets.courses,
         use_container_width=True,
         hide_index=True,
     )
