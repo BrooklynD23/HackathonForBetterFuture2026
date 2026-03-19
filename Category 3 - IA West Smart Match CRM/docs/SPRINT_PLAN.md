@@ -5,7 +5,7 @@ authority_scope:
 canonical_upstreams:
 - archived/general_project_docs/MASTER_SPRINT_PLAN.md
 - archived/general_project_docs/STRATEGIC_REVIEW.md
-last_reconciled: '2026-03-17'
+last_reconciled: '2026-03-18'
 managed_by: repo-governance
 ---
 
@@ -33,8 +33,8 @@ managed_by: repo-governance
 |------|-------|-------------|
 | A0.1 Environment setup | 1.5 | Python 3.10+ venv, install deps (streamlit, Gemini SDK or Gemini OpenAI-compat client, pandas, plotly, beautifulsoup4, playwright), configure `.env` with `GEMINI_API_KEY`, scaffold project structure under `src/` |
 | A0.2 Data ingestion + quality audit | 3.0 | Load all 4 CSVs into Pandas. Document: column names, dtypes, missing values, encoding issues. Produce `data_quality_report.md` with row counts (18 speakers, 15 events, 35 courses, 9 calendar entries = 77 total). Flag any join keys that don't align. |
-| A0.3 Embedding pipeline — speakers | 2.5 | Generate `gemini-embedding-001` vectors for all 18 speaker profiles, using `output_dimensionality=1536` to preserve the current matrix shape. Compose embedding text from: `f"{expertise_tags} {title} {company} {board_role}"`. Cache embeddings as `.npy` or `.pkl` to avoid re-calling API. |
-| A0.4 Embedding pipeline — events + courses | 2.5 | Generate `gemini-embedding-001` vectors for 15 CPP events and 35 course sections, using `output_dimensionality=1536` to preserve the current matrix shape. Compose event embedding text from: `f"{event_name} {category} {volunteer_roles} {primary_audience}"`. For courses: `f"{title} {guest_lecture_fit}"`. Cache results. |
+| A0.3 Embedding pipeline — speakers | 2.5 | Generate `gemini-embedding-001` vectors for all 18 speaker profiles, using `output_dimensionality=1536` to preserve the current matrix shape. Compose embedding text from: `f"{expertise_tags} {title} {company} {board_role}"`. Cache embeddings as `.npy` vectors plus JSON metadata and a cache manifest to avoid re-calling the API. |
+| A0.4 Embedding pipeline — events + courses | 2.5 | Generate `gemini-embedding-001` vectors for 15 CPP events and 35 course sections, using `output_dimensionality=1536` to preserve the current matrix shape. Compose event embedding text from: `f"{event_name} {category} {volunteer_roles} {primary_audience}"`. For courses: `f"{title} {guest_lecture_fit}"`. Cache results as `.npy` vectors plus JSON metadata and a manifest. |
 | A0.5 Cosine similarity validation | 2.0 | Compute speaker-event cosine similarity matrix (18x15=270 pairs). Manually inspect top-5 and bottom-5 matches for sanity. Compare embedding results vs. keyword overlap — document which produces better rankings on 5 known-good matches. |
 | A0.6 Streamlit skeleton | 2.5 | 3-tab layout: Matches / Discovery / Pipeline. Sidebar with IA West branding. Load data, display raw tables. Verify deployment to Streamlit Community Cloud works with test data. |
 | A0.7 Research: Growth Strategy data points | 1.0 | While exploring data, note: geographic distribution of speakers, event categories, course-fit distribution (High/Medium/Low), IA event calendar coverage. These feed Track B's Growth Strategy. Write findings to `.memory/context/cat3-data-insights.md`. |
@@ -196,13 +196,13 @@ Track B:
 |------|-------|-------------|
 | A4.1 End-to-end testing — Day 11 | 4.0 | Run complete demo flow 3x: app launch -> Discovery tab (UCLA scrape) -> Matches tab (select event, review top-3) -> Generate email -> Download .ics -> Pipeline tab (view funnel) -> Volunteer dashboard -> Expansion map. Log every bug, UI glitch, and slow response. |
 | A4.2 Bug fixes — Day 11-12 | 4.0 | Fix all bugs found in A4.1. Priority: (1) anything that crashes the app, (2) incorrect match scores, (3) UI display issues, (4) slow API responses (add caching). |
-| A4.3 Edge case hardening — Day 12 | 3.0 | Test: What happens when scraping fails mid-demo? (fallback to cache). What happens when the Gemini API times out? (show cached explanation). What happens when user adjusts all weights to 0? (show error message). What happens with custom URL that returns garbage HTML? (graceful error). |
+| A4.3 Edge case hardening — Day 12 | 3.0 | Test: What happens when scraping fails mid-demo? (fallback to cache). What happens when the Gemini API times out? (show a previously cached successful explanation if available, otherwise deterministic fallback text). What happens when user adjusts all weights to 0? (show error message). What happens with custom URL that returns garbage HTML? (graceful error). |
 | A4.4 Performance optimization — Day 12 | 2.0 | Profile Streamlit app: page load time, API call latency, memory usage. Target: <3s initial load, <5s for scrape+extract, <2s for email generation. Pre-compute all embeddings at startup. Lazy-load scraping results. |
 | A4.5 Streamlit Cloud deployment — Day 12 | 2.0 | Deploy to Streamlit Community Cloud. Configure secrets (`GEMINI_API_KEY`). Test on cloud: verify all features work within 1GB RAM limit. Preserve Sprint 2's `scrape_university()` response contract on cloud; when Playwright is unavailable, serve hashed cache artifacts from `cache/scrapes/` and keep the same `{html, scraped_at, source, ...}` dict shape. |
 | A4.6 Demo rehearsal with Person C — Day 13 | 3.0 | Full 5-minute demo rehearsal with Person C presenting, Person B operating the app. Time each section. Identify weak transitions. Practice backup plan: if live scrape fails, switch to cached. If API fails, show pre-generated outputs. Run 3 full rehearsals. |
 | A4.7 Backup demo video recording — Day 13 | 2.0 | Screen-record a perfect demo run (with narration). Edit to 5 minutes. This is the emergency backup if everything fails on demo day. |
 | A4.8 Final code cleanup — Day 14 | 2.0 | Remove debug prints, clean up imports, add docstrings to key functions (matching engine, scraper, email generator). Verify `.gitignore` excludes `.env`, API keys, cached embeddings (if large). Final commit. |
-| A4.9 Day-of prep — Day 14 | 3.0 | Pre-warm all caches: run every scrape into `cache/scrapes/`, generate every explanation into `cache/explanations/`, generate every email into `cache/emails/`, and verify demo mode works against those actual cache layouts. Check internet connectivity backup plan. Charge laptop. Test projector output. |
+| A4.9 Day-of prep — Day 14 | 3.0 | Pre-warm all caches: run every scrape into `cache/scrapes/`, generate every explanation into `cache/explanations/`, generate every email into `cache/emails/`, confirm embedding cache JSON metadata exists alongside the `.npy` vectors, and verify demo mode works against those actual cache layouts. Check internet connectivity backup plan. Charge laptop. Test projector output. |
 | A4.10 Buffer for Track B support | 3.0 | Available to help Person C with: generating additional screenshots, running specific prototype queries to produce data for documents, formatting written deliverables. |
 
 **Track B (Person C) — 18-24h**

@@ -1,7 +1,6 @@
 """IA SmartMatch CRM — Streamlit application entry point."""
 
 import logging
-import pickle  # noqa: S403
 
 import numpy as np
 import streamlit as st
@@ -14,83 +13,19 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-from src.config import CACHE_DIR, validate_config  # noqa: E402
+from src.config import CACHE_DIR, has_gemini_api_key, validate_config  # noqa: E402
 from src.data_loader import load_all  # noqa: E402
+from src.embeddings import (  # noqa: E402
+    EMBEDDING_CACHE_FILES,
+    generate_embedding_lookup_dicts,
+    load_embedding_lookup_dicts,
+)
 from src.ui.matches_tab import render_matches_tab as render_matches_tab_ui  # noqa: E402
+from src.ui.discovery_tab import render_discovery_tab  # noqa: E402
+from src.ui.pipeline_tab import render_pipeline_tab  # noqa: E402
 from src.utils import format_course_identifier, summarize_missing_keys  # noqa: E402
 
 logger = logging.getLogger(__name__)
-
-_REQUIRED_EMBEDDING_CACHE_FILES = (
-    "speaker_embeddings.npy",
-    "speaker_metadata.pkl",
-    "event_embeddings.npy",
-    "event_metadata.pkl",
-    "course_embeddings.npy",
-    "course_metadata.pkl",
-)
-
-
-# ── Embedding loader ─────────────────────────────────────────────────────────
-
-def _load_embedding_dicts() -> tuple[dict, dict, dict]:
-    """
-    Load cached embeddings from disk and build name->embedding lookup dicts.
-
-    Missing or incomplete caches are validated separately before the Matches
-    tab is rendered so matching does not silently degrade.
-    """
-    speaker_embs: dict[str, np.ndarray] = {}
-    event_embs: dict[str, np.ndarray] = {}
-    course_embs: dict[str, np.ndarray] = {}
-
-    # Speaker embeddings
-    speaker_emb_path = CACHE_DIR / "speaker_embeddings.npy"
-    speaker_meta_path = CACHE_DIR / "speaker_metadata.pkl"
-    if speaker_emb_path.exists() and speaker_meta_path.exists():
-        try:
-            embeddings = np.load(speaker_emb_path)
-            with open(speaker_meta_path, "rb") as f:
-                metadata = pickle.load(f)  # noqa: S301
-            for i, meta in enumerate(metadata):
-                speaker_embs[meta["name"]] = embeddings[i]
-            logger.info("Loaded %d speaker embeddings.", len(speaker_embs))
-        except Exception:
-            logger.exception("Failed to load speaker embeddings from cache.")
-
-    # Event embeddings
-    event_emb_path = CACHE_DIR / "event_embeddings.npy"
-    event_meta_path = CACHE_DIR / "event_metadata.pkl"
-    if event_emb_path.exists() and event_meta_path.exists():
-        try:
-            embeddings = np.load(event_emb_path)
-            with open(event_meta_path, "rb") as f:
-                metadata = pickle.load(f)  # noqa: S301
-            for i, meta in enumerate(metadata):
-                event_embs[meta["event_name"]] = embeddings[i]
-            logger.info("Loaded %d event embeddings.", len(event_embs))
-        except Exception:
-            logger.exception("Failed to load event embeddings from cache.")
-
-    # Course embeddings
-    course_emb_path = CACHE_DIR / "course_embeddings.npy"
-    course_meta_path = CACHE_DIR / "course_metadata.pkl"
-    if course_emb_path.exists() and course_meta_path.exists():
-        try:
-            embeddings = np.load(course_emb_path)
-            with open(course_meta_path, "rb") as f:
-                metadata = pickle.load(f)  # noqa: S301
-            for i, meta in enumerate(metadata):
-                key = format_course_identifier(
-                    meta.get("course"),
-                    meta.get("section"),
-                )
-                course_embs[key] = embeddings[i]
-            logger.info("Loaded %d course embeddings.", len(course_embs))
-        except Exception:
-            logger.exception("Failed to load course embeddings from cache.")
-
-    return speaker_embs, event_embs, course_embs
 
 
 def _embedding_cache_issues(
@@ -103,7 +38,7 @@ def _embedding_cache_issues(
     issues: list[str] = []
 
     missing_files = [
-        file_name for file_name in _REQUIRED_EMBEDDING_CACHE_FILES
+        file_name for file_name in EMBEDDING_CACHE_FILES
         if not (CACHE_DIR / file_name).exists()
     ]
     if missing_files:
@@ -149,6 +84,56 @@ def _embedding_cache_issues(
     return issues
 
 
+def _resolve_embedding_lookup_dicts(
+    datasets,
+) -> tuple[
+    dict[str, np.ndarray],
+    dict[str, np.ndarray],
+    dict[str, np.ndarray],
+    list[str],
+    str | None,
+    bool,
+]:
+    """Load embedding caches and bootstrap them on demand when possible."""
+    speaker_embeddings, event_embeddings, course_embeddings = load_embedding_lookup_dicts()
+    embedding_issues = _embedding_cache_issues(
+        datasets=datasets,
+        speaker_embeddings=speaker_embeddings,
+        event_embeddings=event_embeddings,
+        course_embeddings=course_embeddings,
+    )
+    embedding_bootstrap_error = None
+    cache_generated = False
+
+    if embedding_issues and has_gemini_api_key():
+        try:
+            speaker_embeddings, event_embeddings, course_embeddings = generate_embedding_lookup_dicts(
+                speakers_df=datasets.speakers,
+                events_df=datasets.events,
+                courses_df=datasets.courses,
+            )
+            cache_generated = True
+        except Exception as exc:
+            logger.exception("Failed to bootstrap embedding cache.")
+            embedding_bootstrap_error = str(exc)
+
+        embedding_issues = _embedding_cache_issues(
+            datasets=datasets,
+            speaker_embeddings=speaker_embeddings,
+            event_embeddings=event_embeddings,
+            course_embeddings=course_embeddings,
+        )
+
+    return (
+        speaker_embeddings,
+        event_embeddings,
+        course_embeddings,
+        embedding_issues,
+        embedding_bootstrap_error,
+        cache_generated and not embedding_issues,
+    )
+
+
 # ── Sidebar ─────────────────────────────────────────────────────────────────
 
 def render_sidebar():
@@ -169,42 +154,6 @@ def render_sidebar():
 
         st.markdown("### Data Summary")
         return st.container()
-
-
-# ── Tab: Discovery ──────────────────────────────────────────────────────────
-
-def render_discovery_tab(datasets) -> None:
-    """Render the Discovery tab for university event scanning."""
-    st.header("University Event Discovery")
-    st.info(
-        "Automated university event discovery will be activated in Sprint 2. "
-        "Web scraping + LLM extraction pipeline."
-    )
-
-    st.subheader("IA West Event Calendar")
-    st.dataframe(
-        datasets.calendar,
-        use_container_width=True,
-        hide_index=True,
-    )
-
-
-# ── Tab: Pipeline ───────────────────────────────────────────────────────────
-
-def render_pipeline_tab(datasets) -> None:
-    """Render the Pipeline tab with engagement funnel tracking."""
-    st.header("Engagement Pipeline")
-    st.info(
-        "Pipeline funnel visualization will be activated in Sprint 2. "
-        "Tracks: Discovered -> Matched -> Contacted -> Confirmed -> Attended -> Member Inquiry."
-    )
-
-    st.subheader("Course Schedule (Guest Lecture Opportunities)")
-    st.dataframe(
-        datasets.courses,
-        use_container_width=True,
-        hide_index=True,
-    )
 
 
 # ── Main App ────────────────────────────────────────────────────────────────
@@ -249,17 +198,38 @@ def main() -> None:
                 for issue in all_issues:
                     st.warning(issue)
 
-    speaker_embeddings, event_embeddings, course_embeddings = _load_embedding_dicts()
-    embedding_issues = _embedding_cache_issues(
-        datasets=datasets,
-        speaker_embeddings=speaker_embeddings,
-        event_embeddings=event_embeddings,
-        course_embeddings=course_embeddings,
-    )
+    with st.spinner("Preparing embedding cache..."):
+        (
+            speaker_embeddings,
+            event_embeddings,
+            course_embeddings,
+            embedding_issues,
+            embedding_bootstrap_error,
+            cache_generated,
+        ) = _resolve_embedding_lookup_dicts(datasets)
+
+    if cache_generated:
+        with st.sidebar:
+            st.success("Embedding cache generated successfully for Matches.")
+
     if embedding_issues:
         logger.error("Embedding cache validation failed: %s", "; ".join(embedding_issues))
         with st.sidebar:
-            st.error("Embedding cache missing or incomplete. Matching is disabled until the cache is regenerated.")
+            if embedding_bootstrap_error:
+                st.error(
+                    "Embedding cache generation failed. Matching remains disabled until "
+                    "the cache can be regenerated."
+                )
+            elif has_gemini_api_key():
+                st.error(
+                    "Embedding cache is still incomplete after automatic generation. "
+                    "Matching remains disabled until the cache is regenerated."
+                )
+            else:
+                st.error(
+                    "Embedding cache missing or incomplete. Configure `GEMINI_API_KEY` "
+                    "to let the app generate it automatically."
+                )
 
     tab_matches, tab_discovery, tab_pipeline = st.tabs([
         "🎯 Matches",
@@ -270,12 +240,16 @@ def main() -> None:
     with tab_matches:
         if embedding_issues:
             st.error(
-                "Embedding cache missing or incomplete. Regenerate and ship the "
-                "speaker, event, and course embeddings before using Matches."
+                "Embedding cache missing or incomplete. Matches can run after the app "
+                "successfully generates speaker, event, and course embeddings."
             )
             with st.expander("Embedding cache validation details", expanded=True):
                 for issue in embedding_issues:
                     st.write(f"- {issue}")
+                if embedding_bootstrap_error:
+                    st.write(f"- Automatic generation failed: {embedding_bootstrap_error}")
+                elif not has_gemini_api_key():
+                    st.write("- Automatic generation is unavailable until `GEMINI_API_KEY` is configured.")
         else:
             render_matches_tab_ui(
                 events=datasets.events,

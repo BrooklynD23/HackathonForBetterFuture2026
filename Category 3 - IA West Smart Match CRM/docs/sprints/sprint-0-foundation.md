@@ -44,11 +44,11 @@ Category 3 - IA West Smart Match CRM/
 │   └── data_event_calendar.csv         # 9 rows  — calendar alignment
 ├── cache/
 │   ├── speaker_embeddings.npy          # (18, 1536) float32
-│   ├── speaker_metadata.pkl            # list[dict] aligned to embedding rows
+│   ├── speaker_metadata.json           # list[dict] aligned to embedding rows
 │   ├── event_embeddings.npy            # (15, 1536) float32
-│   ├── event_metadata.pkl
+│   ├── event_metadata.json
 │   ├── course_embeddings.npy           # (35, 1536) float32
-│   ├── course_metadata.pkl
+│   ├── course_metadata.json
 │   └── cache_manifest.json             # timestamps for invalidation
 ├── src/
 │   ├── app.py                          # Streamlit entry point
@@ -207,7 +207,7 @@ def validate_config() -> list[str]:
 .venv/
 __pycache__/
 cache/*.npy
-cache/*.pkl
+cache/*.json
 cache/cache_manifest.json
 *.pyc
 .streamlit/secrets.toml
@@ -896,23 +896,23 @@ def embed_speakers(
 
     Cache files produced:
         - cache/speaker_embeddings.npy
-        - cache/speaker_metadata.pkl
+        - cache/speaker_metadata.json
         - cache/cache_manifest.json (updated)
     """
-    import pickle
+    import json
 
     cache_dir = cache_dir or CACHE_DIR
     cache_dir.mkdir(parents=True, exist_ok=True)
 
     emb_path = cache_dir / "speaker_embeddings.npy"
-    meta_path = cache_dir / "speaker_metadata.pkl"
+    meta_path = cache_dir / "speaker_metadata.json"
     manifest_path = cache_dir / "cache_manifest.json"
 
     # Check cache
     if not force_refresh and emb_path.exists() and meta_path.exists():
         embeddings = np.load(emb_path)
-        with open(meta_path, "rb") as f:
-            metadata = pickle.load(f)
+        with open(meta_path, "r", encoding="utf-8") as f:
+            metadata = json.load(f)
         if embeddings.shape[0] == len(speakers_df):
             return embeddings, metadata
 
@@ -937,8 +937,8 @@ def embed_speakers(
 
     # Cache results
     np.save(emb_path, embeddings)
-    with open(meta_path, "wb") as f:
-        pickle.dump(metadata, f)
+    with open(meta_path, "w", encoding="utf-8") as f:
+        json.dump(metadata, f, indent=2)
 
     # Update manifest
     manifest = {}
@@ -980,7 +980,7 @@ Example for Katrina Noelle:
 | File | Format | Shape/Size | Description |
 |------|--------|-----------|-------------|
 | `cache/speaker_embeddings.npy` | NumPy binary | (18, 1536) float32 | Raw embedding vectors |
-| `cache/speaker_metadata.pkl` | Python pickle | list of 18 dicts | Metadata aligned to rows |
+| `cache/speaker_metadata.json` | JSON | list of 18 dicts | Metadata aligned to rows |
 | `cache/cache_manifest.json` | JSON | object | Timestamps + generation params |
 
 **4. `cache/cache_manifest.json` — example**
@@ -1001,7 +1001,7 @@ Example for Katrina Noelle:
 - [ ] `embed_speakers(speakers_df)` returns a tuple of `(np.ndarray, list[dict])`
 - [ ] Returned array has shape `(18, 1536)` and dtype `float32`
 - [ ] Returned metadata list has 18 entries, each with keys: `name`, `board_role`, `metro_region`, `company`, `title`, `expertise_tags`, `embedding_text`
-- [ ] Cache files `speaker_embeddings.npy` and `speaker_metadata.pkl` exist in `cache/` after first call
+- [ ] Cache files `speaker_embeddings.npy` and `speaker_metadata.json` exist in `cache/` after first call
 - [ ] Second call with `force_refresh=False` loads from cache without API call (verify by mocking or timing)
 - [ ] `cache_manifest.json` contains `speaker_embeddings` entry with `generated_at` timestamp
 - [ ] `compose_speaker_text()` handles `None`/`NaN` Company gracefully (e.g., Sean McKenna's company field has parenthetical notes)
@@ -1107,22 +1107,22 @@ def embed_events(
 
     Cache files:
         - cache/event_embeddings.npy
-        - cache/event_metadata.pkl
+        - cache/event_metadata.json
         - cache/cache_manifest.json (updated)
     """
-    import pickle
+    import json
 
     cache_dir = cache_dir or CACHE_DIR
     cache_dir.mkdir(parents=True, exist_ok=True)
 
     emb_path = cache_dir / "event_embeddings.npy"
-    meta_path = cache_dir / "event_metadata.pkl"
+    meta_path = cache_dir / "event_metadata.json"
     manifest_path = cache_dir / "cache_manifest.json"
 
     if not force_refresh and emb_path.exists() and meta_path.exists():
         embeddings = np.load(emb_path)
-        with open(meta_path, "rb") as f:
-            metadata = pickle.load(f)
+        with open(meta_path, "r", encoding="utf-8") as f:
+            metadata = json.load(f)
         if embeddings.shape[0] == len(events_df):
             return embeddings, metadata
 
@@ -1144,8 +1144,8 @@ def embed_events(
     embeddings = generate_embeddings(texts)
 
     np.save(emb_path, embeddings)
-    with open(meta_path, "wb") as f:
-        pickle.dump(metadata, f)
+    with open(meta_path, "w", encoding="utf-8") as f:
+        json.dump(metadata, f, indent=2)
 
     manifest = {}
     if manifest_path.exists():
@@ -1181,22 +1181,22 @@ def embed_courses(
 
     Cache files:
         - cache/course_embeddings.npy
-        - cache/course_metadata.pkl
+        - cache/course_metadata.json
         - cache/cache_manifest.json (updated)
     """
-    import pickle
+    import json
 
     cache_dir = cache_dir or CACHE_DIR
     cache_dir.mkdir(parents=True, exist_ok=True)
 
     emb_path = cache_dir / "course_embeddings.npy"
-    meta_path = cache_dir / "course_metadata.pkl"
+    meta_path = cache_dir / "course_metadata.json"
     manifest_path = cache_dir / "cache_manifest.json"
 
     if not force_refresh and emb_path.exists() and meta_path.exists():
         embeddings = np.load(emb_path)
-        with open(meta_path, "rb") as f:
-            metadata = pickle.load(f)
+        with open(meta_path, "r", encoding="utf-8") as f:
+            metadata = json.load(f)
         if embeddings.shape[0] == len(courses_df):
             return embeddings, metadata
 
@@ -1222,8 +1222,8 @@ def embed_courses(
     embeddings = generate_embeddings(texts)
 
     np.save(emb_path, embeddings)
-    with open(meta_path, "wb") as f:
-        pickle.dump(metadata, f)
+    with open(meta_path, "w", encoding="utf-8") as f:
+        json.dump(metadata, f, indent=2)
 
     manifest = {}
     if manifest_path.exists():
@@ -1279,7 +1279,7 @@ The `cache_manifest.json` is updated atomically after each embed call, accumulat
 #### Harness Guidelines
 
 - Event and course embedding functions go in the same `src/embeddings.py` file as speaker embeddings
-- Maintain the same caching pattern: `.npy` for vectors, `.pkl` for metadata, `cache_manifest.json` for timestamps
+- Maintain the same caching pattern: `.npy` for vectors, `.json` for metadata, `cache_manifest.json` for timestamps
 - All three `compose_*_text()` functions are pure (no side effects, no API calls) and independently testable
 
 #### Steer Guidelines
@@ -1951,7 +1951,7 @@ streamlit run src/app.py
 | 3 | Add `GEMINI_API_KEY` to Streamlit Cloud secrets dashboard | Sprint 4 |
 | 4 | Verify app runs within 1GB RAM limit | Sprint 4 |
 | 5 | Test that `playwright` import does not crash on cloud (may need conditional import) | Sprint 4 |
-| 6 | Pre-generate cached embeddings and commit `.npy`/`.pkl` files (or regenerate on first load) | Sprint 4 |
+| 6 | Pre-generate cached embeddings and commit `.npy`/`.json` files (or regenerate on first load) | Sprint 4 |
 
 **5. `.streamlit/config.toml` (optional, for local development)**
 

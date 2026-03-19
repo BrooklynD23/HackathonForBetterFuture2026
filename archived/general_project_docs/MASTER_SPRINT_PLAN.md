@@ -6,8 +6,8 @@ authority_scope:
 - portfolio.calendar
 - portfolio.staffing_model
 canonical_upstreams:
-- STRATEGIC_REVIEW.md
-last_reconciled: '2026-03-16'
+- archived/general_project_docs/STRATEGIC_REVIEW.md
+last_reconciled: '2026-03-18'
 managed_by: repo-governance
 ---
 

@@ -3,7 +3,6 @@
 import hashlib
 import json
 import logging
-import pickle  # noqa: S403 - pickle used for internal cache files only (no user input)
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -20,9 +19,24 @@ from src.config import (
     has_gemini_api_key,
 )
 from src.gemini_client import GeminiAPIError, batch_embed_texts
-from src.utils import normalize_course_section
+from src.utils import format_course_identifier, normalize_course_section
 
 logger = logging.getLogger(__name__)
+
+SPEAKER_EMBEDDINGS_FILE = "speaker_embeddings.npy"
+SPEAKER_METADATA_FILE = "speaker_metadata.json"
+EVENT_EMBEDDINGS_FILE = "event_embeddings.npy"
+EVENT_METADATA_FILE = "event_metadata.json"
+COURSE_EMBEDDINGS_FILE = "course_embeddings.npy"
+COURSE_METADATA_FILE = "course_metadata.json"
+EMBEDDING_CACHE_FILES = (
+    SPEAKER_EMBEDDINGS_FILE,
+    SPEAKER_METADATA_FILE,
+    EVENT_EMBEDDINGS_FILE,
+    EVENT_METADATA_FILE,
+    COURSE_EMBEDDINGS_FILE,
+    COURSE_METADATA_FILE,
+)
 
 
 def _get_api_key() -> str:
@@ -151,9 +165,10 @@ def generate_embeddings(
 
     embeddings_array = np.array(all_embeddings, dtype=np.float32)
 
-    assert embeddings_array.shape == (len(texts), EMBEDDING_DIMENSION), (
-        f"Expected shape ({len(texts)}, {EMBEDDING_DIMENSION}), got {embeddings_array.shape}"
-    )
+    if embeddings_array.shape != (len(texts), EMBEDDING_DIMENSION):
+        raise ValueError(
+            f"Expected shape ({len(texts)}, {EMBEDDING_DIMENSION}), got {embeddings_array.shape}"
+        )
 
     return embeddings_array
 
@@ -164,6 +179,25 @@ def _load_manifest(manifest_path: Path) -> dict:
         return {}
     with open(manifest_path) as f:
         return json.load(f)
+
+
+def _load_metadata(meta_path: Path) -> list[dict]:
+    """Load JSON metadata for an embedding cache."""
+    with open(meta_path, encoding="utf-8") as f:
+        metadata = json.load(f)
+
+    if not isinstance(metadata, list):
+        raise ValueError(f"Metadata at {meta_path} must be a list")
+    if any(not isinstance(entry, dict) for entry in metadata):
+        raise ValueError(f"Metadata at {meta_path} must contain dict entries only")
+
+    return metadata
+
+
+def _save_metadata(meta_path: Path, metadata: list[dict]) -> None:
+    """Persist embedding metadata as JSON to avoid unsafe deserialization."""
+    with open(meta_path, "w", encoding="utf-8") as f:
+        json.dump(metadata, f, indent=2)
 
 
 def _text_hash(texts: list[str]) -> str:
@@ -199,8 +233,7 @@ def _load_cached_embeddings(
             return None
 
         embeddings = np.load(emb_path)
-        with open(meta_path, "rb") as f:
-            metadata = pickle.load(f)  # noqa: S301 - internal cache file
+        metadata = _load_metadata(meta_path)
 
         if embeddings.shape != expected_shape:
             logger.warning("Ignoring cache with unexpected shape at %s: %s", emb_path, embeddings.shape)
@@ -209,9 +242,132 @@ def _load_cached_embeddings(
             logger.warning("Ignoring cache with unexpected metadata length at %s", meta_path)
             return None
         return embeddings, metadata
-    except (json.JSONDecodeError, OSError, ValueError, pickle.UnpicklingError) as exc:
+    except (json.JSONDecodeError, OSError, ValueError) as exc:
         logger.warning("Ignoring unreadable cache artifacts for %s: %s", manifest_key, exc)
         return None
+
+
+def _build_lookup_dict(
+    embeddings: np.ndarray,
+    metadata: list[dict],
+    key_name: str,
+    label: str,
+) -> dict[str, np.ndarray]:
+    """Build a stable key->embedding mapping from cached metadata."""
+    if len(metadata) != len(embeddings):
+        raise ValueError(
+            f"{label.title()} metadata length {len(metadata)} does not match embedding rows {len(embeddings)}"
+        )
+
+    lookup: dict[str, np.ndarray] = {}
+    for index, meta in enumerate(metadata):
+        key = meta.get(key_name)
+        if not key:
+            raise ValueError(f"Missing '{key_name}' in {label} metadata row {index}")
+        lookup[str(key)] = embeddings[index]
+    return lookup
+
+
+def _build_course_lookup_dict(
+    embeddings: np.ndarray,
+    metadata: list[dict],
+) -> dict[str, np.ndarray]:
+    """Build course lookup keys from cached course metadata."""
+    if len(metadata) != len(embeddings):
+        raise ValueError(
+            f"Course metadata length {len(metadata)} does not match embedding rows {len(embeddings)}"
+        )
+
+    lookup: dict[str, np.ndarray] = {}
+    for index, meta in enumerate(metadata):
+        key = format_course_identifier(
+            meta.get("course"),
+            meta.get("section"),
+        )
+        if not key:
+            raise ValueError(f"Missing course identifier data in course metadata row {index}")
+        lookup[key] = embeddings[index]
+    return lookup
+
+
+def _load_lookup_dict(
+    emb_path: Path,
+    meta_path: Path,
+    label: str,
+    key_name: str | None = None,
+) -> dict[str, np.ndarray]:
+    """Load an embedding lookup dict from cache, returning an empty mapping on failure."""
+    if not (emb_path.exists() and meta_path.exists()):
+        return {}
+
+    try:
+        embeddings = np.load(emb_path)
+        metadata = _load_metadata(meta_path)
+        if key_name is None:
+            lookup = _build_course_lookup_dict(embeddings, metadata)
+        else:
+            lookup = _build_lookup_dict(embeddings, metadata, key_name=key_name, label=label)
+        logger.info("Loaded %d %s embeddings.", len(lookup), label)
+        return lookup
+    except (json.JSONDecodeError, OSError, ValueError):
+        logger.exception("Failed to load %s embeddings from cache.", label)
+        return {}
+
+
+def load_embedding_lookup_dicts(
+    cache_dir: Optional[Path] = None,
+) -> tuple[dict[str, np.ndarray], dict[str, np.ndarray], dict[str, np.ndarray]]:
+    """Load speaker, event, and course embedding lookup dicts from disk."""
+    cache_dir = cache_dir or CACHE_DIR
+    speaker_lookup = _load_lookup_dict(
+        cache_dir / SPEAKER_EMBEDDINGS_FILE,
+        cache_dir / SPEAKER_METADATA_FILE,
+        label="speaker",
+        key_name="name",
+    )
+    event_lookup = _load_lookup_dict(
+        cache_dir / EVENT_EMBEDDINGS_FILE,
+        cache_dir / EVENT_METADATA_FILE,
+        label="event",
+        key_name="event_name",
+    )
+    course_lookup = _load_lookup_dict(
+        cache_dir / COURSE_EMBEDDINGS_FILE,
+        cache_dir / COURSE_METADATA_FILE,
+        label="course",
+    )
+    return speaker_lookup, event_lookup, course_lookup
+
+
+def generate_embedding_lookup_dicts(
+    speakers_df,
+    events_df,
+    courses_df,
+    cache_dir: Optional[Path] = None,
+    force_refresh: bool = False,
+) -> tuple[dict[str, np.ndarray], dict[str, np.ndarray], dict[str, np.ndarray]]:
+    """Generate or reuse cache artifacts, then return lookup dicts for matching."""
+    cache_dir = cache_dir or CACHE_DIR
+    speaker_embeddings, speaker_metadata = embed_speakers(
+        speakers_df,
+        cache_dir=cache_dir,
+        force_refresh=force_refresh,
+    )
+    event_embeddings, event_metadata = embed_events(
+        events_df,
+        cache_dir=cache_dir,
+        force_refresh=force_refresh,
+    )
+    course_embeddings, course_metadata = embed_courses(
+        courses_df,
+        cache_dir=cache_dir,
+        force_refresh=force_refresh,
+    )
+    return (
+        _build_lookup_dict(speaker_embeddings, speaker_metadata, key_name="name", label="speaker"),
+        _build_lookup_dict(event_embeddings, event_metadata, key_name="event_name", label="event"),
+        _build_course_lookup_dict(course_embeddings, course_metadata),
+    )
 
 
 def _update_manifest(manifest_path: Path, key: str, row_count: int, text_hash: str) -> None:
@@ -236,13 +392,13 @@ def embed_speakers(
     """
     Generate and cache embeddings for all speaker profiles.
 
-    Cache files: speaker_embeddings.npy, speaker_metadata.pkl, cache_manifest.json
+    Cache files: speaker_embeddings.npy, speaker_metadata.json, cache_manifest.json
     """
     cache_dir = cache_dir or CACHE_DIR
     cache_dir.mkdir(parents=True, exist_ok=True)
 
-    emb_path = cache_dir / "speaker_embeddings.npy"
-    meta_path = cache_dir / "speaker_metadata.pkl"
+    emb_path = cache_dir / SPEAKER_EMBEDDINGS_FILE
+    meta_path = cache_dir / SPEAKER_METADATA_FILE
     manifest_path = cache_dir / "cache_manifest.json"
 
     texts = []
@@ -274,8 +430,7 @@ def embed_speakers(
     embeddings = generate_embeddings(texts)
 
     np.save(emb_path, embeddings)
-    with open(meta_path, "wb") as f:
-        pickle.dump(metadata, f)  # noqa: S301 - internal cache file
+    _save_metadata(meta_path, metadata)
 
     _update_manifest(
         manifest_path,
@@ -295,13 +450,13 @@ def embed_events(
     """
     Generate and cache embeddings for all CPP events.
 
-    Cache files: event_embeddings.npy, event_metadata.pkl, cache_manifest.json
+    Cache files: event_embeddings.npy, event_metadata.json, cache_manifest.json
     """
     cache_dir = cache_dir or CACHE_DIR
     cache_dir.mkdir(parents=True, exist_ok=True)
 
-    emb_path = cache_dir / "event_embeddings.npy"
-    meta_path = cache_dir / "event_metadata.pkl"
+    emb_path = cache_dir / EVENT_EMBEDDINGS_FILE
+    meta_path = cache_dir / EVENT_METADATA_FILE
     manifest_path = cache_dir / "cache_manifest.json"
 
     texts = []
@@ -333,8 +488,7 @@ def embed_events(
     embeddings = generate_embeddings(texts)
 
     np.save(emb_path, embeddings)
-    with open(meta_path, "wb") as f:
-        pickle.dump(metadata, f)  # noqa: S301 - internal cache file
+    _save_metadata(meta_path, metadata)
 
     _update_manifest(
         manifest_path,
@@ -354,13 +508,13 @@ def embed_courses(
     """
     Generate and cache embeddings for all CPP course sections.
 
-    Cache files: course_embeddings.npy, course_metadata.pkl, cache_manifest.json
+    Cache files: course_embeddings.npy, course_metadata.json, cache_manifest.json
     """
     cache_dir = cache_dir or CACHE_DIR
     cache_dir.mkdir(parents=True, exist_ok=True)
 
-    emb_path = cache_dir / "course_embeddings.npy"
-    meta_path = cache_dir / "course_metadata.pkl"
+    emb_path = cache_dir / COURSE_EMBEDDINGS_FILE
+    meta_path = cache_dir / COURSE_METADATA_FILE
     manifest_path = cache_dir / "cache_manifest.json"
 
     texts = []
@@ -396,8 +550,7 @@ def embed_courses(
     embeddings = generate_embeddings(texts)
 
     np.save(emb_path, embeddings)
-    with open(meta_path, "wb") as f:
-        pickle.dump(metadata, f)  # noqa: S301 - internal cache file
+    _save_metadata(meta_path, metadata)
 
     _update_manifest(
         manifest_path,

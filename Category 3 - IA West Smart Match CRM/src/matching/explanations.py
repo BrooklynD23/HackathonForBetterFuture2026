@@ -254,6 +254,8 @@ def load_cached_explanation(
     if cache_file.exists():
         try:
             data = json.loads(cache_file.read_text(encoding="utf-8"))
+            if data.get("source") != "gemini":
+                return None
             return data.get("explanation", None)
         except (json.JSONDecodeError, KeyError):
             return None
@@ -263,6 +265,7 @@ def load_cached_explanation(
 def save_cached_explanation(
     match_result: dict,
     explanation: str,
+    source: str = "gemini",
     event_category: str = "",
     event_volunteer_roles: str = "",
     event_audience: str = "",
@@ -290,6 +293,7 @@ def save_cached_explanation(
         **identity,
         "cache_key_version": 2,
         "total_score": round(normalized_match["total_score"], 4),
+        "source": source,
         "explanation": explanation,
     }
     cache_file.write_text(json.dumps(data, indent=2), encoding="utf-8")
@@ -350,6 +354,7 @@ def generate_match_explanation(
     ]
 
     fallback = _fallback_explanation(normalized_match)
+    should_cache = False
     try:
         explanation = generate_text(
             messages,
@@ -360,13 +365,15 @@ def generate_match_explanation(
             temperature=EXPLANATION_TEMPERATURE,
             timeout=10.0,
         )
-        if not explanation:
+        if explanation and explanation.strip():
+            should_cache = True
+        else:
             explanation = fallback
     except Exception as exc:
         logger.warning("Gemini API error for explanation generation: %s", exc)
         explanation = fallback
 
-    if use_cache:
+    if use_cache and should_cache:
         save_cached_explanation(
             normalized_match,
             explanation,

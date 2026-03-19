@@ -534,7 +534,7 @@ Deploy the application to Streamlit Community Cloud for public access and judge 
    - [ ] `requirements.txt` verified and minimal (no dev-only packages)
    - [ ] All import paths are relative (no absolute local paths)
    - [ ] No hardcoded file paths (use `pathlib.Path` or `os.path`)
-   - [ ] `.gitignore` excludes: `.env`, `cache/`, `*.pyc`, `__pycache__/`, `.pkl` files >50MB
+   - [ ] `.gitignore` excludes: `.env`, `cache/`, `*.pyc`, `__pycache__/`, and large generated cache artifacts
 
 2. **`requirements.txt` verification:**
    ```
@@ -1011,8 +1011,8 @@ build/
 
 # Cache
 cache/
-*.pkl
 *.npy
+*.json
 
 # IDE
 .vscode/

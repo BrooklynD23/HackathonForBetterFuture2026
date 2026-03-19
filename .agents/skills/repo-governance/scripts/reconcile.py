@@ -41,7 +41,8 @@ def _safe_scope_name(scope: str) -> str:
 def apply_reconciliations(repo_root: Path, manifest_path: Path, scope: str, today: str, dry_run: bool) -> list[str]:
     manifest = load_manifest(manifest_path)
     selected = select_manifest_entries(manifest, scope)
-    master_portfolio = extract_master_portfolio(read_markdown(repo_root / "MASTER_SPRINT_PLAN.md").body)
+    master_plan_path = repo_root / manifest["decision_domains"]["portfolio.rankings"]["owner"]
+    master_portfolio = extract_master_portfolio(read_markdown(master_plan_path).body)
     changed_paths: list[str] = []
 
     for entry in selected:

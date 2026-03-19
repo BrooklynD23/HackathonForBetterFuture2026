@@ -768,10 +768,10 @@ def compute_match_score(
             Weights are normalized to sum to 1.0 before use.
         speaker_embedding: Pre-computed embedding for the speaker.
             Loaded from Sprint 0 flat cache files under cache/ (for example
-            cache/speaker_embeddings.npy + cache/speaker_metadata.pkl).
+            cache/speaker_embeddings.npy + cache/speaker_metadata.json).
         event_embedding: Pre-computed embedding for the event.
             Loaded from Sprint 0 flat cache files under cache/ (for example
-            cache/event_embeddings.npy + cache/event_metadata.pkl).
+            cache/event_embeddings.npy + cache/event_metadata.json).
         ia_event_calendar: Full DataFrame from data_event_calendar.csv.
             Passed through to calendar_fit(). If None, calendar_fit
             returns the recurrence-based default.
@@ -1495,6 +1495,7 @@ JSON file format:
   "speaker_name": "Travis Miller",
   "event_name": "AI for a Better Future Hackathon",
   "total_score": 0.8700,
+  "source": "gemini",
   "explanation": "Travis Miller (SVP Sales & Client Development, PureSpectrum) is a strong match..."
 }
 ```
@@ -1504,10 +1505,11 @@ JSON file format:
 - [ ] `generate_match_explanation()` returns a non-empty string for any valid match_result dict
 - [ ] Prompt includes system message, 2 few-shot examples, and the formatted user message
 - [ ] Cache hit skips the API call and returns the cached explanation
-- [ ] Cache key includes the total_score (rounded to 2dp) so explanations regenerate when weights change
+- [ ] Cache key is derived from stable prompt inputs, including factor scores and event context, rather than the rounded `total_score` alone
 - [ ] API timeout (>10s) produces a fallback explanation (not an error)
 - [ ] API error produces a fallback explanation (not an error)
 - [ ] Fallback explanation names the top 2 scoring factors with their numeric scores
+- [ ] Only successful Gemini responses are persisted to the explanation cache; degraded fallback text remains transient
 - [ ] Cache directory is created automatically if it does not exist
 - [ ] Explanation text is 2-3 sentences (validated by character count: 100-500 chars typical)
 - [ ] No secrets are logged or printed during API calls
