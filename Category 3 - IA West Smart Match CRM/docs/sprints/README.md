@@ -29,8 +29,9 @@ These five files are the current implementation specs for the Category 3 build. 
 - Expect flat embedding files in `cache/`, hashed scrape files in `cache/scrapes/`, and hashed email files in `cache/emails/`.
 - Expect live cross-tab runtime state in `st.session_state`, not on `LoadedDatasets`.
 
-## Sprint 3 Closeout
+## Sprint 5 Closeout Baseline
 
-- The Sprint 3 orchestration branch needed a post-implementation integration audit on 2026-03-20.
-- That audit closed the real-data pipeline path, volunteer dashboard state handoff, demo-mode production wiring, and pipeline hover-text regression.
-- Current verification baseline: `./.venv/bin/python -m pytest -q` -> 366 passed.
+- Sprint 3 integration audit and Sprint 4 hardening are already reflected in the checked-in runtime; the current branch is limited to Sprint 5 closeout work on `sprint5-cat3`.
+- Current verification baseline: `./.venv/bin/python -m pytest -q` -> `385 passed in 37.40s`.
+- Current preflight baseline: `./.venv/bin/python scripts/sprint4_preflight.py` passes with warnings only for un-warmed live caches (embedding artifacts plus scrape, extraction, explanation, and email caches).
+- Current manual/demo-day follow-ups remain: warm live caches on the demo machine, verify the real rehearsal path, and complete the human-run testing logs under `docs/testing/`.

@@ -12,8 +12,8 @@ This roadmap closes Sprint 5 for the existing Category 3 SmartMatch app on `spri
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Runtime Fixes and Clean Outputs** - Restore the closeout-critical demo path and isolate generated runtime artifacts.
-- [ ] **Phase 2: Documentation and Governance Reconciliation** - Refresh Category 3 closeout docs and mirrors from one live verification baseline.
+- [x] **Phase 1: Runtime Fixes and Clean Outputs** - Restore the closeout-critical demo path and isolate generated runtime artifacts.
+- [x] **Phase 2: Documentation and Governance Reconciliation** - Refresh Category 3 closeout docs and mirrors from one live verification baseline.
 - [ ] **Phase 3: Adversarial Audit and Sprint Closure** - Run `$ecc-code-review`, remediate accepted findings, verify the final state, and close Sprint 5.
 
 ## Phase Details
@@ -32,9 +32,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: Repair the discovery-to-matching handoff and project-root path resolution in the existing runtime.
-- [ ] 01-02: Add targeted regression coverage for the handoff and clean-checkout demo-mode or cache-only flow.
-- [ ] 01-03: Isolate or ignore generated runtime outputs and verify that closeout rehearsal does not dirty source-controlled paths.
+- [x] 01-01: Repair the discovery-to-matching handoff and project-root path resolution in the existing runtime.
+- [x] 01-02: Add targeted regression coverage for the handoff and clean-checkout demo-mode or cache-only flow.
+- [x] 01-03: Isolate or ignore generated runtime outputs and verify that closeout rehearsal does not dirty source-controlled paths.
 
 ### Phase 2: Documentation and Governance Reconciliation
 **Goal**: Category 3 closeout docs, status surfaces, and governance mirrors report one current verification baseline and one truthful set of remaining manual steps.
@@ -48,8 +48,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: Reconcile the canonical verification baseline across Category 3 status, sprint, and task-board documents.
-- [ ] 02-02: Refresh closeout guidance and governance mirrors so manual steps, readiness notes, and ownership are current.
+- [x] 02-01: Reconcile the canonical verification baseline across Category 3 status, sprint, and task-board documents.
+- [x] 02-02: Refresh closeout guidance and governance mirrors so manual steps, readiness notes, and ownership are current.
 
 ### Phase 3: Adversarial Audit and Sprint Closure
 **Goal**: Sprint 5 changes survive adversarial review, accepted findings are resolved or explicitly documented, and closure evidence is preserved on `sprint5-cat3`.
@@ -75,6 +75,6 @@ Phases execute in numeric order: 1 -> 2 -> 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Runtime Fixes and Clean Outputs | 0/3 | Not started | - |
-| 2. Documentation and Governance Reconciliation | 0/2 | Not started | - |
+| 1. Runtime Fixes and Clean Outputs | 3/3 | Complete | 2026-03-20 |
+| 2. Documentation and Governance Reconciliation | 2/2 | Complete | 2026-03-20 |
 | 3. Adversarial Audit and Sprint Closure | 0/3 | Not started | - |

@@ -56,6 +56,8 @@ These are useful for audit history, but they are not implementation authority:
 
 ## Current Sprint Status
 
-- Sprint 3 runtime remediation is complete as of 2026-03-20.
-- Full regression in the project virtualenv is green: `./.venv/bin/python -m pytest -q` -> 366 passed.
-- Remaining wrap-up work is documentation/governance refresh and the sprint-closeout commit.
+- Sprint 5 closeout is running on `sprint5-cat3` as a wrap-up lane for runtime hardening, documentation/governance reconciliation, and final review.
+- Latest live verification baseline from the project virtualenv is green: `./.venv/bin/python -m pytest -q` -> `385 passed in 37.40s`.
+- Latest preflight baseline passes with warnings only for un-warmed live caches: missing embedding artifacts plus empty or absent `cache/scrapes/`, `cache/extractions/`, `cache/explanations/`, and `cache/emails/`.
+- Phase 1 closeout fixes are already committed: discovery events merge into Matches in-session, offline or demo-mode runs no longer hard-block on missing embeddings, and runtime-generated outputs are isolated from source-controlled fixtures.
+- Manual demo-day steps still require a machine with `GEMINI_API_KEY` to warm live caches, a rehearsal pass using the real environment, and completion of the human-run logs under `docs/testing/`.

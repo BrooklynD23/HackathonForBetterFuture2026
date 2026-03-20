@@ -36,7 +36,7 @@
 
 - [ ] Phase 3: Execute Sprint 5 closeout phases.
   - Run the planned closeout phases with parallel subagents where appropriate.
-  - Keep commits scoped per phase.
+  - Keep commits scoped per phase with explicit pathspecs only.
   - Update progress in this file as work lands.
 
 - [x] Phase 3.1: Runtime fixes and clean outputs.
@@ -45,15 +45,19 @@
   - Feedback persistence now resolves from config-backed project paths, and generated runtime artifacts are ignored without hiding checked-in demo fixtures.
   - Combined verification: `Category 3 - IA West Smart Match CRM/.venv/bin/python -m pytest tests/test_acceptance.py tests/test_discovery_tab.py tests/test_matches_tab.py tests/test_app.py -q` -> `37 passed in 21.78s`
 
-- [ ] Phase 4: Run adversarial review and remediation.
-  - Create an `$ecc-code-review` agent after implementation changes are in.
-  - Apply the review fixes without expanding scope.
-  - Re-verify touched behavior.
+- [x] Phase 3.2: Documentation and governance reconciliation.
+  - Established one authoritative live verification baseline from `Category 3 - IA West Smart Match CRM/` with:
+    - `timeout 300s ./.venv/bin/python -m pytest -q` -> `385 passed in 37.40s`
+    - `timeout 180s ./.venv/bin/python scripts/sprint4_preflight.py` -> passes with warnings only for un-warmed live caches
+  - Reconciled `docs/README.md`, `docs/sprints/README.md`, `.status.md`, `.planning/ROADMAP.md`, `.planning/STATE.md`, and this task board to that baseline.
+  - Ran the repo governance workflow for `category:3`, regenerated `docs/governance/REPO_REFERENCE.md`, and emitted dated Sprint 5 audit/reconcile reports under `docs/governance/reports/`.
+  - Verified the governance outputs report `0` safe reconciliations and `0` human-decision items before committing Phase 3.2.
 
-- [ ] Phase 5: Documentation and sprint closure.
-  - Refresh docs/governance artifacts affected by the closeout work.
-  - Update this review section with evidence and residual risks.
-  - Close out Sprint 5 on the branch.
+- [ ] Phase 3.3: Adversarial audit and sprint closure.
+  - Run `$ecc-code-review` on the Sprint 5 diff after Phase 3.2 lands.
+  - Apply accepted findings without expanding scope, then rerun targeted or full verification as needed.
+  - Update `.planning/ROADMAP.md`, `.planning/STATE.md`, and this review section with final evidence, residual risks, and truthful manual follow-ups.
+  - Close out Sprint 5 on `sprint5-cat3` with a scoped final commit.
 
 ### Sprint 4 Review Fix Pass
 
@@ -124,6 +128,14 @@
   - `Category 3 - IA West Smart Match CRM/.venv/bin/python -m pytest tests/test_acceptance.py tests/test_discovery_tab.py tests/test_matches_tab.py tests/test_app.py -q` -> `37 passed in 21.78s`
   - `git check-ignore -v -- Category 3 - IA West Smart Match CRM/data/feedback_log.csv Category 3 - IA West Smart Match CRM/cache/cache_manifest.json Category 3 - IA West Smart Match CRM/cache/extractions/generated.json` -> all ignored by `Category 3 - IA West Smart Match CRM/.gitignore`
   - `git check-ignore -v -n -- Category 3 - IA West Smart Match CRM/cache/demo_fixtures/pipeline_funnel.json` -> non-match, confirming the demo fixture path remains trackable
+- Sprint 5 Phase 2 documentation/governance reconciliation: Category 3 readme surfaces, `.status.md`, and `.planning/` state now point to the live Sprint 5 baseline instead of stale Sprint 3 closeout counts, and governance artifacts were regenerated under dated Sprint 5 report names.
+- Sprint 5 Phase 2 verification:
+  - `timeout 300s ./.venv/bin/python -m pytest -q` -> `385 passed in 37.40s`
+  - `timeout 180s ./.venv/bin/python scripts/sprint4_preflight.py` -> passes with warnings only for missing embedding artifacts plus empty or absent scrape, extraction, explanation, and email caches
+  - `python3 .agents/skills/repo-governance/scripts/inventory.py --scope category:3` -> `Managed docs: 22`, `Selected docs: 6`, `Unmanaged governed docs: none`
+  - `python3 .agents/skills/repo-governance/scripts/audit.py --scope category:3 --date 2026-03-20 --report docs/governance/reports/2026-03-20-category-3-sprint5-audit.md` -> `Safe reconciliations: 0`, `Needs human decision: 0`
+  - `python3 .agents/skills/repo-governance/scripts/reconcile.py --scope category:3 --date 2026-03-20 --report docs/governance/reports/2026-03-20-category-3-sprint5-governance.md --index-output docs/governance/REPO_REFERENCE.md` -> `Safe issues before reconcile: 0`, `Safe issues after reconcile: 0`, `Needs human decision after reconcile: 0`
+  - `python3 .agents/skills/repo-governance/scripts/build_index.py --output docs/governance/REPO_REFERENCE.md` -> `docs/governance/REPO_REFERENCE.md`
 - Category 3 output/path hygiene: feedback CSV persistence now defaults to `src.config.DATA_DIR / "feedback_log.csv"` instead of a CWD-relative string, generated feedback/cache JSON outputs are ignored in the Category 3 subproject, and checked-in `cache/demo_fixtures/*.json` remain trackable.
 - Codebase map review: `arch` mapping completed on 2026-03-20. Wrote `.planning/codebase/ARCHITECTURE.md` (177 lines) and `.planning/codebase/STRUCTURE.md` (181 lines) after inspecting the Category 3 runtime, root governance docs, and sprint task board. Verification: `wc -l .planning/codebase/ARCHITECTURE.md .planning/codebase/STRUCTURE.md` -> `177`, `181`.
 - Status: Sprint 4 CLOSED for engineering scope (code + committed artifacts)

@@ -5,35 +5,35 @@
 See: .planning/PROJECT.md (updated 2026-03-20)
 
 **Core value:** An operator can run a dependable end-to-end SmartMatch demo flow that surfaces credible matches and outreach artifacts without closeout-time surprises.
-**Current focus:** Phase 1 - Runtime Fixes and Clean Outputs
+**Current focus:** Phase 3 - Adversarial Audit and Sprint Closure
 
 ## Current Position
 
-Phase: 1 of 3 (Runtime Fixes and Clean Outputs)
+Phase: 3 of 3 (Adversarial Audit and Sprint Closure)
 Plan: 0 of 3 in current phase
-Status: Ready to plan
-Last activity: 2026-03-20 - Initial Sprint 5 closeout roadmap, state file, and traceability map created
+Status: Ready to execute
+Last activity: 2026-03-20 - Phase 2 docs and governance surfaces reconciled to the live `385 passed` plus preflight baseline
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [███████░░░] 67%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0
-- Average duration: 0 min
-- Total execution time: 0.0 hours
+- Total plans completed: 5
+- Average duration: not tracked
+- Total execution time: not tracked
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1. Runtime Fixes and Clean Outputs | 0 | 0 min | 0 min |
-| 2. Documentation and Governance Reconciliation | 0 | 0 min | 0 min |
-| 3. Adversarial Audit and Sprint Closure | 0 | 0 min | 0 min |
+| 1. Runtime Fixes and Clean Outputs | 3 | not tracked | not tracked |
+| 2. Documentation and Governance Reconciliation | 2 | not tracked | not tracked |
+| 3. Adversarial Audit and Sprint Closure | 0 | not tracked | not tracked |
 
 **Recent Trend:**
-- Last 5 plans: none
-- Trend: Stable
+- Last 5 plans: 01-01, 01-02, 01-03, 02-01, 02-02
+- Trend: Advancing toward final closeout
 
 ## Accumulated Context
 
@@ -48,16 +48,17 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-None yet.
+- Run `$ecc-code-review` on the Sprint 5 diff.
+- Fix accepted findings without expanding scope.
+- Record final verification evidence and close the sprint.
 
 ### Blockers/Concerns
 
-- Verification counts currently drift across Category 3 docs and must be reconciled in Phase 2.
 - The worktree is already dirty outside Sprint 5, so all closeout commits must use explicit pathspecs.
-- Demo-mode and cache-only matching readiness still need direct proof in Phase 1.
+- Live cache warming and real demo-machine rehearsal remain manual closeout steps after the code-side verification baseline.
 
 ## Session Continuity
 
 Last session: 2026-03-20 12:48
-Stopped at: Wrote the initial closeout roadmap and phase traceability for Sprint 5
+Stopped at: Completed Phase 2 reconciliation and prepared Phase 3 review/remediation work
 Resume file: None
