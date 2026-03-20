@@ -2,6 +2,69 @@
 
 ## Current Work
 
+### Codebase Map: Arch Focus
+
+- [x] Inspect root governance files, relevant configs, and the `Category 3 - IA West Smart Match CRM/` layout.
+- [x] Identify module boundaries, runtime/data flow, and architecture entry points with concrete file references.
+- [x] Write `.planning/codebase/ARCHITECTURE.md` and `.planning/codebase/STRUCTURE.md`.
+- [x] Verify both files exist, record line counts, and update the review notes below.
+
+### Codebase Map: Tech Focus
+
+- [x] Audit Category 3 manifests, configs, and canonical runtime docs for the real stack surface.
+- [x] Trace external services, storage paths, and environment boundaries in Category 3 source and scripts.
+- [x] Write `.planning/codebase/STACK.md` and `.planning/codebase/INTEGRATIONS.md`.
+- [x] Verify both files exist, record line counts, and update the review note below.
+
+- Review: Wrote `.planning/codebase/STACK.md` (94 lines) and `.planning/codebase/INTEGRATIONS.md` (137 lines) after verifying Category 3 manifests, Streamlit deployment files, Gemini/runtime config, discovery/scraping modules, cache layout, and root governance/task docs that affect closeout execution.
+
+### Sprint 5 GSD Closeout Orchestration
+
+#### Requirements Restatement
+
+- [ ] Initialize GSD for this brownfield repo because `.planning/` does not exist yet.
+- [ ] Work on the new git branch `sprint5-cat3`.
+- [ ] Treat Sprint 5 as a closeout milestone for Category 3 unless a stronger local authority emerges:
+  - The repo has no canonical Sprint 5 spec.
+  - `Category 3 - IA West Smart Match CRM/docs/README.md` says the remaining work is documentation/governance refresh plus sprint closeout.
+- [ ] Use parallel subagents wherever they materially reduce context pressure or shorten independent discovery/review work.
+- [ ] Create a phase-based plan that ends with an `$ecc-code-review` audit, fixes, documentation updates, per-phase commits, and sprint closure.
+- [ ] Verify each phase with direct evidence before marking it complete.
+
+#### Risks
+
+- High: No canonical Sprint 5 spec exists in the repo, so scope must be derived from current closeout signals and verified against authoritative Category 3 docs.
+- High: The worktree already contains unrelated local changes; do not revert or accidentally include them in Sprint 5 commits.
+- Medium: GSD brownfield initialization may require codebase mapping before milestone planning can proceed.
+- Medium: Closeout work may surface doc/governance drift that forces additional scoped cleanup beyond the initial assumption.
+
+#### Execution Board
+
+- [x] Phase 1: Establish Sprint 5 orchestration context.
+  - Create and switch to branch `sprint5-cat3`.
+  - Confirm whether GSD is already initialized.
+  - Rewrite this task board for Sprint 5 orchestration.
+
+- [x] Phase 2: Bootstrap GSD for the brownfield repo.
+  - Map the existing codebase with parallel mapper agents.
+  - Create `.planning/` project state, config, requirements, and roadmap for Sprint 5 closeout.
+  - Record the Sprint 5 scope assumption in the planning docs.
+
+- [ ] Phase 3: Execute Sprint 5 closeout phases.
+  - Run the planned closeout phases with parallel subagents where appropriate.
+  - Keep commits scoped per phase.
+  - Update progress in this file as work lands.
+
+- [ ] Phase 4: Run adversarial review and remediation.
+  - Create an `$ecc-code-review` agent after implementation changes are in.
+  - Apply the review fixes without expanding scope.
+  - Re-verify touched behavior.
+
+- [ ] Phase 5: Documentation and sprint closure.
+  - Refresh docs/governance artifacts affected by the closeout work.
+  - Update this review section with evidence and residual risks.
+  - Close out Sprint 5 on the branch.
+
 ### Sprint 4 Review Fix Pass
 
 - [x] Fix the Sprint 4 review findings without expanding product scope.
@@ -65,6 +128,7 @@
 
 ## Review
 
+- Codebase map review: `arch` mapping completed on 2026-03-20. Wrote `.planning/codebase/ARCHITECTURE.md` (177 lines) and `.planning/codebase/STRUCTURE.md` (181 lines) after inspecting the Category 3 runtime, root governance docs, and sprint task board. Verification: `wc -l .planning/codebase/ARCHITECTURE.md .planning/codebase/STRUCTURE.md` -> `177`, `181`.
 - Status: Sprint 4 CLOSED for engineering scope (code + committed artifacts)
 - Notes: Created `sprint4-cat3`, hardened discovery for stale-cache fallback and cache-first status visibility, made cache paths repo-stable for root/subdir execution, blocked all-zero match-weight runs, added file-specific empty-dataset errors, aligned the demo funnel fixture to the 6-stage runtime contract, added `runtime.txt`, and committed Sprint 4 testing/rehearsal templates plus `scripts/sprint4_preflight.py`.
 - Review fix pass: `scripts/sprint4_preflight.py --prewarm-discovery` now persists extraction caches, `runtime.txt` and preflight now match the Sprint 4 Streamlit Cloud contract, scrape/extraction cache loaders degrade safely on corrupt payloads, and regression coverage was added for those cases.
