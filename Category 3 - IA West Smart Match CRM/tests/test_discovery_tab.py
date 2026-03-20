@@ -57,6 +57,11 @@ class TestAddToMatchingTransform:
         assert "judge" in result["Volunteer Roles (fit)"]
         assert result["Primary Audience"] == "undergraduate CS students"
         assert result["Host / Unit"] == "UCLA"
+        assert result["Recurrence (typical)"] == "2026-04-20"
+        assert result["Public URL"] == "https://career.ucla.edu/events/hackathon"
+        assert result["Point(s) of Contact (published)"] == "Dr. Chen"
+        assert result["Contact Email / Phone (published)"] == "chen@ucla.edu"
+        assert result["Date"] == "2026-04-20"
         assert result["source"] == "discovery"
 
     def test_handles_missing_optional_fields(self) -> None:

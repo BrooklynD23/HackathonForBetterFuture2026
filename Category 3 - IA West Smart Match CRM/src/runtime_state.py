@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Sequence
 
 import pandas as pd
 import streamlit as st
@@ -22,6 +22,13 @@ MATCH_RESULTS_COLUMNS: list[str] = [
     "student_interest",
 ]
 
+DISCOVERED_EVENT_ALIASES: dict[str, str] = {
+    "Recurrence (typical)": "Date",
+    "Public URL": "URL",
+    "Point(s) of Contact (published)": "Contact Name",
+    "Contact Email / Phone (published)": "Contact Email",
+}
+
 
 def empty_match_results_df() -> pd.DataFrame:
     """Return an empty DataFrame matching the cross-tab contract."""
@@ -32,12 +39,61 @@ def init_runtime_state() -> None:
     """Initialize shared runtime keys used by multiple tabs."""
     if "match_results_df" not in st.session_state:
         st.session_state["match_results_df"] = empty_match_results_df()
+    if "matching_discovered_events" not in st.session_state:
+        st.session_state["matching_discovered_events"] = []
     if "scraped_events" not in st.session_state:
         st.session_state["scraped_events"] = []
     if "emails_generated" not in st.session_state:
         st.session_state["emails_generated"] = 0
     if "generated_email_keys" not in st.session_state:
         st.session_state["generated_email_keys"] = []
+
+
+def get_matching_events_df(events_df: pd.DataFrame) -> pd.DataFrame:
+    """Return the canonical events DataFrame plus in-session discovered rows."""
+    init_runtime_state()
+
+    base_events = events_df.copy()
+    discovered_rows = st.session_state.get("matching_discovered_events", [])
+    if not isinstance(discovered_rows, list):
+        return base_events
+
+    discovered_dicts = [
+        row for row in discovered_rows
+        if isinstance(row, dict)
+    ]
+    if not discovered_dicts:
+        return base_events
+
+    discovered_df = pd.DataFrame(discovered_dicts).copy()
+    _hydrate_discovered_event_contract(
+        discovered_df,
+        base_columns=base_events.columns.tolist(),
+    )
+
+    ordered_columns = list(base_events.columns) + [
+        column for column in discovered_df.columns
+        if column not in base_events.columns
+    ]
+    return pd.concat(
+        [base_events, discovered_df],
+        ignore_index=True,
+        sort=False,
+    ).reindex(columns=ordered_columns)
+
+
+def _hydrate_discovered_event_contract(
+    discovered_df: pd.DataFrame,
+    base_columns: Sequence[str],
+) -> None:
+    """Fill canonical event columns from legacy discovery aliases."""
+    for canonical_column, alias_column in DISCOVERED_EVENT_ALIASES.items():
+        if canonical_column not in discovered_df.columns and alias_column in discovered_df.columns:
+            discovered_df[canonical_column] = discovered_df[alias_column]
+
+    for column in base_columns:
+        if column not in discovered_df.columns:
+            discovered_df[column] = pd.NA
 
 
 def normalize_match_results(match_results: list[dict[str, Any]]) -> pd.DataFrame:

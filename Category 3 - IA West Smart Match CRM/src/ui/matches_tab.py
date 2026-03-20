@@ -19,7 +19,11 @@ from src.matching.explanations import (
 )
 from src.feedback.acceptance import render_feedback_buttons
 from src.outreach.ics_generator import ICS_CONTENT_TYPE, generate_ics
-from src.runtime_state import init_runtime_state, set_match_results
+from src.runtime_state import (
+    get_matching_events_df,
+    init_runtime_state,
+    set_match_results,
+)
 from src.ui.email_panel import render_email_preview
 from src.utils import format_course_display_name, format_course_identifier
 
@@ -61,6 +65,7 @@ def render_matches_tab(
 ) -> None:
     """Render the Matches tab in the Streamlit app."""
     init_runtime_state()
+    available_events = get_matching_events_df(events)
     weight_error = _render_weight_sliders()
     if weight_error:
         st.error(weight_error)
@@ -75,7 +80,7 @@ def render_matches_tab(
 
     if view_mode == "Events":
         _render_event_matches(
-            events, speakers, speaker_embeddings, event_embeddings,
+            available_events, speakers, speaker_embeddings, event_embeddings,
             ia_event_calendar,
         )
     else:

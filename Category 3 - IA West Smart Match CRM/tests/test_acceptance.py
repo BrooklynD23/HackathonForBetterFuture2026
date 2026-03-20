@@ -5,6 +5,7 @@ from __future__ import annotations
 import csv
 import json
 import os
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -171,6 +172,13 @@ class TestGetDecision:
 class TestPersistToCsv:
     """_persist_to_csv must create/append CSV files."""
 
+    def test_default_csv_path_uses_configured_data_dir(self) -> None:
+        """Default persistence path stays anchored to the configured data dir."""
+        from src.feedback.acceptance import DATA_DIR, DEFAULT_CSV_PATH
+
+        assert DEFAULT_CSV_PATH == DATA_DIR / "feedback_log.csv"
+        assert DEFAULT_CSV_PATH.is_absolute()
+
     def test_persist_to_csv_creates_file(self, tmp_path: object) -> None:
         """First write creates the CSV with headers."""
         from src.feedback.acceptance import _persist_to_csv
@@ -229,6 +237,35 @@ class TestPersistToCsv:
             reader = csv.reader(f)
             rows = list(reader)
         assert len(rows) == 3  # header + 2 data rows
+
+    def test_persist_to_csv_default_path_is_independent_of_cwd(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Default persistence path should not drift with the process CWD."""
+        from src.feedback import acceptance
+
+        csv_path = tmp_path / "project_root" / "data" / "feedback_log.csv"
+        monkeypatch.setattr(acceptance, "DEFAULT_CSV_PATH", csv_path)
+
+        cwd = tmp_path / "elsewhere"
+        cwd.mkdir()
+        monkeypatch.chdir(cwd)
+
+        entry_dict = {
+            "timestamp": "2026-03-19T10:00:00",
+            "event_id": "AI Hackathon",
+            "speaker_id": "Travis Miller",
+            "match_score": 0.87,
+            "decision": "accept",
+            "decline_reason": None,
+            "decline_notes": None,
+            "factor_scores": "{}",
+        }
+
+        acceptance._persist_to_csv(entry_dict)
+
+        assert csv_path.exists()
+        assert not (cwd / "data" / "feedback_log.csv").exists()
 
 
 # ---------- Aggregation ----------

@@ -120,7 +120,7 @@ def _resolve_embedding_lookup_dicts(
     embedding_bootstrap_error = None
     cache_generated = False
 
-    if embedding_issues and has_gemini_api_key():
+    if _should_attempt_embedding_bootstrap(embedding_issues):
         try:
             speaker_embeddings, event_embeddings, course_embeddings = generate_embedding_lookup_dicts(
                 speakers_df=datasets.speakers,
@@ -157,6 +157,22 @@ def _empty_dataset_issues(datasets) -> list[str]:
         if len(dataset) == 0:
             issues.append(f"No {attr_name} found in data file. Please check {file_name}.")
     return issues
+
+
+def _should_attempt_embedding_bootstrap(embedding_issues: list[str]) -> bool:
+    """Skip live Gemini cache generation when the app is intentionally offline."""
+    if not embedding_issues:
+        return False
+    if st.session_state.get("demo_mode", False):
+        return False
+    return has_gemini_api_key()
+
+
+def _matches_tab_can_render(embedding_issues: list[str]) -> bool:
+    """Allow non-topic matching to remain usable in demo/offline conditions."""
+    if not embedding_issues:
+        return True
+    return st.session_state.get("demo_mode", False) or not has_gemini_api_key()
 
 
 # ── Sidebar ─────────────────────────────────────────────────────────────────
@@ -254,10 +270,17 @@ def main() -> None:
         with st.sidebar:
             st.success("Embedding cache generated successfully for Matches.")
 
+    matches_tab_available = _matches_tab_can_render(embedding_issues)
+
     if embedding_issues:
         logger.error("Embedding cache validation failed: %s", "; ".join(embedding_issues))
         with st.sidebar:
-            if embedding_bootstrap_error:
+            if matches_tab_available:
+                st.warning(
+                    "Embedding cache missing or incomplete. Matches will continue with fallback "
+                    "scoring until speaker, event, and course embeddings are regenerated."
+                )
+            elif embedding_bootstrap_error:
                 st.error(
                     "Embedding cache generation failed. Matching remains disabled until "
                     "the cache can be regenerated."
@@ -283,18 +306,26 @@ def main() -> None:
 
     with tab_matches:
         if embedding_issues:
-            st.error(
-                "Embedding cache missing or incomplete. Matches can run after the app "
-                "successfully generates speaker, event, and course embeddings."
-            )
+            if matches_tab_available:
+                st.warning(
+                    "Embedding cache missing or incomplete. Matches remain available, but "
+                    "topic relevance is using fallback scoring until embeddings are regenerated."
+                )
+            else:
+                st.error(
+                    "Embedding cache missing or incomplete. Matches can run after the app "
+                    "successfully generates speaker, event, and course embeddings."
+                )
             with st.expander("Embedding cache validation details", expanded=True):
                 for issue in embedding_issues:
                     st.write(f"- {issue}")
                 if embedding_bootstrap_error:
                     st.write(f"- Automatic generation failed: {embedding_bootstrap_error}")
+                elif st.session_state.get("demo_mode", False):
+                    st.write("- Automatic generation is skipped while Demo Mode is enabled.")
                 elif not has_gemini_api_key():
                     st.write("- Automatic generation is unavailable until `GEMINI_API_KEY` is configured.")
-        else:
+        if matches_tab_available:
             render_matches_tab_ui(
                 events=datasets.events,
                 courses=datasets.courses,

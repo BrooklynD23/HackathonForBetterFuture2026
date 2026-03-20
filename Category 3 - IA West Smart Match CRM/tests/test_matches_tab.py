@@ -10,6 +10,76 @@ import pandas as pd
 
 class TestMatchesRuntimeState:
     @patch("streamlit.session_state", new_callable=dict)
+    def test_render_matches_tab_merges_discovered_events_into_event_view(
+        self,
+        mock_state: dict,
+        monkeypatch,
+    ) -> None:
+        import src.ui.matches_tab as mod
+
+        base_events = pd.DataFrame(
+            [
+                {
+                    "Event / Program": "AI Hackathon",
+                    "Category": "hackathon",
+                    "Recurrence (typical)": "Annual",
+                    "Host / Unit": "UCLA",
+                    "Volunteer Roles (fit)": "Judge",
+                    "Primary Audience": "Students",
+                    "Public URL": "https://ucla.edu/hackathon",
+                    "Point(s) of Contact (published)": "Alice",
+                    "Contact Email / Phone (published)": "alice@ucla.edu",
+                }
+            ]
+        )
+        mock_state["matching_discovered_events"] = [
+            {
+                "Event / Program": "Fresh Discovery Event",
+                "Category": "career_fair",
+                "Volunteer Roles (fit)": "Speaker",
+                "Primary Audience": "Graduate students",
+                "Host / Unit": "USC",
+                "Date": "2026-05-02",
+                "URL": "https://usc.edu/events/fresh-discovery",
+                "Contact Name": "Dr. Gomez",
+                "Contact Email": "gomez@usc.edu",
+                "source": "discovery",
+            }
+        ]
+
+        captured: dict[str, pd.DataFrame] = {}
+        monkeypatch.setattr(mod, "_render_weight_sliders", lambda: None)
+        monkeypatch.setattr(mod.st.sidebar, "radio", lambda *args, **kwargs: "Events")
+        monkeypatch.setattr(
+            mod,
+            "_render_event_matches",
+            lambda events, *args, **kwargs: captured.setdefault("events", events.copy()),
+        )
+        monkeypatch.setattr(mod, "_render_course_matches", lambda *args, **kwargs: None)
+
+        mod.render_matches_tab(
+            events=base_events,
+            courses=pd.DataFrame(),
+            speakers=pd.DataFrame(),
+            speaker_embeddings={},
+            event_embeddings={},
+            course_embeddings={},
+            ia_event_calendar=pd.DataFrame(),
+        )
+
+        merged_events = captured["events"]
+        assert list(merged_events["Event / Program"]) == [
+            "AI Hackathon",
+            "Fresh Discovery Event",
+        ]
+        assert merged_events.iloc[1]["Recurrence (typical)"] == "2026-05-02"
+        assert merged_events.iloc[1]["Public URL"] == "https://usc.edu/events/fresh-discovery"
+        assert merged_events.iloc[1]["Point(s) of Contact (published)"] == "Dr. Gomez"
+        assert merged_events.iloc[1]["Contact Email / Phone (published)"] == "gomez@usc.edu"
+        assert merged_events.iloc[1]["Date"] == "2026-05-02"
+        assert list(base_events["Event / Program"]) == ["AI Hackathon"]
+
+    @patch("streamlit.session_state", new_callable=dict)
     def test_event_matches_populate_session_state(
         self,
         mock_state: dict,

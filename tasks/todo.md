@@ -2,33 +2,17 @@
 
 ## Current Work
 
-### Codebase Map: Arch Focus
-
-- [x] Inspect root governance files, relevant configs, and the `Category 3 - IA West Smart Match CRM/` layout.
-- [x] Identify module boundaries, runtime/data flow, and architecture entry points with concrete file references.
-- [x] Write `.planning/codebase/ARCHITECTURE.md` and `.planning/codebase/STRUCTURE.md`.
-- [x] Verify both files exist, record line counts, and update the review notes below.
-
-### Codebase Map: Tech Focus
-
-- [x] Audit Category 3 manifests, configs, and canonical runtime docs for the real stack surface.
-- [x] Trace external services, storage paths, and environment boundaries in Category 3 source and scripts.
-- [x] Write `.planning/codebase/STACK.md` and `.planning/codebase/INTEGRATIONS.md`.
-- [x] Verify both files exist, record line counts, and update the review note below.
-
-- Review: Wrote `.planning/codebase/STACK.md` (94 lines) and `.planning/codebase/INTEGRATIONS.md` (137 lines) after verifying Category 3 manifests, Streamlit deployment files, Gemini/runtime config, discovery/scraping modules, cache layout, and root governance/task docs that affect closeout execution.
-
 ### Sprint 5 GSD Closeout Orchestration
 
 #### Requirements Restatement
 
-- [ ] Initialize GSD for this brownfield repo because `.planning/` does not exist yet.
-- [ ] Work on the new git branch `sprint5-cat3`.
-- [ ] Treat Sprint 5 as a closeout milestone for Category 3 unless a stronger local authority emerges:
+- [x] Initialize GSD for this brownfield repo because `.planning/` does not exist yet.
+- [x] Work on the new git branch `sprint5-cat3`.
+- [x] Treat Sprint 5 as a closeout milestone for Category 3 unless a stronger local authority emerges:
   - The repo has no canonical Sprint 5 spec.
   - `Category 3 - IA West Smart Match CRM/docs/README.md` says the remaining work is documentation/governance refresh plus sprint closeout.
-- [ ] Use parallel subagents wherever they materially reduce context pressure or shorten independent discovery/review work.
-- [ ] Create a phase-based plan that ends with an `$ecc-code-review` audit, fixes, documentation updates, per-phase commits, and sprint closure.
+- [x] Use parallel subagents wherever they materially reduce context pressure or shorten independent discovery/review work.
+- [x] Create a phase-based plan that ends with an `$ecc-code-review` audit, fixes, documentation updates, per-phase commits, and sprint closure.
 - [ ] Verify each phase with direct evidence before marking it complete.
 
 #### Risks
@@ -54,6 +38,12 @@
   - Run the planned closeout phases with parallel subagents where appropriate.
   - Keep commits scoped per phase.
   - Update progress in this file as work lands.
+
+- [x] Phase 3.1: Runtime fixes and clean outputs.
+  - Discovery events added from the Discovery tab now merge into the Matches event pool during the same session.
+  - Demo Mode and offline/no-key runs no longer hard-block the Matches tab when embeddings are missing; warnings stay visible and fallback scoring is explicit.
+  - Feedback persistence now resolves from config-backed project paths, and generated runtime artifacts are ignored without hiding checked-in demo fixtures.
+  - Combined verification: `Category 3 - IA West Smart Match CRM/.venv/bin/python -m pytest tests/test_acceptance.py tests/test_discovery_tab.py tests/test_matches_tab.py tests/test_app.py -q` -> `37 passed in 21.78s`
 
 - [ ] Phase 4: Run adversarial review and remediation.
   - Create an `$ecc-code-review` agent after implementation changes are in.
@@ -128,11 +118,21 @@
 
 ## Review
 
+- Sprint 5 bootstrap: created `sprint5-cat3`, initialized GSD at repo root, wrote `.planning/config.json`, `.planning/PROJECT.md`, `.planning/REQUIREMENTS.md`, `.planning/ROADMAP.md`, `.planning/STATE.md`, and the 7-file brownfield codebase map under `.planning/codebase/`, then committed the bootstrap as `docs: bootstrap sprint 5 planning`.
+- Sprint 5 Phase 1 runtime fixes: discovery-to-match handoff now merges in-session discovered events into Matches, offline/demo runs can render Matches with fallback scoring when embeddings are unavailable, and feedback/generated output paths are repo-stable plus ignored correctly.
+- Sprint 5 Phase 1 verification:
+  - `Category 3 - IA West Smart Match CRM/.venv/bin/python -m pytest tests/test_acceptance.py tests/test_discovery_tab.py tests/test_matches_tab.py tests/test_app.py -q` -> `37 passed in 21.78s`
+  - `git check-ignore -v -- Category 3 - IA West Smart Match CRM/data/feedback_log.csv Category 3 - IA West Smart Match CRM/cache/cache_manifest.json Category 3 - IA West Smart Match CRM/cache/extractions/generated.json` -> all ignored by `Category 3 - IA West Smart Match CRM/.gitignore`
+  - `git check-ignore -v -n -- Category 3 - IA West Smart Match CRM/cache/demo_fixtures/pipeline_funnel.json` -> non-match, confirming the demo fixture path remains trackable
+- Category 3 output/path hygiene: feedback CSV persistence now defaults to `src.config.DATA_DIR / "feedback_log.csv"` instead of a CWD-relative string, generated feedback/cache JSON outputs are ignored in the Category 3 subproject, and checked-in `cache/demo_fixtures/*.json` remain trackable.
 - Codebase map review: `arch` mapping completed on 2026-03-20. Wrote `.planning/codebase/ARCHITECTURE.md` (177 lines) and `.planning/codebase/STRUCTURE.md` (181 lines) after inspecting the Category 3 runtime, root governance docs, and sprint task board. Verification: `wc -l .planning/codebase/ARCHITECTURE.md .planning/codebase/STRUCTURE.md` -> `177`, `181`.
 - Status: Sprint 4 CLOSED for engineering scope (code + committed artifacts)
 - Notes: Created `sprint4-cat3`, hardened discovery for stale-cache fallback and cache-first status visibility, made cache paths repo-stable for root/subdir execution, blocked all-zero match-weight runs, added file-specific empty-dataset errors, aligned the demo funnel fixture to the 6-stage runtime contract, added `runtime.txt`, and committed Sprint 4 testing/rehearsal templates plus `scripts/sprint4_preflight.py`.
 - Review fix pass: `scripts/sprint4_preflight.py --prewarm-discovery` now persists extraction caches, `runtime.txt` and preflight now match the Sprint 4 Streamlit Cloud contract, scrape/extraction cache loaders degrade safely on corrupt payloads, and regression coverage was added for those cases.
 - Verification:
+  - `Category 3 - IA West Smart Match CRM/.venv/bin/python -m pytest tests/test_acceptance.py -q` -> 16 passed in 20.37s
+  - `git check-ignore -v -- Category 3 - IA West Smart Match CRM/data/feedback_log.csv Category 3 - IA West Smart Match CRM/cache/cache_manifest.json Category 3 - IA West Smart Match CRM/cache/extractions/generated.json` -> all ignored by `Category 3 - IA West Smart Match CRM/.gitignore`
+  - `git check-ignore -v -n -- Category 3 - IA West Smart Match CRM/cache/demo_fixtures/pipeline_funnel.json` -> non-match, confirming the demo fixture path stays trackable
   - `git checkout -b sprint4-cat3` -> branch created from `sprint3-cat3`
   - `./.venv/bin/python -m pytest tests/test_scraper.py tests/test_llm_extractor.py tests/test_matches_tab.py tests/test_app.py -q` -> 47 passed
   - `./.venv/bin/python -m pytest tests/test_demo_mode.py tests/test_pipeline_tab.py -q` -> 47 passed

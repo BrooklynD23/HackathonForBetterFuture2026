@@ -7,15 +7,15 @@ based on aggregated feedback patterns.
 """
 
 import json
-import os
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
+from pathlib import Path
 from typing import Dict, List, Optional
 
 import pandas as pd
 import streamlit as st
 
-from src.config import DEFAULT_WEIGHTS
+from src.config import DATA_DIR, DEFAULT_WEIGHTS
 from src.demo_mode import load_fixture
 
 # ---------- Data Structures ----------
@@ -28,7 +28,7 @@ DECLINE_REASONS: List[str] = [
     "Other",
 ]
 
-DEFAULT_CSV_PATH: str = "data/feedback_log.csv"
+DEFAULT_CSV_PATH = DATA_DIR / "feedback_log.csv"
 
 
 @dataclass
@@ -69,15 +69,16 @@ def record_feedback(entry: FeedbackEntry) -> None:
 
 def _persist_to_csv(
     entry_dict: Dict,
-    csv_path: str = DEFAULT_CSV_PATH,
+    csv_path: str | Path | None = None,
 ) -> None:
     """Append feedback entry to CSV file."""
+    target_path = Path(csv_path) if csv_path is not None else DEFAULT_CSV_PATH
     df_new = pd.DataFrame([entry_dict])
-    if os.path.exists(csv_path):
-        df_new.to_csv(csv_path, mode="a", header=False, index=False)
+    if target_path.exists():
+        df_new.to_csv(target_path, mode="a", header=False, index=False)
     else:
-        os.makedirs(os.path.dirname(csv_path), exist_ok=True)
-        df_new.to_csv(csv_path, index=False)
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+        df_new.to_csv(target_path, index=False)
 
 
 def get_decision(event_id: str, speaker_id: str) -> Optional[str]:

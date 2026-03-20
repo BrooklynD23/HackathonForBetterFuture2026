@@ -49,6 +49,10 @@ def transform_event_for_matching(
     """
     roles = extracted.get("volunteer_roles", [])
     roles_str = ", ".join(roles) if isinstance(roles, list) else str(roles)
+    date_or_recurrence = extracted.get("date_or_recurrence", "")
+    contact_name = extracted.get("contact_name")
+    contact_email = extracted.get("contact_email")
+    url = extracted.get("url", "")
 
     return {
         "Event / Program": extracted.get("event_name", "Unknown Event"),
@@ -56,10 +60,14 @@ def transform_event_for_matching(
         "Volunteer Roles (fit)": roles_str,
         "Primary Audience": extracted.get("primary_audience", ""),
         "Host / Unit": university,
-        "Date": extracted.get("date_or_recurrence", ""),
-        "Contact Name": extracted.get("contact_name"),
-        "Contact Email": extracted.get("contact_email"),
-        "URL": extracted.get("url", ""),
+        "Recurrence (typical)": date_or_recurrence,
+        "Public URL": url,
+        "Point(s) of Contact (published)": contact_name,
+        "Contact Email / Phone (published)": contact_email,
+        "Date": date_or_recurrence,
+        "Contact Name": contact_name,
+        "Contact Email": contact_email,
+        "URL": url,
         "source": "discovery",
     }
 
