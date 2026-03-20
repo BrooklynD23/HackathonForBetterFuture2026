@@ -29,6 +29,7 @@ from src.ui.pipeline_tab import render_pipeline_tab  # noqa: E402
 from src.ui.expansion_map import render_expansion_map  # noqa: E402
 from src.ui.volunteer_dashboard import render_volunteer_dashboard  # noqa: E402
 from src.feedback.acceptance import render_feedback_sidebar  # noqa: E402
+from src.demo_mode import init_demo_mode  # noqa: E402
 from src.utils import format_course_identifier, summarize_missing_keys  # noqa: E402
 
 logger = logging.getLogger(__name__)
@@ -159,7 +160,15 @@ def render_sidebar():
         st.divider()
 
         st.markdown("### Data Summary")
-        return st.container()
+        data_container = st.container()
+        st.divider()
+        init_demo_mode()
+        st.checkbox(
+            "Demo Mode (offline fixtures)",
+            key="demo_mode",
+            help="Toggle to use cached fixture data instead of live API calls.",
+        )
+        return data_container
 
 
 # ── Main App ────────────────────────────────────────────────────────────────
