@@ -10,6 +10,8 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from src.config import DATA_DIR
+from src.demo_mode import demo_or_live
+from src.runtime_state import get_match_results_df, init_runtime_state
 
 logger = logging.getLogger(__name__)
 
@@ -59,9 +61,13 @@ def aggregate_funnel_stages(df: pd.DataFrame) -> OrderedDict[str, int]:
     return result
 
 
-def _build_hover_text(df: pd.DataFrame, stage_name: str, min_order: int) -> str:
+def _build_hover_text(
+    df: pd.DataFrame,
+    stage_name: str,
+    min_order: int | None,
+) -> str:
     """Build a hover tooltip listing speaker/event pairs for a funnel stage."""
-    if df.empty or "stage_order" not in df.columns:
+    if min_order is None or df.empty or "stage_order" not in df.columns:
         return "No data"
     if stage_name == "Discovered":
         subset = df
@@ -82,15 +88,17 @@ def _build_hover_text(df: pd.DataFrame, stage_name: str, min_order: int) -> str:
 def create_funnel_chart(
     df: pd.DataFrame,
     stage_counts: OrderedDict[str, int],
+    hover_texts: list[str] | None = None,
 ) -> go.Figure:
     """Create a Plotly Funnel chart for the engagement pipeline."""
     stage_names = list(stage_counts.keys())
     counts = list(stage_counts.values())
 
-    hover_texts = [
-        _build_hover_text(df, name, FUNNEL_STAGES[name])
-        for name in stage_names
-    ]
+    if hover_texts is None:
+        hover_texts = [
+            _build_hover_text(df, name, FUNNEL_STAGES.get(name))
+            for name in stage_names
+        ]
 
     fig = go.Figure()
     fig.add_trace(go.Funnel(
@@ -117,17 +125,6 @@ def create_funnel_chart(
     )
 
     return fig
-
-
-def _has_real_data(datasets: object) -> bool:
-    """Check whether *datasets* carries enough real prototype data."""
-    if datasets is None:
-        return False
-    mr = getattr(datasets, "match_results", None)
-    if mr is None or (isinstance(mr, pd.DataFrame) and mr.empty):
-        return False
-    return True
-
 
 def compute_real_funnel_data(
     scraped_events: list[dict],
@@ -223,34 +220,57 @@ def compute_real_funnel_data(
     }
 
 
-def render_pipeline_tab(datasets: object) -> None:
+def render_pipeline_tab(datasets: object | None = None) -> None:
     """Render the Pipeline tab with engagement funnel tracking.
 
-    Prefers real prototype data from *datasets* when available;
+    Prefers runtime state produced by the app;
     falls back to CSV-based pipeline data otherwise.
     """
     st.header("Engagement Pipeline")
+    init_runtime_state()
 
-    if _has_real_data(datasets):
-        funnel = compute_real_funnel_data(
-            scraped_events=getattr(datasets, "scraped_events", []),
-            match_results=getattr(datasets, "match_results", pd.DataFrame()),
-            feedback_log=getattr(datasets, "feedback_log", []),
-            emails_generated=getattr(datasets, "emails_generated", 0),
+    if st.session_state.get("demo_mode", False):
+        payload = demo_or_live(lambda: {}, fixture_key="pipeline_funnel")
+        fixture_stages = payload.get("stages", []) if isinstance(payload, dict) else []
+        df = pd.DataFrame(fixture_stages)
+        stage_counts = OrderedDict(
+            (str(entry.get("stage", "")), int(entry.get("count", 0)))
+            for entry in fixture_stages
         )
-        stage_counts: OrderedDict[str, int] = OrderedDict(
-            zip(funnel["stages"], funnel["counts"])
-        )
-        # Build a slim DataFrame for the data table / hover helpers
-        df = pd.DataFrame({
-            "stage": funnel["stages"],
-            "count": funnel["counts"],
-        })
-        fig = create_funnel_chart(df, stage_counts)
+        hover_texts = [
+            f"{entry.get('count', 0)} records in {entry.get('stage', 'stage')}"
+            for entry in fixture_stages
+        ]
+        fig = create_funnel_chart(df, stage_counts, hover_texts=hover_texts)
     else:
-        df = load_pipeline_data()
-        stage_counts = aggregate_funnel_stages(df)
-        fig = create_funnel_chart(df, stage_counts)
+        match_results = get_match_results_df()
+        scraped_events = st.session_state.get("scraped_events", [])
+        feedback_log = st.session_state.get("feedback_log", [])
+        emails_generated = int(st.session_state.get("emails_generated", 0) or 0)
+
+        if not match_results.empty:
+            funnel = compute_real_funnel_data(
+                scraped_events=scraped_events if isinstance(scraped_events, list) else [],
+                match_results=match_results,
+                feedback_log=feedback_log if isinstance(feedback_log, list) else [],
+                emails_generated=emails_generated,
+            )
+            stage_counts = OrderedDict(zip(funnel["stages"], funnel["counts"]))
+            df = pd.DataFrame(
+                {
+                    "stage": funnel["stages"],
+                    "count": funnel["counts"],
+                }
+            )
+            fig = create_funnel_chart(
+                df,
+                stage_counts,
+                hover_texts=list(funnel["hover_text"]),
+            )
+        else:
+            df = load_pipeline_data()
+            stage_counts = aggregate_funnel_stages(df)
+            fig = create_funnel_chart(df, stage_counts)
 
     st.plotly_chart(fig, use_container_width=True, key="pipeline_funnel")
 

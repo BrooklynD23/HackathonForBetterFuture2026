@@ -17,6 +17,8 @@ Use this page as the entry point for Category 3 planning and implementation docs
 
 - `Category 3 - IA West Smart Match CRM/docs/gemini_provider_decision_2026-03-18.md`
   Provider decision memo documenting the Gemini Developer API runtime adoption, recommended models, and migration notes.
+- `Category 3 - IA West Smart Match CRM/docs/sprints/sprint-3-swarm-orchestration-plan.md`
+  Historical orchestration artifact for the Sprint 3 feature burst. Use it as execution history, not as an authority over the canonical sprint plan.
 - `Category 3 - IA West Smart Match CRM/docs/sprints/sprint-0-foundation.md` through `sprint-4-ship.md`
   Derived implementation specs. These should stay aligned with the canonical docs above.
 - `Category 3 - IA West Smart Match CRM/PLAN.md`
@@ -46,5 +48,14 @@ These are useful for audit history, but they are not implementation authority:
 - Email cache: `cache/emails/<hashed-key>.json`
 - Explanation cache: `cache/explanations/<cache-key>.json`, and only successful Gemini responses should be persisted there
 - Canonical match-result keys: `total_score` and `factor_scores.{topic_relevance, role_fit, geographic_proximity, calendar_fit, historical_conversion, student_interest}`
+- Shared runtime contract: dynamic cross-tab state lives in `st.session_state`, with `match_results_df`, `scraped_events`, `feedback_log`, `emails_generated`, and `demo_mode` treated as the live session contract
 - CSV-backed event rows use literal headers such as `Event / Program`, `Host / Unit`, and `Volunteer Roles (fit)`
+- Pipeline and Volunteer views should consume normalized runtime state, not assume dynamic fields on `LoadedDatasets`
+- Demo Mode must affect production call sites, not only helper utilities or isolated tests
 - Custom URL discovery is restricted to public `http/https` university hosts and must reject localhost/private-network targets
+
+## Current Sprint Status
+
+- Sprint 3 runtime remediation is complete as of 2026-03-20.
+- Full regression in the project virtualenv is green: `./.venv/bin/python -m pytest -q` -> 366 passed.
+- Remaining wrap-up work is documentation/governance refresh and the sprint-closeout commit.

@@ -30,6 +30,7 @@ from src.ui.expansion_map import render_expansion_map  # noqa: E402
 from src.ui.volunteer_dashboard import render_volunteer_dashboard  # noqa: E402
 from src.feedback.acceptance import render_feedback_sidebar  # noqa: E402
 from src.demo_mode import init_demo_mode  # noqa: E402
+from src.runtime_state import get_match_results_df, init_runtime_state  # noqa: E402
 from src.utils import format_course_identifier, summarize_missing_keys  # noqa: E402
 
 logger = logging.getLogger(__name__)
@@ -175,6 +176,7 @@ def render_sidebar():
 
 def main() -> None:
     """Main application entry point."""
+    init_runtime_state()
     config_errors = validate_config()
     if config_errors:
         st.error("Configuration errors detected:")
@@ -282,7 +284,7 @@ def main() -> None:
         render_discovery_tab(datasets)
 
     with tab_pipeline:
-        render_pipeline_tab(datasets)
+        render_pipeline_tab()
 
     with tab_expansion:
         threshold = st.slider(
@@ -300,19 +302,9 @@ def main() -> None:
         from src.feedback.acceptance import init_feedback_state
         init_feedback_state()
         feedback_log = st.session_state.get("feedback_log", [])
-        # Use cached match results from Matches tab if available, otherwise empty
-        import pandas as pd_vol
-        match_results = st.session_state.get(
-            "match_results_df",
-            pd_vol.DataFrame(columns=[
-                "event_id", "speaker_id", "total_score",
-                "topic_relevance", "role_fit", "geographic_proximity",
-                "calendar_fit", "historical_conversion", "student_interest",
-            ]),
-        )
         render_volunteer_dashboard(
             speakers_df=datasets.speakers,
-            match_results=match_results,
+            match_results=get_match_results_df(),
             events_df=datasets.events,
             feedback_log=feedback_log,
         )

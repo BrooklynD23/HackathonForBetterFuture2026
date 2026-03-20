@@ -63,6 +63,14 @@ class TestComputeSpeakerMatches:
         result = compute_speaker_matches("NonExistent", match_results)
         assert result.empty
 
+    def test_accepts_speaker_name_schema(self, match_results: pd.DataFrame) -> None:
+        from src.ui.volunteer_dashboard import compute_speaker_matches
+
+        renamed = match_results.rename(columns={"speaker_id": "speaker_name"})
+        result = compute_speaker_matches("Alice", renamed, top_n=2)
+        assert len(result) == 2
+        assert all(result["speaker_name"] == "Alice")
+
 
 class TestComputeUtilizationMetrics:
     def test_basic(self, match_results: pd.DataFrame) -> None:
@@ -99,6 +107,17 @@ class TestComputeUtilizationMetrics:
         )
         assert metrics["events_available"] == 0
         assert metrics["utilization_rate"] == 0.0
+
+    def test_accepts_event_name_schema(self, match_results: pd.DataFrame) -> None:
+        from src.ui.volunteer_dashboard import compute_utilization_metrics
+
+        renamed = match_results.rename(
+            columns={"speaker_id": "speaker_name", "event_id": "event_name"}
+        )
+        metrics = compute_utilization_metrics(
+            "Alice", renamed, total_events=6, feedback_log=[]
+        )
+        assert metrics["events_matched"] > 0
 
 
 class TestRenderUtilizationBarChart:

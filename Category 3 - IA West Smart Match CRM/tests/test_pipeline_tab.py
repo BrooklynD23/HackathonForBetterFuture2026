@@ -115,6 +115,13 @@ class TestHoverData:
             for name in ["S1", "S2", "E1", "E2", "E3"]
         )
 
+    def test_create_funnel_chart_preserves_explicit_hover_text(self) -> None:
+        stage_counts = FUNNEL_STAGES.copy()
+        hover_text = [f"hover {idx}" for idx, _ in enumerate(stage_counts)]
+        fig = create_funnel_chart(pd.DataFrame(), stage_counts, hover_texts=hover_text)
+        trace = fig.data[0]
+        assert list(trace.hovertext) == hover_text
+
 
 class TestEmptyData:
     def test_empty_data_handled_gracefully(self) -> None:
@@ -287,15 +294,18 @@ _ST_PATCHES = [
 
 
 class TestRenderPipelineTabDataSource:
-    @patch("src.ui.pipeline_tab.st")
+    @patch("streamlit.session_state", new_callable=dict)
     def test_render_pipeline_tab_prefers_real_data(
-        self, mock_st: object, monkeypatch: pytest.MonkeyPatch,
+        self,
+        mock_state: dict,
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        """When datasets has match data, render_pipeline_tab uses compute_real_funnel_data."""
+        """When runtime state has match data, render_pipeline_tab uses compute_real_funnel_data."""
         import src.ui.pipeline_tab as mod
 
         real_called = {"count": 0}
         csv_called = {"count": 0}
+        chart_hover: list[str] = []
 
         def fake_compute_real(
             scraped_events: list,
@@ -307,7 +317,7 @@ class TestRenderPipelineTabDataSource:
             return {
                 "stages": list(FUNNEL_STAGES.keys()),
                 "counts": [100, 80, 60, 40, 30, 5],
-                "hover_text": [""] * 6,
+                "hover_text": [f"hover {idx}" for idx in range(6)],
                 "annotations": [],
             }
 
@@ -315,24 +325,44 @@ class TestRenderPipelineTabDataSource:
             csv_called["count"] += 1
             return pd.DataFrame()
 
+        def fake_create_chart(
+            df: pd.DataFrame,
+            stage_counts: object,
+            hover_texts: list[str] | None = None,
+        ) -> go.Figure:
+            chart_hover[:] = list(hover_texts or [])
+            return go.Figure()
+
         monkeypatch.setattr(mod, "compute_real_funnel_data", fake_compute_real)
         monkeypatch.setattr(mod, "load_pipeline_data", fake_load_pipeline)
+        monkeypatch.setattr(mod, "create_funnel_chart", fake_create_chart)
+        monkeypatch.setattr(mod.st, "header", lambda *args, **kwargs: None)
+        monkeypatch.setattr(mod.st, "plotly_chart", lambda *args, **kwargs: None)
+        monkeypatch.setattr(mod.st, "subheader", lambda *args, **kwargs: None)
+        monkeypatch.setattr(mod.st, "dataframe", lambda *args, **kwargs: None)
+        monkeypatch.setattr(mod.st, "info", lambda *args, **kwargs: None)
 
-        class FakeDatasets:
-            match_results = pd.DataFrame({
-                "event_id": ["E1"], "speaker_id": ["S1"], "total_score": [0.9],
-            })
-            scraped_events = [{"university": "UCLA", "title": "Test"}]
-            feedback_log = [{"decision": "accept"}]
-            emails_generated = 3
+        mock_state["match_results_df"] = pd.DataFrame({
+            "event_id": ["E1"],
+            "speaker_id": ["S1"],
+            "speaker_name": ["S1"],
+            "total_score": [0.9],
+        })
+        mock_state["scraped_events"] = [{"university": "UCLA", "title": "Test"}]
+        mock_state["feedback_log"] = [{"decision": "accept"}]
+        mock_state["emails_generated"] = 3
+        mock_state["demo_mode"] = False
 
-        render_pipeline_tab(FakeDatasets())
+        render_pipeline_tab(None)
         assert real_called["count"] == 1
         assert csv_called["count"] == 0
+        assert chart_hover == [f"hover {idx}" for idx in range(6)]
 
-    @patch("src.ui.pipeline_tab.st")
+    @patch("streamlit.session_state", new_callable=dict)
     def test_render_pipeline_tab_falls_back_to_csv(
-        self, mock_st: object, monkeypatch: pytest.MonkeyPatch,
+        self,
+        mock_state: dict,
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """When datasets has no match data, render_pipeline_tab falls back to CSV."""
         import src.ui.pipeline_tab as mod
@@ -351,9 +381,50 @@ class TestRenderPipelineTabDataSource:
             })
 
         monkeypatch.setattr(mod, "load_pipeline_data", fake_load_pipeline)
+        monkeypatch.setattr(mod.st, "header", lambda *args, **kwargs: None)
+        monkeypatch.setattr(mod.st, "plotly_chart", lambda *args, **kwargs: None)
+        monkeypatch.setattr(mod.st, "subheader", lambda *args, **kwargs: None)
+        monkeypatch.setattr(mod.st, "dataframe", lambda *args, **kwargs: None)
+        monkeypatch.setattr(mod.st, "info", lambda *args, **kwargs: None)
 
+        mock_state["demo_mode"] = False
         render_pipeline_tab(None)
         assert csv_called["count"] == 1
+
+    @patch("streamlit.session_state", new_callable=dict)
+    def test_render_pipeline_tab_uses_demo_fixture(
+        self,
+        mock_state: dict,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        import src.ui.pipeline_tab as mod
+
+        chart_y: list[str] = []
+
+        def fake_create_chart(
+            df: pd.DataFrame,
+            stage_counts: object,
+            hover_texts: list[str] | None = None,
+        ) -> go.Figure:
+            chart_y[:] = list(stage_counts.keys())
+            return go.Figure()
+
+        monkeypatch.setattr(mod, "create_funnel_chart", fake_create_chart)
+        monkeypatch.setattr(mod.st, "header", lambda *args, **kwargs: None)
+        monkeypatch.setattr(mod.st, "plotly_chart", lambda *args, **kwargs: None)
+        monkeypatch.setattr(mod.st, "subheader", lambda *args, **kwargs: None)
+        monkeypatch.setattr(mod.st, "dataframe", lambda *args, **kwargs: None)
+        monkeypatch.setattr(mod.st, "info", lambda *args, **kwargs: None)
+
+        mock_state["demo_mode"] = True
+        render_pipeline_tab(None)
+        assert chart_y == [
+            "Universities Scraped",
+            "Events Discovered",
+            "Events Matched",
+            "Emails Generated",
+            "Outreach Sent",
+        ]
 
 
 class TestCreateFunnelChart:

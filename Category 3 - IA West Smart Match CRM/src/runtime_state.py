@@ -1,0 +1,105 @@
+"""Helpers for shared Streamlit runtime state across tabs."""
+
+from __future__ import annotations
+
+from typing import Any
+
+import pandas as pd
+import streamlit as st
+
+MATCH_RESULTS_COLUMNS: list[str] = [
+    "event_id",
+    "event_name",
+    "speaker_id",
+    "speaker_name",
+    "rank",
+    "total_score",
+    "topic_relevance",
+    "role_fit",
+    "geographic_proximity",
+    "calendar_fit",
+    "historical_conversion",
+    "student_interest",
+]
+
+
+def empty_match_results_df() -> pd.DataFrame:
+    """Return an empty DataFrame matching the cross-tab contract."""
+    return pd.DataFrame(columns=MATCH_RESULTS_COLUMNS)
+
+
+def init_runtime_state() -> None:
+    """Initialize shared runtime keys used by multiple tabs."""
+    if "match_results_df" not in st.session_state:
+        st.session_state["match_results_df"] = empty_match_results_df()
+    if "scraped_events" not in st.session_state:
+        st.session_state["scraped_events"] = []
+    if "emails_generated" not in st.session_state:
+        st.session_state["emails_generated"] = 0
+    if "generated_email_keys" not in st.session_state:
+        st.session_state["generated_email_keys"] = []
+
+
+def normalize_match_results(match_results: list[dict[str, Any]]) -> pd.DataFrame:
+    """Normalize match results into a DataFrame that all tabs can consume."""
+    if not match_results:
+        return empty_match_results_df()
+
+    rows: list[dict[str, Any]] = []
+    for match in match_results:
+        factor_scores = match.get("factor_scores", {})
+        event_name = str(match.get("event_name", "") or "")
+        speaker_name = str(
+            match.get("speaker_name")
+            or match.get("speaker_id")
+            or ""
+        )
+        rows.append(
+            {
+                "event_id": event_name,
+                "event_name": event_name,
+                "speaker_id": speaker_name,
+                "speaker_name": speaker_name,
+                "rank": int(match.get("rank", 0) or 0),
+                "total_score": float(match.get("total_score", 0.0) or 0.0),
+                "topic_relevance": float(factor_scores.get("topic_relevance", 0.0) or 0.0),
+                "role_fit": float(factor_scores.get("role_fit", 0.0) or 0.0),
+                "geographic_proximity": float(
+                    factor_scores.get("geographic_proximity", 0.0) or 0.0
+                ),
+                "calendar_fit": float(factor_scores.get("calendar_fit", 0.0) or 0.0),
+                "historical_conversion": float(
+                    factor_scores.get("historical_conversion", 0.0) or 0.0
+                ),
+                "student_interest": float(
+                    factor_scores.get("student_interest", 0.0) or 0.0
+                ),
+            }
+        )
+
+    return pd.DataFrame(rows, columns=MATCH_RESULTS_COLUMNS)
+
+
+def set_match_results(match_results: list[dict[str, Any]]) -> pd.DataFrame:
+    """Persist normalized match results into session state."""
+    init_runtime_state()
+    normalized = normalize_match_results(match_results)
+    st.session_state["match_results_df"] = normalized
+    return normalized
+
+
+def get_match_results_df() -> pd.DataFrame:
+    """Return the normalized match results from session state."""
+    init_runtime_state()
+    current = st.session_state.get("match_results_df")
+    if isinstance(current, pd.DataFrame):
+        missing_columns = [
+            column for column in MATCH_RESULTS_COLUMNS if column not in current.columns
+        ]
+        if not missing_columns:
+            return current
+        normalized = current.copy()
+        for column in missing_columns:
+            normalized[column] = "" if column.endswith("_id") or column.endswith("_name") else 0.0
+        return normalized.reindex(columns=MATCH_RESULTS_COLUMNS)
+    return empty_match_results_df()

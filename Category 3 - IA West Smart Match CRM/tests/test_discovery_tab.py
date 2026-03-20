@@ -156,3 +156,30 @@ class TestDiscoveryResultsFormatted:
         df = format_events_for_dataframe([])
         assert isinstance(df, pd.DataFrame)
         assert len(df) == 0
+
+
+class TestDiscoveryDemoMode:
+    @patch("streamlit.session_state", new_callable=dict)
+    def test_run_discovery_uses_demo_fixture(
+        self,
+        mock_state: dict,
+    ) -> None:
+        from src.ui.discovery_tab import _run_discovery
+
+        mock_state["demo_mode"] = True
+
+        with (
+            patch("src.ui.discovery_tab.scrape_university") as mock_scrape,
+            patch("src.ui.discovery_tab.extract_events") as mock_extract,
+        ):
+            university, events = _run_discovery(
+                url="https://career.ucla.edu/events/",
+                method="playwright",
+                university="Custom",
+            )
+
+        mock_scrape.assert_not_called()
+        mock_extract.assert_not_called()
+        assert university == "UCLA"
+        assert len(events) == 2
+        assert events[0]["event_name"] == "UCLA Data Analytics Hackathon"

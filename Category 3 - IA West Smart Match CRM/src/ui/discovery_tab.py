@@ -12,7 +12,9 @@ from typing import Any
 import pandas as pd
 import streamlit as st
 
+from src.demo_mode import demo_or_live
 from src.extraction.llm_extractor import extract_events
+from src.runtime_state import init_runtime_state
 from src.scraping.scraper import (
     UNIVERSITY_TARGETS,
     scrape_university,
@@ -133,42 +135,59 @@ def _run_discovery(
     url: str,
     method: str,
     university: str,
-) -> list[dict[str, Any]]:
+) -> tuple[str, list[dict[str, Any]]]:
     """Scrape a URL and extract events, showing progress in Streamlit."""
-    with st.spinner(f"Scraping {university}..."):
-        try:
-            result = scrape_university(url=url, method=method)
-        except PermissionError as exc:
-            st.error(f"Blocked by robots.txt: {exc}")
-            return []
-        except Exception as exc:
-            st.error(f"Scraping failed: {exc}")
-            logger.error("Scrape error for %s: %s", url, exc)
-            return []
+    def _live_discovery() -> dict[str, Any]:
+        with st.spinner(f"Scraping {university}..."):
+            try:
+                result = scrape_university(url=url, method=method)
+            except PermissionError as exc:
+                st.error(f"Blocked by robots.txt: {exc}")
+                return {"university": university, "events": []}
+            except Exception as exc:
+                st.error(f"Scraping failed: {exc}")
+                logger.error("Scrape error for %s: %s", url, exc)
+                return {"university": university, "events": []}
 
-    html = result.get("html", "")
-    source = result.get("source", "live")
-    if source == "cache":
-        st.info("Using cached scrape result.")
+        html = result.get("html", "")
+        source = result.get("source", "live")
+        if source == "cache":
+            st.info("Using cached scrape result.")
 
-    with st.spinner("Extracting events with AI..."):
-        try:
-            events = extract_events(
-                raw_html=html,
-                university=university,
-                url=url,
-            )
-        except Exception as exc:
-            st.error(f"Extraction failed: {exc}")
-            logger.error("Extraction error for %s: %s", url, exc)
-            return []
+        with st.spinner("Extracting events with AI..."):
+            try:
+                events = extract_events(
+                    raw_html=html,
+                    university=university,
+                    url=url,
+                )
+            except Exception as exc:
+                st.error(f"Extraction failed: {exc}")
+                logger.error("Extraction error for %s: %s", url, exc)
+                return {"university": university, "events": []}
+        return {"university": university, "events": events}
+
+    payload = demo_or_live(
+        _live_discovery,
+        fixture_key="discovery_scan",
+    )
+    if st.session_state.get("demo_mode", False):
+        st.info("Demo Mode is using cached discovery results.")
+
+    discovered_university = university
+    events: list[dict[str, Any]] = []
+    if isinstance(payload, dict):
+        discovered_university = str(payload.get("university", university))
+        raw_events = payload.get("events", [])
+        if isinstance(raw_events, list):
+            events = raw_events
 
     if events:
         st.success(f"Found {len(events)} event(s).")
     else:
         st.warning("No relevant events found on this page.")
 
-    return events
+    return discovered_university, events
 
 
 def render_discovery_tab(datasets: Any) -> None:
@@ -180,6 +199,7 @@ def render_discovery_tab(datasets: Any) -> None:
         The loaded datasets object (must have a `calendar` attribute).
     """
     st.header("University Event Discovery")
+    init_runtime_state()
 
     # --- University selector ---
     uni_names = list(UNIVERSITY_TARGETS.keys())
@@ -200,13 +220,17 @@ def render_discovery_tab(datasets: Any) -> None:
 
     # --- Run discovery on button click ---
     if discover_clicked:
-        events = _run_discovery(
+        discovered_university, events = _run_discovery(
             url=uni_cfg["url"],
             method=uni_cfg["method"],
             university=selected_uni,
         )
         st.session_state["discovered_events"] = events
-        st.session_state["discovered_university"] = selected_uni
+        st.session_state["discovered_university"] = discovered_university
+        st.session_state["scraped_events"] = [
+            {**event, "university": discovered_university}
+            for event in events
+        ]
 
     # --- Display results ---
     discovered = st.session_state.get("discovered_events", [])
@@ -247,13 +271,17 @@ def render_discovery_tab(datasets: Any) -> None:
         else:
             st.success("URL is valid.")
             if st.button("Scan Custom URL", key="scan_custom_url_btn"):
-                events = _run_discovery(
+                discovered_university, events = _run_discovery(
                     url=custom_url,
                     method="bs4",
                     university="Custom",
                 )
                 st.session_state["discovered_events"] = events
-                st.session_state["discovered_university"] = "Custom"
+                st.session_state["discovered_university"] = discovered_university
+                st.session_state["scraped_events"] = [
+                    {**event, "university": discovered_university}
+                    for event in events
+                ]
                 st.rerun()
 
     # --- IA West Event Calendar ---

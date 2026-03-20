@@ -4,7 +4,7 @@ authority_scope:
 - portfolio.strategy_rationale
 - portfolio.conflict_resolution
 canonical_upstreams: []
-last_reconciled: '2026-03-18'
+last_reconciled: '2026-03-20'
 managed_by: repo-governance
 ---
 

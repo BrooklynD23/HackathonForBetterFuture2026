@@ -10,6 +10,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from src.config import DEFAULT_WEIGHTS
+from src.demo_mode import demo_or_live
 from src.matching.engine import rank_speakers_for_course, rank_speakers_for_event
 from src.matching.explanations import (
     fallback_match_explanation,
@@ -18,6 +19,7 @@ from src.matching.explanations import (
 )
 from src.feedback.acceptance import render_feedback_buttons
 from src.outreach.ics_generator import ICS_CONTENT_TYPE, generate_ics
+from src.runtime_state import init_runtime_state, set_match_results
 from src.ui.email_panel import render_email_preview
 from src.utils import format_course_display_name, format_course_identifier
 
@@ -50,6 +52,7 @@ def render_matches_tab(
     ia_event_calendar: pd.DataFrame,
 ) -> None:
     """Render the Matches tab in the Streamlit app."""
+    init_runtime_state()
     _render_weight_sliders()
 
     view_mode = st.sidebar.radio(
@@ -154,6 +157,7 @@ def _render_event_matches(
         weights=weights,
         top_n=3,
     )
+    set_match_results(top_matches)
 
     for match in top_matches:
         _render_match_card(match=match, event=selected_event)
@@ -222,6 +226,7 @@ def _render_course_matches(
         weights=weights,
         top_n=3,
     )
+    set_match_results(top_matches)
 
     for match in top_matches:
         _render_match_card(
@@ -341,12 +346,18 @@ def _render_match_explanation(match: dict, event: pd.Series) -> None:
 
     if st.button(button_label, key=button_key):
         with st.spinner("Generating AI explanation..."):
-            explanation = generate_match_explanation(
+            payload = demo_or_live(
+                generate_match_explanation,
                 match_result=match,
                 event_category=event_category,
                 event_volunteer_roles=event_volunteer_roles,
                 event_audience=event_audience,
+                fixture_key="match_explanations",
             )
+            if isinstance(payload, dict):
+                explanation = str(payload.get("explanation", explanation))
+            else:
+                explanation = str(payload)
 
     st.markdown("**Why this match?**")
     st.caption("AI wording is generated on demand to keep weight tuning responsive.")

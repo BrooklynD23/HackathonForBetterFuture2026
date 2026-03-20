@@ -27,3 +27,10 @@ These five files are the current implementation specs for the Category 3 build. 
 - Read `../README.md` first.
 - Do not treat `PLAN.md` as execution authority.
 - Expect flat embedding files in `cache/`, hashed scrape files in `cache/scrapes/`, and hashed email files in `cache/emails/`.
+- Expect live cross-tab runtime state in `st.session_state`, not on `LoadedDatasets`.
+
+## Sprint 3 Closeout
+
+- The Sprint 3 orchestration branch needed a post-implementation integration audit on 2026-03-20.
+- That audit closed the real-data pipeline path, volunteer dashboard state handoff, demo-mode production wiring, and pipeline hover-text regression.
+- Current verification baseline: `./.venv/bin/python -m pytest -q` -> 366 passed.

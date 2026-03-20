@@ -20,6 +20,13 @@ CONVERSION_RATES: Dict[str, float] = {
 }
 
 
+def _resolve_match_columns(match_results: pd.DataFrame) -> tuple[str, str]:
+    """Resolve speaker and event identifier columns across tolerated schemas."""
+    speaker_col = "speaker_id" if "speaker_id" in match_results.columns else "speaker_name"
+    event_col = "event_id" if "event_id" in match_results.columns else "event_name"
+    return speaker_col, event_col
+
+
 def compute_speaker_matches(
     speaker_name: str,
     match_results: pd.DataFrame,
@@ -38,8 +45,9 @@ def compute_speaker_matches(
     Returns:
         DataFrame of top-N matched events for this speaker, sorted descending.
     """
+    speaker_col, _ = _resolve_match_columns(match_results)
     speaker_matches = match_results[
-        match_results["speaker_id"] == speaker_name
+        match_results[speaker_col] == speaker_name
     ].copy()
     speaker_matches = speaker_matches.sort_values(
         "total_score", ascending=False
@@ -59,17 +67,18 @@ def compute_utilization_metrics(
         Dictionary with keys: events_available, events_matched,
         events_accepted, events_attended, utilization_rate, avg_match_score.
     """
+    speaker_col, event_col = _resolve_match_columns(match_results)
     speaker_matches = match_results[
-        match_results["speaker_id"] == speaker_name
+        match_results[speaker_col] == speaker_name
     ]
 
     # Count times this speaker appears in top-3 matches for any event
     top3_count = 0
-    for event_id in match_results["event_id"].unique():
+    for event_id in match_results[event_col].unique():
         event_matches = match_results[
-            match_results["event_id"] == event_id
+            match_results[event_col] == event_id
         ].nlargest(3, "total_score")
-        if speaker_name in event_matches["speaker_id"].values:
+        if speaker_name in event_matches[speaker_col].values:
             top3_count += 1
 
     # Check feedback log for real accept/decline data
@@ -209,7 +218,7 @@ def render_volunteer_dashboard(
 
     for idx, row in top_matches.iterrows():
         with st.expander(
-            f"{row['event_id']} -- Score: {row['total_score']:.0%}",
+            f"{row.get('event_id', row.get('event_name', 'Event'))} -- Score: {row['total_score']:.0%}",
             expanded=(idx == top_matches.index[0]),
         ):
             factor_col1, factor_col2, factor_col3 = st.columns(3)

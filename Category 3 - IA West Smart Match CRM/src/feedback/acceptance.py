@@ -16,6 +16,7 @@ import pandas as pd
 import streamlit as st
 
 from src.config import DEFAULT_WEIGHTS
+from src.demo_mode import load_fixture
 
 # ---------- Data Structures ----------
 
@@ -294,6 +295,20 @@ def render_feedback_sidebar() -> None:
     summary = aggregate_feedback()
 
     if summary["total"] == 0:
+        if st.session_state.get("demo_mode", False):
+            fixture = load_fixture("feedback_summary")
+            aggregate = fixture.get("aggregate", {}) if isinstance(fixture, dict) else {}
+            st.sidebar.markdown("---")
+            st.sidebar.subheader("Match Feedback Summary")
+            st.sidebar.metric("Total", aggregate.get("total_feedback", 0))
+            st.sidebar.metric("Accepted", aggregate.get("accepts", 0))
+            st.sidebar.metric("Declined", aggregate.get("declines", 0))
+            st.sidebar.metric(
+                "Acceptance Rate",
+                f"{float(aggregate.get('accept_rate', 0.0)):.0%}",
+            )
+            st.sidebar.caption("Demo Mode is using cached feedback data.")
+            return
         st.sidebar.markdown("---")
         st.sidebar.caption("No match feedback recorded yet.")
         return
