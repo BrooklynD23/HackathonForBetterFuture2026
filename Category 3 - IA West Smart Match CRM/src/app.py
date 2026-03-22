@@ -28,6 +28,7 @@ from src.ui.discovery_tab import render_discovery_tab  # noqa: E402
 from src.ui.pipeline_tab import render_pipeline_tab  # noqa: E402
 from src.ui.expansion_map import render_expansion_map  # noqa: E402
 from src.ui.volunteer_dashboard import render_volunteer_dashboard  # noqa: E402
+from src.ui.landing_page import render_landing_page  # noqa: E402
 from src.feedback.acceptance import render_feedback_sidebar  # noqa: E402
 from src.demo_mode import init_demo_mode  # noqa: E402
 from src.runtime_state import (  # noqa: E402
@@ -206,6 +207,13 @@ def render_sidebar():
             key="demo_mode",
             help="Toggle to use cached fixture data instead of live API calls.",
         )
+
+        # View navigation
+        if st.session_state.get("current_view") == "crm":
+            if st.button("Back to Home", use_container_width=True):
+                st.session_state["current_view"] = "landing"
+                st.rerun()
+
         return data_container
 
 
@@ -302,6 +310,12 @@ def main() -> None:
                     "to let the app generate it automatically."
                 )
 
+    # ── View Switching: Landing Page vs CRM ──────────────────────────────
+    if st.session_state.get("current_view", "landing") == "landing":
+        render_landing_page(datasets)
+        return
+
+    # ── CRM Tab Layout ─────────────────────────────────────────────────
     tab_matches, tab_discovery, tab_pipeline, tab_expansion, tab_volunteers = st.tabs([
         "🎯 Matches",
         "🔍 Discovery",
@@ -371,7 +385,7 @@ def main() -> None:
             feedback_log=feedback_log,
         )
 
-    # Feedback summary in sidebar
+    # Feedback summary in sidebar (only in CRM view)
     render_feedback_sidebar()
 
 

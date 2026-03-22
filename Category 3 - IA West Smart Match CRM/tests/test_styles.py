@@ -7,11 +7,11 @@ class TestBrandColors:
     """Brand color constants are defined and correct."""
 
     def test_brand_colors_constants_defined(self) -> None:
-        from src.ui.styles import BRAND_NAVY, BRAND_GOLD, BRAND_BLUE
+        from src.ui.styles import BRAND_PRIMARY, BRAND_PRIMARY_CONTAINER, BRAND_ON_PRIMARY
 
-        assert BRAND_NAVY == "#1E3A5F"
-        assert BRAND_GOLD == "#F59E0B"
-        assert BRAND_BLUE == "#2563EB"
+        assert BRAND_PRIMARY == "#005394"
+        assert BRAND_PRIMARY_CONTAINER == "#2b6cb0"
+        assert BRAND_ON_PRIMARY == "#ffffff"
 
 
 class TestCustomCSS:
@@ -24,19 +24,19 @@ class TestCustomCSS:
         assert "<style>" in CUSTOM_CSS
         assert "</style>" in CUSTOM_CSS
 
-    def test_custom_css_contains_ia_west_colors(self) -> None:
+    def test_custom_css_contains_academic_curator_colors(self) -> None:
         from src.ui.styles import CUSTOM_CSS
 
-        assert "#1E3A5F" in CUSTOM_CSS
-        assert "#F59E0B" in CUSTOM_CSS
-        assert "#2563EB" in CUSTOM_CSS
+        assert "#005394" in CUSTOM_CSS  # primary (IA West blue)
+        assert "#2b6cb0" in CUSTOM_CSS  # primary-container
+        assert "#191c1e" in CUSTOM_CSS  # on-surface (not pure black)
 
     def test_custom_css_contains_root_variables(self) -> None:
         from src.ui.styles import CUSTOM_CSS
 
-        assert "--ia-primary" in CUSTOM_CSS
-        assert "--ia-secondary" in CUSTOM_CSS
-        assert "--ia-accent" in CUSTOM_CSS
+        assert "--primary" in CUSTOM_CSS
+        assert "--on-surface" in CUSTOM_CSS
+        assert "--surface" in CUSTOM_CSS
 
 
 class TestInjectCustomCSS:
@@ -157,4 +157,4 @@ class TestStreamlitConfigToml:
         config_path = Path(__file__).resolve().parent.parent / ".streamlit" / "config.toml"
         content = config_path.read_text()
         assert "[theme]" in content
-        assert 'primaryColor = "#2563EB"' in content
+        assert 'primaryColor = "#005394"' in content

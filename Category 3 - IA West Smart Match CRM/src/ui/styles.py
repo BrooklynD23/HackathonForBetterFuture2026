@@ -1,5 +1,7 @@
 """
-Custom CSS for IA SmartMatch.
+Custom CSS for IA SmartMatch — Academic Curator Design System.
+
+Design tokens extracted from Stitch mockups (docs/mockup/).
 Inject at the top of the main app file via st.markdown(..., unsafe_allow_html=True).
 """
 
@@ -10,147 +12,195 @@ from typing import Generator
 
 import streamlit as st
 
-# ── IA West Brand Colors ────────────────────────────────────────────
-BRAND_NAVY: str = "#1E3A5F"
-BRAND_GOLD: str = "#F59E0B"
-BRAND_BLUE: str = "#2563EB"
+# ── Academic Curator Brand Colors ─────────────────────────────────────
+BRAND_PRIMARY: str = "#005394"
+BRAND_PRIMARY_CONTAINER: str = "#2b6cb0"
+BRAND_ON_PRIMARY: str = "#ffffff"
+BRAND_ON_SURFACE: str = "#191c1e"
 
 # ── Custom CSS ──────────────────────────────────────────────────────
 CUSTOM_CSS: str = """
 <style>
-/* ---------- IA West Brand Colors ---------- */
+/* ---------- Google Fonts ---------- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@600;700;800&display=swap');
+
+/* ---------- Academic Curator Design Tokens ---------- */
 :root {
-    --ia-primary:    #1E3A5F;   /* Dark navy */
-    --ia-secondary:  #2563EB;   /* Bright blue */
-    --ia-accent:     #F59E0B;   /* Amber accent */
-    --ia-success:    #059669;   /* Green */
-    --ia-danger:     #DC2626;   /* Red */
-    --ia-gray-100:   #F3F4F6;
-    --ia-gray-200:   #E5E7EB;
-    --ia-gray-500:   #6B7280;
-    --ia-gray-700:   #374151;
-    --ia-gray-900:   #111827;
+    /* Surface Hierarchy (tonal layering, NO borders) */
+    --surface:                  #f7f9fc;
+    --surface-container-low:    #f2f4f7;
+    --surface-container:        #eceef1;
+    --surface-container-lowest: #ffffff;
+    --surface-container-high:   #e6e8eb;
+    --surface-container-highest:#e0e3e6;
+
+    /* Brand Colors */
+    --primary:                  #005394;
+    --primary-container:        #2b6cb0;
+    --on-primary:               #ffffff;
+    --on-surface:               #191c1e;
+    --on-surface-variant:       #414750;
+    --outline-variant:          #c1c7d2;
+    --secondary:                #545f72;
+    --secondary-fixed:          #d8e3fa;
+
+    /* Semantic */
+    --success:                  #059669;
+    --danger:                   #DC2626;
+    --accent:                   #F59E0B;
+
+    /* Typography */
+    --font-headline:            'Inter Tight', sans-serif;
+    --font-body:                'Inter', sans-serif;
+
+    /* Radii */
+    --radius-card:              24px;
+    --radius-button:            12px;
+    --radius-pill:              9999px;
+
+    /* Signature Effects */
+    --hero-gradient:            linear-gradient(135deg, #005394, #2b6cb0);
+    --ambient-shadow:           0 12px 40px rgba(25, 28, 30, 0.06);
+}
+
+/* ---------- Global Typography ---------- */
+html, body, [class*="stApp"] {
+    font-family: var(--font-body) !important;
+    color: var(--on-surface);
+}
+
+h1, h2, h3 {
+    font-family: var(--font-headline) !important;
+    color: var(--on-surface) !important;
 }
 
 /* ---------- Match Card Styling ---------- */
 div[data-testid="stExpander"] {
-    border: 1px solid var(--ia-gray-200);
-    border-radius: 8px;
+    background-color: var(--surface-container-lowest);
+    border: none;
+    border-radius: var(--radius-card);
     margin-bottom: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--ambient-shadow);
 }
 
 div[data-testid="stExpander"] summary {
     font-weight: 600;
-    color: var(--ia-primary);
+    font-family: var(--font-headline);
+    color: var(--primary);
 }
 
 /* ---------- Metric Card Enhancement ---------- */
 div[data-testid="stMetric"] {
-    background-color: var(--ia-gray-100);
-    border-radius: 8px;
+    background-color: var(--surface-container-lowest);
+    border-radius: 16px;
     padding: 12px 16px;
-    border-left: 4px solid var(--ia-secondary);
+    border-left: 4px solid var(--primary);
+    box-shadow: var(--ambient-shadow);
 }
 
 div[data-testid="stMetric"] label {
-    color: var(--ia-gray-500);
+    color: var(--on-surface-variant);
+    font-family: var(--font-body);
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
 
 div[data-testid="stMetric"] [data-testid="stMetricValue"] {
-    color: var(--ia-primary);
+    color: var(--primary);
+    font-family: var(--font-headline);
     font-size: 1.5rem;
     font-weight: 700;
 }
 
 /* ---------- Sidebar Branding ---------- */
 section[data-testid="stSidebar"] {
-    background-color: #F8FAFC;
-    border-right: 2px solid var(--ia-secondary);
+    background-color: var(--surface-container-low);
 }
 
 section[data-testid="stSidebar"] h1,
 section[data-testid="stSidebar"] h2,
 section[data-testid="stSidebar"] h3 {
-    color: var(--ia-primary);
+    color: var(--primary) !important;
+    font-family: var(--font-headline) !important;
 }
 
 /* ---------- Tab Styling ---------- */
 button[data-baseweb="tab"] {
     font-weight: 600;
-    color: var(--ia-gray-500);
+    font-family: var(--font-body);
+    color: var(--on-surface-variant);
 }
 
 button[data-baseweb="tab"][aria-selected="true"] {
-    color: var(--ia-secondary);
-    border-bottom: 3px solid var(--ia-secondary);
+    color: var(--primary);
+    border-bottom: 3px solid var(--primary);
 }
 
 /* ---------- Button Styling ---------- */
 button[kind="primary"] {
-    background-color: var(--ia-secondary);
-    border-color: var(--ia-secondary);
+    background: var(--hero-gradient);
+    border: none;
+    border-radius: var(--radius-button);
 }
 
 button[kind="primary"]:hover {
-    background-color: var(--ia-primary);
-    border-color: var(--ia-primary);
+    opacity: 0.9;
 }
 
 /* ---------- Email Preview Card ---------- */
 .email-preview {
-    background-color: #FFFBEB;
-    border: 1px solid var(--ia-accent);
-    border-radius: 8px;
+    background-color: var(--surface-container-lowest);
+    border-radius: var(--radius-card);
     padding: 16px;
     font-family: Georgia, serif;
     line-height: 1.6;
+    box-shadow: var(--ambient-shadow);
 }
 
 .email-preview .subject-line {
     font-weight: 700;
-    color: var(--ia-primary);
+    color: var(--primary);
+    font-family: var(--font-headline);
     font-size: 1.1rem;
     margin-bottom: 8px;
-    border-bottom: 1px solid var(--ia-gray-200);
     padding-bottom: 8px;
 }
 
 /* ---------- Score Badge ---------- */
 .score-badge {
     display: inline-block;
-    background-color: var(--ia-secondary);
-    color: white;
+    background: var(--hero-gradient);
+    color: var(--on-primary);
     font-size: 1.8rem;
     font-weight: 800;
+    font-family: var(--font-headline);
     padding: 8px 16px;
-    border-radius: 12px;
+    border-radius: var(--radius-button);
     text-align: center;
     min-width: 80px;
 }
 
-.score-badge.high   { background-color: var(--ia-success); }
-.score-badge.medium { background-color: var(--ia-accent);  }
-.score-badge.low    { background-color: var(--ia-danger);  }
+.score-badge.high   { background: var(--success); }
+.score-badge.medium { background: var(--accent);  }
+.score-badge.low    { background: var(--danger);  }
 
 /* ---------- Explanation Card ---------- */
 .explanation-card {
-    background-color: var(--ia-gray-100);
-    border-left: 4px solid var(--ia-secondary);
-    border-radius: 0 8px 8px 0;
+    background-color: var(--surface-container-lowest);
+    border-left: 4px solid var(--primary);
+    border-radius: 0 var(--radius-card) var(--radius-card) 0;
     padding: 12px 16px;
     margin: 8px 0;
     font-style: italic;
-    color: var(--ia-gray-700);
+    color: var(--on-surface-variant);
     line-height: 1.5;
+    box-shadow: var(--ambient-shadow);
 }
 
 /* ---------- Loading State ---------- */
 .stSpinner {
-    color: var(--ia-secondary);
+    color: var(--primary);
 }
 
 /* ---------- Mobile Responsive ---------- */

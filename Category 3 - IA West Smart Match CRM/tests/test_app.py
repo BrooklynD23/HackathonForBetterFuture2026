@@ -109,7 +109,7 @@ class TestMainMatchesAvailability:
         render_matches_mock = MagicMock()
 
         with (
-            patch("streamlit.session_state", new={"demo_mode": demo_mode}),
+            patch("streamlit.session_state", new={"demo_mode": demo_mode, "current_view": "crm"}),
             patch("src.app.init_runtime_state"),
             patch("src.app.validate_config", return_value=[]),
             patch("src.app.render_sidebar", return_value=_noop_context()),
@@ -183,6 +183,7 @@ class TestMainMatchesAvailability:
                 "streamlit.session_state",
                 new={
                     "demo_mode": True,
+                    "current_view": "crm",
                     "matching_discovered_events": [
                         {
                             "event_id": "disc-1",
