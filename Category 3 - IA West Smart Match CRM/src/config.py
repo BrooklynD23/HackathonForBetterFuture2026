@@ -77,9 +77,9 @@ class FactorSpec:
 
 
 FACTOR_REGISTRY: Final[tuple[FactorSpec, ...]] = (
-    FactorSpec("topic_relevance", "Topic Relevance", "Topic", 0.30,
+    FactorSpec("topic_relevance", "Topic Relevance", "Topic", 0.25,
                "topic alignment", "Topic Match"),
-    FactorSpec("role_fit", "Role Fit", "Role Fit", 0.25,
+    FactorSpec("role_fit", "Role Fit", "Role Fit", 0.20,
                "role compatibility", "Role Fit"),
     FactorSpec("geographic_proximity", "Geographic Proximity", "Proximity", 0.20,
                "geographic proximity", "Geographic Fit"),
@@ -89,6 +89,10 @@ FACTOR_REGISTRY: Final[tuple[FactorSpec, ...]] = (
                "engagement history", "Engagement History"),
     FactorSpec("student_interest", "Student Interest", "Student Int.", 0.05,
                "student interest potential", "Student Interest"),
+    FactorSpec("event_urgency", "Event Urgency", "Urgency", 0.05,
+               "scheduling urgency", "Event Urgency"),
+    FactorSpec("coverage_diversity", "Coverage Diversity", "Coverage", 0.05,
+               "assignment diversity", "Coverage Balance"),
 )
 
 # Derived constants — identical values to pre-refactor
