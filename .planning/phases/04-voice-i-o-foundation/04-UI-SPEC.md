@@ -5,6 +5,7 @@ status: draft
 shadcn_initialized: false
 preset: none
 created: 2026-03-23
+revised: 2026-03-23
 ---
 
 # Phase 4 — UI Design Contract: Voice I/O Foundation
@@ -22,7 +23,7 @@ created: 2026-03-23
 | Preset | not applicable | Streamlit project, no shadcn |
 | Component library | Streamlit native widgets + custom CSS | `src/ui/styles.py` |
 | Icon library | none declared — use Streamlit emoji literals for status indicators | default |
-| Font | Inter (body, 400/500/600) + Inter Tight (headings, 600/700/800) via Google Fonts | `src/ui/styles.py` line 28 |
+| Font | Inter (body, 400/600) + Inter Tight (headings, 600) via Google Fonts | `src/ui/styles.py` line 28 |
 
 **Note:** This is a Streamlit/Python project. No React component library applies. All styling
 is injected via `st.markdown(unsafe_allow_html=True)` through the existing `inject_custom_css()`
@@ -56,12 +57,13 @@ Exceptions:
 All sizes in px, mapped to the existing `--font-body` (Inter) and `--font-headline` (Inter Tight)
 CSS custom properties from `src/ui/styles.py`.
 
+**Declared weights: 2 — regular (400) and semibold (600).**
+
 | Role | Size | Weight | Line Height | Element |
 |------|------|--------|-------------|---------|
 | Body | 16px | 400 | 1.5 | Chat bubble message text, input field placeholder |
-| Label | 13px | 500 | 1.4 | Timestamp in chat bubble meta row, intent badge text |
+| Label | 13px | 400 | 1.4 | Timestamp in chat bubble meta row, intent badge text |
 | Heading | 20px | 600 | 1.2 | "Command Center" tab section header ("Jarvis — Voice Command Center") |
-| Display | 28px | 700 | 1.1 | Not used in Phase 4 |
 
 Font family assignments:
 - Body + Label: `var(--font-body)` → Inter
@@ -89,7 +91,7 @@ Accent (`#005394`) reserved for:
 
 Semantic colors (not part of 60/30/10 but present in existing design system):
 - `#059669` (`--success`): microphone connected/ready indicator dot
-- `#F59E0B` (`--accent`): intent badge background (`[Intent: echo]` pill)
+- `#F59E0B` (`--intent-badge-color`): intent badge background (`[Intent: echo]` pill) — named separately to avoid collision with `--primary` accent
 - `#545f72` (`--secondary`): timestamp and meta text in chat bubbles
 
 Chat bubble color differentiation (within secondary `#ffffff` base):
@@ -118,12 +120,12 @@ New CSS classes to add to `src/ui/styles.py` as part of Phase 4:
 - `align-self: flex-end`; `border-left: 3px solid var(--primary)`
 
 ### `.chat-meta`
-- `font-size: 13px`; `font-weight: 500`; `color: var(--secondary)`
+- `font-size: 13px`; `font-weight: 400`; `color: var(--secondary)`
 - `margin-top: 4px`; `font-family: var(--font-body)`
 
 ### `.intent-badge`
-- `display: inline-block`; `background: var(--accent)` (`#F59E0B`); `color: #ffffff`
-- `font-size: 13px`; `font-weight: 500`; `padding: 2px 8px`; `border-radius: var(--radius-pill)`
+- `display: inline-block`; `background: var(--intent-badge-color)` (`#F59E0B`); `color: #ffffff`
+- `font-size: 13px`; `font-weight: 400`; `padding: 2px 8px`; `border-radius: var(--radius-pill)`
 - `margin-left: 8px`
 
 ### `.mic-button-active`
@@ -134,6 +136,8 @@ New CSS classes to add to `src/ui/styles.py` as part of Phase 4:
 ### `.voice-panel`
 - `background: var(--surface-container-lowest)`; `border-radius: var(--radius-card)` (24px)
 - `padding: 16px`; `margin-bottom: 24px`; `box-shadow: var(--ambient-shadow)`
+
+**CSS variable addition required in `:root`:** Add `--intent-badge-color: #F59E0B;` alongside the existing semantic color declarations in `src/ui/styles.py`.
 
 ---
 
@@ -209,6 +213,7 @@ injected via `inject_custom_css()` in `src/ui/styles.py`.
 Append new CSS classes (`.chat-container`, `.chat-bubble`, `.chat-bubble.coordinator`,
 `.chat-bubble.jarvis`, `.chat-meta`, `.intent-badge`, `.mic-button-active`, `.voice-panel`)
 to the `CUSTOM_CSS` string at the bottom of the existing `<style>` block.
+Add `--intent-badge-color: #F59E0B;` to the `:root` block alongside existing semantic color vars.
 Do not create a separate CSS file. Do not modify any existing class definitions.
 
 ### New file: `src/ui/command_center.py`
