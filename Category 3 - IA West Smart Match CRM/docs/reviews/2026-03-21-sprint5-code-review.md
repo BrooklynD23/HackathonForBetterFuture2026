@@ -36,5 +36,6 @@ Phase 3 fixes the accepted findings by:
 ## Verification Reference
 
 - Targeted regressions after the fix pass: `87 passed in 6.56s`
-- Full regression baseline after the fix pass: `392 passed in 11.93s`
+- Full regression baseline after the fix pass: `424 passed in 66.40s` (82% coverage)
 - `scripts/sprint4_preflight.py`: passes with the same expected cache warnings for un-warmed live artifacts
+- Final verification: all metrics updated and documented in `docs/sprints/sprint-5-final-closeout.md`

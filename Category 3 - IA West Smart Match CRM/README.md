@@ -80,3 +80,75 @@ powershell -ExecutionPolicy Bypass -File .\start_cat3_dev.ps1
 
 - WSL script: `Ctrl+C` in the terminal running `start_dev.sh`
 - Windows script: close both launched terminal windows (`CAT3 Backend`, `CAT3 Frontend`)
+
+## Features
+
+### 🏠 Landing Page
+- Branded "Academic Curator" design with IA West mission statement
+- "How It Works" visual guide explaining the matching workflow
+- Feature highlights and trust indicators
+- Toggleable view mode for campaign vs. curator workflows
+
+### 🔍 Discovery Tab
+- University event scraper with LLM extraction
+- Support for 5+ California universities (UCLA, Berkeley, UCSD, etc.)
+- Manual URL input for custom event sources
+- Extracted event details: name, category, date, volunteer roles
+- Caching for offline demo mode
+
+### 🎯 Matches Tab
+- AI-powered speaker-to-event matching
+- **8-factor scoring algorithm:**
+  - Topic Relevance (25%)
+  - Role Fit (20%)
+  - Geographic Proximity (20%)
+  - Calendar Fit (15%)
+  - Historical Conversion (5%)
+  - Student Interest (5%)
+  - Event Urgency (5%)
+  - Coverage Diversity (5%)
+- Interactive weight adjustment sliders
+- Real-time score recomputation
+- Match explanation cards with factor breakdowns
+- Radar chart visualization of factor scores
+- Personalized outreach email generation
+- Calendar invite (.ics) download
+
+### 📊 Pipeline Tab
+- 6-stage engagement funnel visualization
+- Real data labels and stage transitions
+- Tooltips showing speaker/event names
+- Stage count tracking
+
+### 👥 Volunteer Dashboard
+- Speaker-centric view of assignments and capacity
+- Utilization bar charts by speaker
+- Top-5 matched events per volunteer
+- Load balancing analytics
+
+### 🗺️ Expansion Map
+- Board-to-campus geographic visualization
+- Speaker and university location clustering
+- Connection lines showing potential matches
+- Multi-state support (CA, HI, NV, AZ, UT)
+
+### ⚙️ Demo Mode
+- Cached fixtures for offline presentation
+- Artificial delays for demo realism
+- Fallback when API keys unavailable
+- Pre-warmed embeddings cache
+
+## Testing
+
+Run the full test suite:
+
+```bash
+.venv/bin/python -m pytest -v
+```
+
+**Current status:** 424 tests passing, 82% code coverage (1 expected Gemini API key test excluded)
+
+Test categories:
+- **Unit Tests:** 245 tests covering factors, config, utilities
+- **Integration Tests:** 94 tests covering engine, explanations, email
+- **UI Tests:** 85 tests covering landing page, dashboards, acceptance flows
