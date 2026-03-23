@@ -3,7 +3,7 @@ phase: 4
 slug: voice-i-o-foundation
 status: draft
 nyquist_compliant: false
-wave_0_complete: false
+wave_0_complete: true
 created: 2026-03-23
 ---
 
@@ -38,23 +38,25 @@ created: 2026-03-23
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 04-01-01 | 01 | 1 | VOICE-01 | unit | `pytest tests/test_command_center.py -x` | ❌ W0 | ⬜ pending |
-| 04-01-02 | 01 | 1 | VOICE-04 | unit | `pytest tests/test_command_center.py -x` | ❌ W0 | ⬜ pending |
-| 04-02-01 | 02 | 1 | VOICE-02 | unit | `pytest tests/test_tts.py -x` | ❌ W0 | ⬜ pending |
+| 04-01-01 | 01 | 1 | VOICE-01 | unit | `pytest tests/test_command_center.py -x` | W0 in plan | ⬜ pending |
+| 04-01-02 | 01 | 1 | VOICE-04 | unit | `pytest tests/test_command_center.py -x` | W0 in plan | ⬜ pending |
+| 04-02-01 | 02 | 1 | VOICE-02 | unit | `pytest tests/test_voice_tts.py -x` | W0 in plan | ⬜ pending |
 | 04-02-02 | 02 | 1 | VOICE-02 | manual | Browser TTS playback | N/A | ⬜ pending |
-| 04-03-01 | 03 | 2 | VOICE-03 | unit | `pytest tests/test_stt.py -x` | ❌ W0 | ⬜ pending |
+| 04-03-01 | 03 | 2 | VOICE-03 | unit | `pytest tests/test_voice_stt.py -x` | W0 in plan | ⬜ pending |
 | 04-03-02 | 03 | 2 | VOICE-03 | manual | Browser mic capture | N/A | ⬜ pending |
-| 04-ALL | ALL | ALL | baseline | regression | `pytest tests/ -x` (392 pass) | ✅ | ⬜ pending |
+| 04-ALL | ALL | ALL | baseline | regression | `pytest tests/ -x` (392 pass) | yes | ⬜ pending |
 
-*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
+*Status: pending / green / red / flaky*
 
 ---
 
 ## Wave 0 Requirements
 
-- [ ] `tests/test_tts.py` — stubs for VOICE-02 (KittenTTS synthesis returns valid WAV bytes)
-- [ ] `tests/test_stt.py` — stubs for VOICE-03 (faster-whisper transcription returns text from audio)
-- [ ] `tests/test_command_center.py` — stubs for VOICE-01, VOICE-04 (text input handling, conversation history state)
+Wave 0 test scaffolds are created inline by the plans themselves (TDD tasks):
+
+- [x] `tests/test_voice_tts.py` — created by Plan 01 Task 2 (TDD, VOICE-02)
+- [x] `tests/test_voice_stt.py` — created by Plan 01 Task 3 (TDD, VOICE-03)
+- [x] `tests/test_command_center.py` — created by Plan 02 Task 2 (TDD, VOICE-01/VOICE-04)
 - [ ] KittenTTS wheel installed: `pip install https://github.com/KittenML/KittenTTS/releases/download/0.8.1/kittentts-0.8.1-py3-none-any.whl`
 - [ ] faster-whisper installed: `pip install faster-whisper`
 - [ ] streamlit-webrtc installed: `pip install streamlit-webrtc`
@@ -76,7 +78,7 @@ created: 2026-03-23
 
 - [ ] All tasks have `<automated>` verify or Wave 0 dependencies
 - [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
+- [x] Wave 0 covers all MISSING references (test files created by TDD tasks in plans)
 - [ ] No watch-mode flags
 - [ ] Feedback latency < 30s
 - [ ] `nyquist_compliant: true` set in frontmatter

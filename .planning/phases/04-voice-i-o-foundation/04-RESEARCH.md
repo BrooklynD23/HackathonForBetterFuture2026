@@ -18,7 +18,7 @@
 - Single shared input field for both text typing and STT transcript insertion — unified conversation flow
 
 **TTS Voice and Playback**
-- Use KittenTTS voice "af_heart" for Jarvis — warm, clear, professional tone
+- Use KittenTTS voice "Bella" for Jarvis — warm, clear female voice (NOTE: "af_heart" from discuss was invalid; research confirmed valid voices are Bella, Jasper, Luna, Bruno, Rosie, Hugo, Kiki, Leo)
 - Auto-play TTS output via `st.audio(autoplay=True)` — more natural demo UX, Jarvis "speaks" immediately after each response
 - Sentence-chunked TTS generation — split response text on `.`/`?`, generate per sentence, play sequentially to reduce perceived latency
 - Cache TTS model in `st.session_state["tts_model"]` — load once per session on first use, avoids 3-5s cold start on every call
