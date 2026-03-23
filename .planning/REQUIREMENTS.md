@@ -1,7 +1,7 @@
 # Requirements: IA West SmartMatch CRM
 
 **Defined:** 2026-03-20
-**Updated:** 2026-03-23 (v2.0 Jarvis Agent Coordinator)
+**Updated:** 2026-03-23 (v2.0 Jarvis Agent Coordinator — traceability updated after roadmap)
 **Core Value:** A coordinator can use voice or text to command an AI assistant that orchestrates parallel agents for event discovery, speaker matching, and outreach — with human approval gating every action.
 
 ## v1 Requirements (Sprint 5 Closeout — Complete)
@@ -97,30 +97,30 @@
 | DOC-01 | Phase 2 (v1) | Complete |
 | REV-01 | Phase 3 (v1) | Complete |
 | REV-02 | Phase 3 (v1) | Complete |
-| VOICE-01 | TBD | Pending |
-| VOICE-02 | TBD | Pending |
-| VOICE-03 | TBD | Pending |
-| VOICE-04 | TBD | Pending |
-| ORCH-01 | TBD | Pending |
-| ORCH-02 | TBD | Pending |
-| ORCH-03 | TBD | Pending |
-| ORCH-04 | TBD | Pending |
-| HITL-01 | TBD | Pending |
-| HITL-02 | TBD | Pending |
-| HITL-03 | TBD | Pending |
-| DASH-01 | TBD | Pending |
-| DASH-02 | TBD | Pending |
-| DASH-03 | TBD | Pending |
-| POC-01 | TBD | Pending |
-| POC-02 | TBD | Pending |
-| POC-03 | TBD | Pending |
+| VOICE-01 | Phase 4 | Pending |
+| VOICE-02 | Phase 4 | Pending |
+| VOICE-03 | Phase 4 | Pending |
+| VOICE-04 | Phase 4 | Pending |
+| HITL-01 | Phase 5 | Pending |
+| HITL-02 | Phase 5 | Pending |
+| HITL-03 | Phase 5 | Pending |
+| ORCH-04 | Phase 5 | Pending |
+| ORCH-01 | Phase 6 | Pending |
+| ORCH-02 | Phase 6 | Pending |
+| ORCH-03 | Phase 6 | Pending |
+| POC-01 | Phase 6 | Pending |
+| POC-02 | Phase 6 | Pending |
+| DASH-01 | Phase 7 | Pending |
+| DASH-02 | Phase 7 | Pending |
+| DASH-03 | Phase 7 | Pending |
+| POC-03 | Phase 7 | Pending |
 
 **Coverage:**
 - v1 requirements: 9 total (9 complete)
 - v2 requirements: 16 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 16
+- Mapped to phases: 16 (100% coverage)
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-20*
-*Last updated: 2026-03-23 after v2.0 milestone requirements definition*
+*Last updated: 2026-03-23 after v2.0 roadmap phase mapping*
