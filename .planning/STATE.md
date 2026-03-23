@@ -2,38 +2,32 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-20)
+See: .planning/PROJECT.md (updated 2026-03-23)
 
-**Core value:** An operator can run a dependable end-to-end SmartMatch demo flow that surfaces credible matches and outreach artifacts without closeout-time surprises.
-**Current focus:** Sprint 5 Closeout Complete
+**Core value:** A coordinator can use voice or text to command an AI assistant that orchestrates parallel agents for event discovery, speaker matching, and outreach — with human approval gating every action.
+**Current focus:** v2.0 Jarvis Agent Coordinator
 
 ## Current Position
 
-Phase: 3 of 3 (Adversarial Audit and Sprint Closure)
-Plan: 3 of 3 in current phase
-Status: Complete
-Last activity: 2026-03-21 - Completed review artifact, remediation, closeout docs, targeted `87 passed`, full `392 passed`, and preflight verification for Sprint 5
-
-Progress: [██████████] 100%
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-23 — Milestone v2.0 started
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
+- Total plans completed: 8 (from v1.0)
 - Average duration: not tracked
 - Total execution time: not tracked
 
-**By Phase:**
+**By Phase (v1.0):**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1. Runtime Fixes and Clean Outputs | 3 | not tracked | not tracked |
 | 2. Documentation and Governance Reconciliation | 2 | not tracked | not tracked |
 | 3. Adversarial Audit and Sprint Closure | 3 | not tracked | not tracked |
-
-**Recent Trend:**
-- Last 5 plans: 02-01, 02-02, 03-01, 03-02, 03-03
-- Trend: Sprint 5 engineering scope closed
 
 ## Accumulated Context
 
@@ -42,9 +36,10 @@ Progress: [██████████] 100%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- Phase 1: Keep Sprint 5 limited to implementation fixes, demo-path hardening, and generated-output isolation already implied by closeout requirements.
-- Phase 2: Reconcile every closeout-facing doc from one live verification baseline instead of preserving stale historical counts.
-- Phase 3: Require `$ecc-code-review`, accepted-finding remediation, and explicit closure evidence before declaring Sprint 5 complete.
+- v2.0: Full-duplex voice + text via KittenTTS with NemoClaw sub-agent orchestration
+- v2.0: Human-in-the-loop approval gates ALL agent actions — no autonomous execution
+- v2.0: Extend existing Streamlit app rather than building separate interface
+- v2.0: Demo wow moment = visual multi-agent orchestration "command center"
 
 ### Pending Todos
 
@@ -53,11 +48,12 @@ Recent decisions affecting current work:
 
 ### Blockers/Concerns
 
-- The worktree is already dirty outside Sprint 5, so all closeout commits must use explicit pathspecs.
-- Live cache warming and real demo-machine rehearsal remain manual closeout steps after the code-side verification baseline.
+- KittenTTS and NemoClaw integration patterns need research — new dependencies.
+- Full-duplex voice in Streamlit may require WebSocket or browser audio API integration.
+- The worktree is already dirty outside this milestone — use explicit pathspecs.
 
 ## Session Continuity
 
-Last session: 2026-03-21 10:16 PDT
-Stopped at: Sprint 5 closeout complete; remaining work is manual demo-day follow-up only
+Last session: 2026-03-23
+Stopped at: v2.0 milestone initialization — defining requirements
 Resume file: None

@@ -1,21 +1,23 @@
-# Hackathon For Better Future 2026 - Category 3 SmartMatch Closeout
+# Hackathon For Better Future 2026 - Category 3 SmartMatch CRM
 
 ## What This Is
 
-This repository contains the IA West SmartMatch CRM hackathon build, with the active product implementation living in `Category 3 - IA West Smart Match CRM/`. The application is a Streamlit-based demo that loads curated IA West data, discovers public university events, ranks speakers against event and course opportunities, and generates outreach artifacts. GSD is being initialized here to drive a Sprint 5 closeout milestone focused on reliability, documentation, governance, and final review rather than net-new product scope.
+This repository contains the IA West SmartMatch CRM hackathon build, with the active product implementation living in `Category 3 - IA West Smart Match CRM/`. The application is a Streamlit-based demo that loads curated IA West data, discovers public university events, ranks speakers against event and course opportunities, and generates outreach artifacts. In v2.0 the app evolves into a "Jarvis"-style AI coordinator: a full-duplex voice + text agent (powered by KittenTTS) that proposes actions to the human coordinator, and dispatches parallel sub-agents via Nvidia NemoClaw for webscraping, speaker matching, outreach drafting, and POC contact management — all within the existing Streamlit interface.
 
 ## Core Value
 
-An operator can run a dependable end-to-end SmartMatch demo flow that surfaces credible matches and outreach artifacts without closeout-time surprises.
+A coordinator can use voice or text to command an AI assistant that orchestrates parallel agents for event discovery, speaker matching, and outreach — with human approval gating every action.
 
-## Current Milestone: v1.0 Sprint 5 Closeout
+## Current Milestone: v2.0 Jarvis Agent Coordinator
 
-**Goal:** Finish the Category 3 wrap-up work in a controlled, reviewable way on `sprint5-cat3`.
+**Goal:** Add an agentic AI coordination layer to SmartMatch CRM — voice/text interface via KittenTTS, sub-agent orchestration via NemoClaw, human-in-the-loop approval for all actions, with a demo-ready "command center" showing multi-agent dispatching in real-time.
 
 **Target features:**
-- Fix any broken runtime flows that block the intended discovery-to-match demo path.
-- Reconcile verification evidence and governance/docs state to a single live source of truth.
-- Run adversarial review, implement accepted fixes, and close the sprint cleanly.
+- Full-duplex voice + text interaction with the coordinator via KittenTTS integration
+- NemoClaw-orchestrated sub-agents for webscraping, matching, outreach, and POC management
+- Human-in-the-loop approval workflow — Jarvis proposes, coordinator approves before execution
+- Visual multi-agent orchestration dashboard ("command center") in Streamlit
+- Extend existing SmartMatch capabilities (discovery, ranking, outreach) as agent-callable services
 
 ## Requirements
 
@@ -33,14 +35,19 @@ An operator can run a dependable end-to-end SmartMatch demo flow that surfaces c
 
 ### Active
 
-- None - Sprint 5 closeout engineering scope is complete on `sprint5-cat3`.
+- [ ] Full-duplex voice + text coordinator interface via KittenTTS
+- [ ] NemoClaw sub-agent orchestration for webscraping, matching, outreach, and POC management
+- [ ] Human-in-the-loop approval workflow — all agent actions require coordinator sign-off
+- [ ] Visual multi-agent orchestration dashboard ("command center") in Streamlit
+- [ ] Existing SmartMatch capabilities wrapped as agent-callable services
+- [ ] POC contact management with communication history and follow-up tracking
 
 ### Out of Scope
 
-- Net-new Category 3 product features beyond the existing hackathon MVP - the checked-in docs only justify wrap-up work at this stage
-- Large structural refactors of monolithic runtime modules - too risky for a closeout sprint with an already green baseline
-- New persistence, authentication, or cloud-infrastructure features - not part of the current product contract or remaining wrap-up scope
-- Portfolio-wide replanning outside the Category 3 closeout lane - this milestone is scoped to finishing Category 3 cleanly
+- Fully autonomous agent actions without human approval — all actions gate on coordinator confirmation
+- Mobile or native app interfaces — Streamlit web interface only for v2.0
+- Custom TTS model training — use KittenTTS as provided
+- Production deployment infrastructure (auth, scaling, multi-tenant) — demo-focused for hackathon
 
 ## Context
 
@@ -52,11 +59,11 @@ An operator can run a dependable end-to-end SmartMatch demo flow that surfaces c
 
 ## Constraints
 
-- **Scope**: Sprint 5 is a closeout milestone - avoid inventing new product scope unless the current runtime contract is already broken.
-- **Tech stack**: Preserve the existing Python + Streamlit + pandas + Plotly + Gemini runtime centered in `Category 3 - IA West Smart Match CRM/src/`.
-- **Verification**: No phase is done without direct evidence from tests, scripts, or document reconciliation.
-- **Working tree**: The repo is already dirty outside this milestone - do not revert or accidentally stage unrelated files.
-- **Deployment**: Keep the Streamlit Cloud and cache-first demo assumptions documented in the Category 3 docs intact unless intentionally corrected.
+- **Tech stack**: Python + Streamlit + pandas + Plotly + Gemini runtime in `Category 3 - IA West Smart Match CRM/src/`, extended with KittenTTS (https://github.com/KittenML/KittenTTS) and Nvidia NemoClaw (https://build.nvidia.com/nemoclaw).
+- **Verification**: No phase is done without direct evidence from tests, scripts, or demo verification.
+- **Working tree**: The repo is already dirty outside this milestone — use explicit pathspecs for commits.
+- **Demo-first**: Every feature must be demonstrable in the Streamlit app for hackathon presentation.
+- **Human-in-the-loop**: No agent action executes without coordinator approval — this is a hard architectural constraint, not a nice-to-have.
 
 ## Key Decisions
 
@@ -86,4 +93,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-21 after Sprint 5 closeout*
+*Last updated: 2026-03-23 after v2.0 Jarvis Agent Coordinator milestone start*
