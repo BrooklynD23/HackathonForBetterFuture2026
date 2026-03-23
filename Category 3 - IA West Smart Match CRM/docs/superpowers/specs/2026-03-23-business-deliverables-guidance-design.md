@@ -57,17 +57,17 @@ All headline numbers pre-calculated from actual CSV data:
 
 | Stat | Value | Source |
 |------|-------|--------|
-| Board volunteers | 18 across 7 metro regions | data_speaker_profiles.csv |
-| Metro regions | Seattle, Portland, SF, LA (4 sub-regions), Ventura, San Diego | data_speaker_profiles.csv |
+| Board volunteers | 18 across 10 metro designations, grouped into 7 consolidated regions | data_speaker_profiles.csv |
+| Metro regions (consolidated) | Seattle, Portland, SF, Los Angeles area (5 sub-designations: LA, LA-West, LA-East, LA-North, LA-Long Beach), Ventura/Thousand Oaks, San Diego. Note: speaker profiles use 10 distinct labels; the IA event calendar groups these into 7 regions. Use "7 regions" in deliverables for cleaner narrative. | data_speaker_profiles.csv + data_event_calendar.csv |
 | CPP events | 15 distinct opportunities | data_cpp_events_contacts.csv |
-| CPP courses | 35 sections (10 High / 17 Medium / 8 Low guest lecture fit) | data_cpp_course_schedule.csv |
+| CPP courses | 35 sections (10 High / 16 Medium / 9 Low guest lecture fit) | data_cpp_course_schedule.csv |
 | High-fit course percentage | 28.6% (10/35) | Derived |
 | IA West calendar events | 9 events across 7 regions in 2026 | data_event_calendar.csv |
 | Universities mapped to IA events | 20+ across CA, OR, WA | data_event_calendar.csv |
 | Discovery universities configured | 5 (UCLA, SDSU, UC Davis, USC, Portland State) | Prototype config |
-| Matching factors | 8-factor weighted algorithm | Prototype |
+| Matching factors | 8-factor weighted algorithm (expanded from PRD's original 6 factors; `event_urgency` and `coverage_diversity` added in Sprint 5, commit 5042bad) | Prototype — src/config.py FACTOR_REGISTRY |
 | Pipeline stages | 6 (Discovered, Matched, Contacted, Confirmed, Attended, Member Inquiry) | Prototype |
-| Simulated pipeline conversion | 80% contact, 45% confirm, 75% attend, 15% inquiry | src/ui/pipeline_tab.py |
+| Simulated pipeline conversion | 80% contact, 45% confirm, 75% attend, 15% inquiry | src/matching/engine.py (constants), rendered in src/ui/pipeline_tab.py |
 | Total structured records | 77 rows across 4 CSV files | All data files |
 | Student PII collected | 0 rows | Design choice |
 
@@ -208,7 +208,7 @@ Guest Lecture Penetration = booked_lectures / high_fit_courses (10) x 100
 Format as formal experimental design (MR professionals will respect this):
 
 - **Hypothesis:** Increasing topic_relevance weight from 0.25 to 0.35 (redistributing from geographic_proximity) will increase match acceptance rate by >=10 percentage points
-- **Design:** Two-cell A/B test. Cell A = default weights (control). Cell B = boosted topic_relevance (treatment). Randomly assign incoming events to cells.
+- **Design:** Two-cell A/B test. Cell A = current prototype defaults (topic_relevance = 0.25, per src/config.py) as control. Cell B = boosted topic_relevance (0.35) as treatment. Randomly assign incoming events to cells. Note: the PRD originally specified topic_relevance at 0.30; the prototype defaults differ — use the prototype values as the A/B baseline.
 - **Sample size:** Minimum 30 match decisions per cell (practical: ~10 events x 3 matches each)
 - **Primary metric:** Match acceptance rate per cell
 - **Secondary metrics:** Decline reason distribution, average match score of accepted matches
@@ -314,9 +314,9 @@ Must-include quote: "No black-box scores. Every recommendation is decomposable i
 
 ---
 
-### Mission 4 — Demo Script & Presentation Narrative (~200 lines)
+### Mission 4 — Demo Script & Presentation Narrative (~1 page, ~200 lines)
 
-**Judging Target:** Prototype Quality (15 pts) — also reinforces Growth Strategy, Measurement Plan, and Responsible AI through demonstration
+**Judging Target:** Prototype Quality (15 pts) + Scalability (5 pts) — also reinforces Growth Strategy, Measurement Plan, and Responsible AI through demonstration. This mission addresses the remaining 20 of 50 judging points not covered by the written deliverables.
 
 #### Outline
 
