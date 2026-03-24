@@ -20,15 +20,21 @@ SUPPORTED_INTENTS: frozenset[str] = frozenset({
     "rank_speakers",
     "generate_outreach",
     "check_contacts",
+    "prepare_campaign",
     "unknown",
 })
 
 ACTION_REGISTRY: list[dict[str, str]] = [
-    {"intent": "discover_events",   "agent": "Discovery Agent",  "description": "Scrape universities for new events"},
-    {"intent": "rank_speakers",     "agent": "Matching Agent",   "description": "Rank speakers for a target event"},
-    {"intent": "generate_outreach", "agent": "Outreach Agent",   "description": "Draft outreach emails for a match"},
-    {"intent": "check_contacts",    "agent": "Contacts Agent",   "description": "Review POC contact status"},
+    {"intent": "discover_events",   "agent": "Discovery Agent",       "description": "Scrape universities for new events"},
+    {"intent": "rank_speakers",     "agent": "Matching Agent",        "description": "Rank speakers for a target event"},
+    {"intent": "generate_outreach", "agent": "Outreach Agent",        "description": "Draft outreach emails for a match"},
+    {"intent": "check_contacts",    "agent": "Contacts Agent",        "description": "Review POC contact status"},
+    {"intent": "prepare_campaign",  "agent": "Campaign Orchestrator", "description": "Discover events + rank speakers + generate outreach (parallel)"},
 ]
+
+MULTI_STEP_INTENTS: dict[str, list[str]] = {
+    "prepare_campaign": ["discover_events", "rank_speakers", "generate_outreach"],
+}
 
 _SYSTEM_PROMPT = """\
 You are Jarvis, an AI coordinator assistant. Given a coordinator command and a list
@@ -44,6 +50,8 @@ Response format (JSON only, no markdown):
   "params": {{}},
   "reasoning": "<one sentence explaining why>"
 }}
+
+If the command asks to "prepare", "launch campaign", or "full outreach", use "prepare_campaign" intent.
 """
 
 

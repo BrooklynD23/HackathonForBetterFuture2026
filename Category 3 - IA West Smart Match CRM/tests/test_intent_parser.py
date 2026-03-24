@@ -7,6 +7,7 @@ import pytest
 
 from src.coordinator.intent_parser import (
     ACTION_REGISTRY,
+    MULTI_STEP_INTENTS,
     SUPPORTED_INTENTS,
     ParsedIntent,
     parse_intent,
@@ -64,23 +65,51 @@ class TestParseIntent:
         with pytest.raises((AttributeError, TypeError)):
             pi.intent = "discover_events"  # type: ignore[misc]
 
-    def test_supported_intents_contains_exactly_five(self) -> None:
-        assert SUPPORTED_INTENTS == frozenset({
+    def test_supported_intents_contains_core_five(self) -> None:
+        # Core intents must always be present (prepare_campaign added in Phase 7)
+        core = frozenset({
             "discover_events",
             "rank_speakers",
             "generate_outreach",
             "check_contacts",
             "unknown",
         })
+        assert core.issubset(SUPPORTED_INTENTS)
 
-    def test_action_registry_has_four_entries(self) -> None:
-        assert len(ACTION_REGISTRY) == 4
+    def test_action_registry_has_at_least_four_entries(self) -> None:
+        assert len(ACTION_REGISTRY) >= 4
 
     def test_action_registry_entries_have_correct_fields(self) -> None:
         intents = {entry["intent"] for entry in ACTION_REGISTRY}
         agents = {entry["agent"] for entry in ACTION_REGISTRY}
-        assert intents == {"discover_events", "rank_speakers", "generate_outreach", "check_contacts"}
+        assert {"discover_events", "rank_speakers", "generate_outreach", "check_contacts"}.issubset(intents)
         assert "Discovery Agent" in agents
         assert "Matching Agent" in agents
         assert "Outreach Agent" in agents
         assert "Contacts Agent" in agents
+
+
+class TestPrepareIntent:
+    """Tests for the prepare_campaign multi-step intent registration."""
+
+    def test_prepare_campaign_in_supported_intents(self) -> None:
+        assert "prepare_campaign" in SUPPORTED_INTENTS
+
+    def test_prepare_campaign_in_action_registry(self) -> None:
+        intents_in_registry = {entry["intent"] for entry in ACTION_REGISTRY}
+        assert "prepare_campaign" in intents_in_registry
+
+    def test_multi_step_intents_maps_prepare_campaign(self) -> None:
+        assert MULTI_STEP_INTENTS["prepare_campaign"] == [
+            "discover_events",
+            "rank_speakers",
+            "generate_outreach",
+        ]
+
+    def test_prepare_campaign_agent_is_campaign_orchestrator(self) -> None:
+        entry = next(
+            (e for e in ACTION_REGISTRY if e["intent"] == "prepare_campaign"),
+            None,
+        )
+        assert entry is not None
+        assert entry["agent"] == "Campaign Orchestrator"
