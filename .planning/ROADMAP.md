@@ -96,7 +96,7 @@ Plans:
 Plans:
 - [x] 04-01-PLAN.md — Voice service modules (TTS + STT) with tests and dependencies
 - [x] 04-02-PLAN.md — Command Center UI tab with text input, echo replies, and conversation history
-- [ ] 04-03-PLAN.md — Integration wiring: TTS + STT + push-to-talk into Command Center tab in app.py
+- [x] 04-03-PLAN.md — Integration wiring: TTS + STT + push-to-talk into Command Center tab in app.py
 
 ### Phase 5: Coordinator Core and HITL Approval Gate
 **Goal**: Coordinator can submit any command (voice or text), have Jarvis parse the intent and propose a concrete agent action with reasoning, and explicitly approve or reject that action before any execution occurs — the approval state machine is proven correct with stubbed agent calls.
