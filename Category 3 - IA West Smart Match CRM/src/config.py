@@ -48,6 +48,13 @@ GEMINI_BASE_URL = os.getenv(
 GEMINI_EMBEDDING_MODEL = os.getenv("GEMINI_EMBEDDING_MODEL", "gemini-embedding-001")
 GEMINI_TEXT_MODEL = os.getenv("GEMINI_TEXT_MODEL", "gemini-2.5-flash-lite")
 
+# --- Voice I/O (Phase 4) ---
+KITTENTTS_VOICE: Final[str] = os.getenv("KITTENTTS_VOICE", "Bella")
+KITTENTTS_MODEL_ID: Final[str] = "KittenML/kitten-tts-mini-0.8"
+KITTENTTS_SAMPLE_RATE: Final[int] = 24000
+WHISPER_MODEL_SIZE: Final[str] = os.getenv("WHISPER_MODEL_SIZE", "base")
+WHISPER_COMPUTE_TYPE: Final[str] = "int8"
+
 # --- Embedding ---
 EMBEDDING_DIMENSION = int(os.getenv("EMBEDDING_DIMENSION", "1536"))
 EMBEDDING_BATCH_SIZE = int(os.getenv("EMBEDDING_BATCH_SIZE", "20"))

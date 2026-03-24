@@ -26,3 +26,9 @@ python-Levenshtein>=0.12.0    # accelerates fuzzywuzzy (optional but recommended
 # ── Dev / Testing ────────────────────────────────────────
 pytest==8.3.4                 # installed: 8.3.4
 pytest-cov>=6.0.0             # installed: 7.0.0
+
+# ── Voice I/O (Phase 4) ───────────────────────────────────
+# KittenTTS — install from GitHub wheel: pip install https://github.com/KittenML/KittenTTS/releases/download/0.8.1/kittentts-0.8.1-py3-none-any.whl
+faster-whisper
+streamlit-webrtc==0.6.0
+soundfile

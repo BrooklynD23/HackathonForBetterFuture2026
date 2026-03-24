@@ -47,5 +47,13 @@ if "streamlit" not in sys.modules:
         yield
 
     _mock_st.spinner = _fake_spinner  # type: ignore[attr-defined]
+    _mock_st.audio = MagicMock()  # type: ignore[attr-defined]
+    _mock_st.chat_input = MagicMock()  # type: ignore[attr-defined]
+    _mock_st.chat_message = MagicMock()  # type: ignore[attr-defined]
 
     sys.modules["streamlit"] = _mock_st
+
+# Mock voice I/O libraries (not installed in CI)
+for mod_name in ("kittentts", "faster_whisper", "streamlit_webrtc", "soundfile", "av"):
+    if mod_name not in sys.modules:
+        sys.modules[mod_name] = types.ModuleType(mod_name)
