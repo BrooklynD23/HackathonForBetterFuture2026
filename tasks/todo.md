@@ -2,6 +2,16 @@
 
 ## Current Work
 
+### Milestone Wrap-Up: v1.0 then v2.0 (Sequential)
+
+- [x] Validate milestone pre-flight status for v1.0 and v2.0 (audit presence, phase completion, requirement coverage).
+- [x] Clean accidental `--help` milestone artifacts generated during CLI probing.
+- [x] Finalize v1.0 archive state (ensure archive docs + MILESTONES entry + audit archive) and create tag `v1.0`.
+- [x] Archive v2.0 milestone artifacts (`ROADMAP`, `REQUIREMENTS`, milestones entry), then collapse active roadmap scope.
+- [x] Update PROJECT/STATE for post-v2 shipped state and remove live `.planning/REQUIREMENTS.md` for next milestone reset.
+- [x] Commit v2.0 archive changes and create tag `v2.0`.
+- [x] Add verification + outcomes to the review section.
+
 ### Sprint 6 Phase 0-1 Review Fix Pass
 
 - [x] Fix all HIGH findings from the latest `$ecc-code-review` report for Phase 0/1.
@@ -131,6 +141,7 @@
 
 ## Review
 
+- Milestone wrap-up (2026-03-24): finalized v1.0 then v2.0 sequentially, archived both milestones under `.planning/milestones/`, moved milestone tracking into `.planning/MILESTONES.md`, collapsed `.planning/ROADMAP.md` to shipped one-line entries, removed live `.planning/REQUIREMENTS.md` for next-milestone reset, and created annotated tags `v1.0` + `v2.0`. Note: no dedicated `.planning/v2.0-MILESTONE-AUDIT.md` existed at closeout; this was recorded as accepted tech debt in milestones.
 - Sprint 6 Phase 0-1 review fix pass: refactored `src/ui/landing_page.py` into smaller helpers (clearing the >50-line function finding), made donut heading/colors derive from `DEFAULT_WEIGHTS` count for future factor expansion, removed dead/unused test imports, and replaced the partner-logo no-op assertions with concrete per-university checks plus dynamic-factor donut assertions in `tests/test_landing_page.py`.
 - Sprint 6 Phase 0-1 verification:
   - `python3 -m compileall Category 3 - IA West Smart Match CRM/src/ui/landing_page.py Category 3 - IA West Smart Match CRM/tests/test_landing_page.py` -> both files compiled successfully.
