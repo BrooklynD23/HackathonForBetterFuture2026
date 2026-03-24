@@ -10,10 +10,11 @@ import soundfile as sf
 import streamlit as st
 
 from src.coordinator.approval import ActionProposal
-from src.coordinator.intent_parser import ACTION_REGISTRY, ParsedIntent, parse_intent
+from src.coordinator.intent_parser import ACTION_REGISTRY, MULTI_STEP_INTENTS, ParsedIntent, parse_intent
 from src.coordinator.result_bus import dispatch, poll_results
-from src.coordinator.suggestions import check_staleness_conditions
+from src.coordinator.suggestions import check_overdue_contacts, check_staleness_conditions
 from src.coordinator.tools import TOOL_REGISTRY
+from src.ui.swimlane_dashboard import _update_swimlane, render_swimlane_dashboard
 
 logger = logging.getLogger(__name__)
 
@@ -108,6 +109,35 @@ def _handle_text_command(text: str, source: str = "text") -> None:
         st.rerun()
         return
 
+    # Multi-step intent: create sub-proposals for each step
+    if parsed.intent in MULTI_STEP_INTENTS:
+        sub_intents = MULTI_STEP_INTENTS[parsed.intent]
+        for sub_intent in sub_intents:
+            sub_description = next(
+                (a["description"] for a in ACTION_REGISTRY if a["intent"] == sub_intent),
+                sub_intent,
+            )
+            sub_agent = next(
+                (a["agent"] for a in ACTION_REGISTRY if a["intent"] == sub_intent),
+                "Agent",
+            )
+            sub_proposal = ActionProposal(
+                intent=sub_intent,
+                agent=sub_agent,
+                description=sub_description,
+                reasoning=f"Part of '{text}' campaign orchestration.",
+                params=parsed.params,
+            )
+            st.session_state["action_proposals"][sub_proposal.id] = sub_proposal
+            history.append({
+                "role": "proposal",
+                "action_id": sub_proposal.id,
+                "timestamp": ts,
+            })
+        st.session_state["conversation_history"] = history
+        st.rerun()
+        return
+
     # Known intent: create and store action proposal
     description = next(
         (a["description"] for a in ACTION_REGISTRY if a["intent"] == parsed.intent),
@@ -168,7 +198,7 @@ def _format_result(result: dict) -> str:
 
 @st.fragment(run_every=2)
 def _poll_result_bus() -> None:
-    """Poll result queues every 2s; update proposal status in session state."""
+    """Poll result queues every 2s; update proposal and swimlane state."""
     proposals = st.session_state.get("action_proposals", {})
     for proposal_id, payload in poll_results():
         proposal = proposals.get(proposal_id)
@@ -177,9 +207,13 @@ def _poll_result_bus() -> None:
         if payload["status"] == "completed":
             proposal.status = "completed"
             proposal.result = _format_result(payload["result"])
+            _update_swimlane(proposal_id, "completed", proposal.result, agent_name=proposal.agent)
+            _speak_text(proposal.result)
         else:
             proposal.status = "failed"
             proposal.result = f"Error: {payload.get('error', 'unknown')}"
+            _update_swimlane(proposal_id, "failed", proposal.result, agent_name=proposal.agent)
+    render_swimlane_dashboard()
 
 
 def _render_contacts_result(proposal: ActionProposal) -> None:
@@ -231,6 +265,7 @@ def _render_action_card(proposal: ActionProposal) -> None:
                     if tool_fn:
                         proposal.status = "executing"
                         dispatch(proposal.id, tool_fn, proposal.params)
+                        _update_swimlane(proposal.id, "executing", "Running...", agent_name=proposal.agent)
                     else:
                         proposal.stub_execute()
                         if proposal.result:
@@ -258,7 +293,7 @@ def _render_action_card(proposal: ActionProposal) -> None:
 
 
 def _inject_proactive_suggestions() -> None:
-    """Inject proactive suggestions into the conversation if data is stale or empty."""
+    """Inject proactive suggestions: staleness first, then overdue contacts."""
     proposals: dict = st.session_state.get("action_proposals", {})
 
     # Guard: at most one active proactive suggestion
@@ -270,6 +305,12 @@ def _inject_proactive_suggestions() -> None:
         st.session_state.get("scraped_events", []),
         st.session_state.get("scraped_events_timestamp"),
     )
+
+    # Fallback to overdue contacts if no staleness suggestion
+    if not suggestions:
+        suggestions = check_overdue_contacts(
+            st.session_state.get("poc_contacts", [])
+        )
 
     for suggestion in suggestions:
         st.session_state["action_proposals"][suggestion.id] = suggestion
@@ -342,6 +383,17 @@ def _render_conversation_history() -> None:
     """Render chronological conversation history with chat bubbles."""
     history: list[dict] = st.session_state.get("conversation_history", [])
     if not history:
+        # Demo hint chips
+        DEMO_HINTS = [
+            "Find new events",
+            "Rank speakers for CPP Career Fair",
+            "Prepare full outreach campaign",
+        ]
+        hint_cols = st.columns(len(DEMO_HINTS))
+        for col, hint in zip(hint_cols, DEMO_HINTS):
+            with col:
+                if st.button(hint, key=f"hint_{hint}"):
+                    _handle_text_command(hint)
         st.markdown(
             '<div class="chat-container">'
             '<p style="text-align:center; color: var(--secondary);">'
