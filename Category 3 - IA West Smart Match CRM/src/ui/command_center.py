@@ -11,7 +11,9 @@ import streamlit as st
 
 from src.coordinator.approval import ActionProposal
 from src.coordinator.intent_parser import ACTION_REGISTRY, ParsedIntent, parse_intent
+from src.coordinator.result_bus import dispatch, poll_results
 from src.coordinator.suggestions import check_staleness_conditions
+from src.coordinator.tools import TOOL_REGISTRY
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +44,9 @@ def render_command_center_tab() -> None:
         except Exception as exc:
             logger.error("STT model load failed: %s", exc)
             st.warning("Speech recognition unavailable. Please use text commands.")
+
+    # Poll result bus for completed background tasks
+    _poll_result_bus()
 
     # Proactive suggestions
     _inject_proactive_suggestions()
@@ -140,6 +145,64 @@ def _speak_text(text: str) -> None:
             st.info("Voice synthesis unavailable. Jarvis response shown as text above.")
 
 
+def _format_result(result: dict) -> str:
+    """Format a tool result dict into a human-readable string for the action card."""
+    if "events" in result:
+        count = len(result["events"])
+        source = result.get("source", "unknown")
+        return f"Found {count} event(s) (source: {source})"
+    if "rankings" in result:
+        count = len(result["rankings"])
+        return f"Ranked {count} speaker(s)"
+    if "email" in result:
+        subject = result["email"].get("subject", "Outreach email")
+        return f"Generated email: {subject}"
+    if "contacts" in result:
+        total = result.get("total", 0)
+        overdue = result.get("overdue_count", 0)
+        return f"{total} contacts, {overdue} overdue for follow-up"
+    if "error" in result:
+        return f"Error: {result['error']}"
+    return str(result)
+
+
+@st.fragment(run_every=2)
+def _poll_result_bus() -> None:
+    """Poll result queues every 2s; update proposal status in session state."""
+    proposals = st.session_state.get("action_proposals", {})
+    for proposal_id, payload in poll_results():
+        proposal = proposals.get(proposal_id)
+        if proposal is None:
+            continue
+        if payload["status"] == "completed":
+            proposal.status = "completed"
+            proposal.result = _format_result(payload["result"])
+        else:
+            proposal.status = "failed"
+            proposal.result = f"Error: {payload.get('error', 'unknown')}"
+
+
+def _render_contacts_result(proposal: ActionProposal) -> None:
+    """Render POC contact cards when a check_contacts action completes."""
+    from src.coordinator.tools.contacts_tool import run as contacts_run
+    data = contacts_run({})
+    if data["status"] != "ok":
+        return
+    for contact in data.get("contacts", []):
+        is_overdue = contact["name"] in [c["name"] for c in data.get("overdue", [])]
+        badge = " -- OVERDUE" if is_overdue else ""
+        with st.expander(f"{contact['name']} ({contact['org']}){badge}", expanded=is_overdue):
+            st.markdown(f"**Role:** {contact.get('role', 'N/A')}")
+            st.markdown(f"**Email:** {contact.get('email', 'N/A')}")
+            st.markdown(f"**Last Contact:** {contact.get('last_contact', 'N/A')}")
+            st.markdown(f"**Follow-up Due:** {contact.get('follow_up_due', 'N/A')}")
+            history = contact.get("comm_history", [])
+            if history:
+                st.markdown("**Communication History:**")
+                for entry in history:
+                    st.markdown(f"- {entry.get('date', '?')}: [{entry.get('type', '?')}] {entry.get('summary', '')}")
+
+
 def _render_action_card(proposal: ActionProposal) -> None:
     """Render an action card with agent info, status, and approve/reject/edit controls."""
     with st.container():
@@ -164,9 +227,14 @@ def _render_action_card(proposal: ActionProposal) -> None:
             with col_approve:
                 if st.button("Approve", key=f"approve_{proposal.id}", type="primary"):
                     proposal.approve()
-                    proposal.stub_execute()
-                    if proposal.result:
-                        _speak_text(proposal.result)
+                    tool_fn = TOOL_REGISTRY.get(proposal.intent)
+                    if tool_fn:
+                        proposal.status = "executing"
+                        dispatch(proposal.id, tool_fn, proposal.params)
+                    else:
+                        proposal.stub_execute()
+                        if proposal.result:
+                            _speak_text(proposal.result)
                     st.rerun()
             with col_reject:
                 if st.button("Reject", key=f"reject_{proposal.id}"):
@@ -175,12 +243,18 @@ def _render_action_card(proposal: ActionProposal) -> None:
 
         elif proposal.status == "completed":
             st.success(f"Result: {proposal.result}")
+            # Render POC contact details if this was a contacts check
+            if proposal.intent == "check_contacts":
+                _render_contacts_result(proposal)
 
         elif proposal.status == "rejected":
             st.warning("Action rejected by coordinator.")
 
         elif proposal.status in ("approved", "executing"):
             st.info(f"Status: {proposal.status}...")
+
+        elif proposal.status == "failed":
+            st.error(f"Failed: {proposal.result}")
 
 
 def _inject_proactive_suggestions() -> None:

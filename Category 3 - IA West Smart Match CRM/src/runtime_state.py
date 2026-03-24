@@ -54,6 +54,10 @@ def init_runtime_state() -> None:
         st.session_state["tts_model"] = None
     if "stt_model" not in st.session_state:
         st.session_state["stt_model"] = None
+    if "result_queues" not in st.session_state:
+        st.session_state["result_queues"] = {}
+    if "poc_contacts" not in st.session_state:
+        st.session_state["poc_contacts"] = []
 
 
 def get_matching_events_df(events_df: pd.DataFrame) -> pd.DataFrame:
