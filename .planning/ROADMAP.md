@@ -127,7 +127,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — Tool wrappers (discovery, matching, outreach, contacts), TOOL_REGISTRY, result bus, POC seed data, and all tests
+- [x] 06-01-PLAN.md — Tool wrappers (discovery, matching, outreach, contacts), TOOL_REGISTRY, result bus, POC seed data, and all tests
 - [ ] 06-02-PLAN.md — Wire real dispatch into Command Center UI: polling fragment, result formatting, POC contact display
 
 ### Phase 7: NemoClaw Lead Agent and Live Dashboard
@@ -153,5 +153,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 3. Adversarial Audit and Sprint Closure | 3/3 | Complete | 2026-03-21 |
 | 4. Voice I/O Foundation | 2/3 | In Progress|  |
 | 5. Coordinator Core and HITL Approval Gate | 2/2 | Complete   | 2026-03-24 |
-| 6. Agent Tool Wrappers and Result Bus | 0/2 | Not started | - |
+| 6. Agent Tool Wrappers and Result Bus | 1/2 | In Progress|  |
 | 7. NemoClaw Lead Agent and Live Dashboard | 0/TBD | Not started | - |

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: — Sprint 5 Closeout
 status: unknown
-stopped_at: Completed 05-02-PLAN.md
-last_updated: "2026-03-24T07:31:52.811Z"
+stopped_at: Completed 06-01-PLAN.md
+last_updated: "2026-03-24T08:40:28.201Z"
 progress:
-  total_phases: 3
+  total_phases: 4
   completed_phases: 3
-  total_plans: 8
-  completed_plans: 8
+  total_plans: 10
+  completed_plans: 9
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-23)
 
 **Core value:** A coordinator can use voice or text to command an AI assistant that orchestrates parallel agents for event discovery, speaker matching, and outreach — with human approval gating every action.
-**Current focus:** Phase 05 — coordinator-core-and-hitl-approval-gate
+**Current focus:** Phase 06 — agent-tool-wrappers-and-result-bus
 
 ## Current Position
 
-Phase: 05
-Plan: Not started
+Phase: 06 (agent-tool-wrappers-and-result-bus) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -49,6 +49,7 @@ Plan: Not started
 | Phase 04 P01 | 1004 | 3 tasks | 8 files |
 | Phase 05 P01 | 4m | 3 tasks | 7 files |
 | Phase 05 P02 | 7m | 2 tasks | 4 files |
+| Phase 06 P01 | 8m | 2 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -68,6 +69,8 @@ Recent decisions affecting current work:
 - [Phase 05]: Used project .venv for test runs — system python3 lacks dotenv; all coordinator modules are pure Python with zero Streamlit imports
 - [Phase 05]: st.button mock returns False by default in conftest so button callbacks never fire spuriously during unit tests
 - [Phase 05]: st.columns(n) mock returns list-of-MagicMocks for tuple-unpack support; st.container/expander wrapped as contextmanager for 'with' usage in action card rendering
+- [Phase 06]: Tool wrappers do not catch exceptions — propagation to result_bus thread is intentional (result_bus posts status:failed)
+- [Phase 06]: TOOL_REGISTRY is a plain dict imported at module load time; all four tools imported eagerly
 
 ### Pending Todos
 
@@ -87,6 +90,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-24T07:29:04.461Z
-Stopped at: Completed 05-02-PLAN.md
+Last session: 2026-03-24T08:40:19.975Z
+Stopped at: Completed 06-01-PLAN.md
 Resume file: None
