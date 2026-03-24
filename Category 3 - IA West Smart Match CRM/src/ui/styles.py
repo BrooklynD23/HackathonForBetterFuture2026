@@ -51,6 +51,7 @@ CUSTOM_CSS: str = """
     --success:                  #059669;
     --danger:                   #DC2626;
     --accent:                   #F59E0B;
+    --intent-badge-color:       #F59E0B;
 
     /* Typography */
     --font-headline:            'Inter Tight', sans-serif;
@@ -218,6 +219,77 @@ button[kind="primary"]:hover {
         font-size: 1.4rem;
         padding: 6px 12px;
     }
+}
+
+/* ---------- Command Center: Voice Panel ---------- */
+.voice-panel {
+    background: var(--surface-container-lowest);
+    border-radius: var(--radius-card);
+    padding: 16px;
+    margin-bottom: 24px;
+    box-shadow: var(--ambient-shadow);
+}
+
+/* ---------- Command Center: Chat Bubbles ---------- */
+.chat-container {
+    max-height: 480px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    background: var(--surface);
+}
+
+.chat-bubble {
+    max-width: 72%;
+    padding: 8px 16px;
+    border-radius: 16px;
+    background: var(--surface-container-lowest);
+    box-shadow: var(--ambient-shadow);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.chat-bubble.coordinator {
+    align-self: flex-start;
+    border: 1px solid var(--outline-variant);
+}
+
+.chat-bubble.jarvis {
+    align-self: flex-end;
+    border-left: 3px solid var(--primary);
+}
+
+.chat-meta {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--secondary);
+    margin-top: 4px;
+    font-family: var(--font-body);
+}
+
+.intent-badge {
+    display: inline-block;
+    background: var(--intent-badge-color);
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 400;
+    padding: 4px 8px;
+    border-radius: var(--radius-pill);
+    margin-left: 8px;
+}
+
+/* ---------- Command Center: Mic Button ---------- */
+@keyframes mic-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(0, 83, 148, 0.4); }
+    100% { box-shadow: 0 0 0 12px transparent; }
+}
+
+.mic-button-active {
+    animation: mic-pulse 1.5s ease-out infinite;
+    border: 2px solid var(--primary);
 }
 </style>
 """

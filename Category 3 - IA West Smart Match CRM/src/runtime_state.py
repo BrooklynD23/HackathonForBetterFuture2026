@@ -44,6 +44,12 @@ def init_runtime_state() -> None:
         st.session_state["emails_generated"] = 0
     if "generated_email_keys" not in st.session_state:
         st.session_state["generated_email_keys"] = []
+    if "conversation_history" not in st.session_state:
+        st.session_state["conversation_history"] = []
+    if "tts_model" not in st.session_state:
+        st.session_state["tts_model"] = None
+    if "stt_model" not in st.session_state:
+        st.session_state["stt_model"] = None
 
 
 def get_matching_events_df(events_df: pd.DataFrame) -> pd.DataFrame:
