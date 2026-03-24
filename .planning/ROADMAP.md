@@ -22,10 +22,10 @@
 
 **Requirements:** REQ-UI-01, REQ-UI-02, REQ-UI-03, REQ-UI-04, REQ-UI-05
 
-**Plans:** 5 plans
+**Plans:** 2/5 plans executed
 
 Plans:
-- [ ] 08-01-PLAN.md — Design system, HTML base wrapper, and page router foundation
+- [x] 08-01-PLAN.md — Design system, HTML base wrapper, and page router foundation
 - [x] 08-02-PLAN.md — Data loading helpers for UI templates
 - [ ] 08-03-PLAN.md — Landing page (pixel-faithful HTML via st.components.v1.html)
 - [ ] 08-04-PLAN.md — Login/role-selection page
