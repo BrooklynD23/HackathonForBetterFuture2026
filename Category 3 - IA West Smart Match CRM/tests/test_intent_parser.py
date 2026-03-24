@@ -1,0 +1,86 @@
+"""Tests for intent_parser.py with mocked Gemini."""
+
+import json
+from unittest.mock import patch
+
+import pytest
+
+from src.coordinator.intent_parser import (
+    ACTION_REGISTRY,
+    SUPPORTED_INTENTS,
+    ParsedIntent,
+    parse_intent,
+)
+from src.gemini_client import GeminiAPIError
+
+
+class TestParseIntent:
+    """Intent parsing tests using mocked generate_text."""
+
+    def _make_gemini_response(self, intent: str, agent: str = "Discovery Agent", reasoning: str = "test") -> str:
+        return json.dumps({"intent": intent, "agent": agent, "params": {}, "reasoning": reasoning})
+
+    def test_parse_discover_events(self) -> None:
+        response = self._make_gemini_response("discover_events", "Discovery Agent")
+        with patch("src.coordinator.intent_parser.generate_text", return_value=response):
+            result = parse_intent("find events at UCLA")
+        assert result.intent == "discover_events"
+
+    def test_parse_intent_returns_unknown_on_malformed_json(self) -> None:
+        with patch("src.coordinator.intent_parser.generate_text", return_value="not json"):
+            result = parse_intent("something")
+        assert result.intent == "unknown"
+
+    def test_parse_intent_returns_unknown_on_gemini_error(self) -> None:
+        with patch(
+            "src.coordinator.intent_parser.generate_text",
+            side_effect=GeminiAPIError("API error"),
+        ):
+            result = parse_intent("something")
+        assert result.intent == "unknown"
+
+    def test_parse_intent_returns_unknown_for_unsupported_intent(self) -> None:
+        response = self._make_gemini_response("fly_to_moon")
+        with patch("src.coordinator.intent_parser.generate_text", return_value=response):
+            result = parse_intent("do something weird")
+        assert result.intent == "unknown"
+
+    def test_parse_intent_preserves_raw_text(self) -> None:
+        user_text = "find events at UCLA"
+        response = self._make_gemini_response("discover_events")
+        with patch("src.coordinator.intent_parser.generate_text", return_value=response):
+            result = parse_intent(user_text)
+        assert result.raw_text == user_text
+
+    def test_parse_intent_strips_markdown_fences(self) -> None:
+        inner = json.dumps({"intent": "discover_events", "agent": "Discovery Agent", "params": {}, "reasoning": "r"})
+        fenced = f"```json\n{inner}\n```"
+        with patch("src.coordinator.intent_parser.generate_text", return_value=fenced):
+            result = parse_intent("find events")
+        assert result.intent == "discover_events"
+
+    def test_parsed_intent_is_frozen(self) -> None:
+        pi = ParsedIntent(intent="unknown", agent="Jarvis", params={}, reasoning="", raw_text="x")
+        with pytest.raises((AttributeError, TypeError)):
+            pi.intent = "discover_events"  # type: ignore[misc]
+
+    def test_supported_intents_contains_exactly_five(self) -> None:
+        assert SUPPORTED_INTENTS == frozenset({
+            "discover_events",
+            "rank_speakers",
+            "generate_outreach",
+            "check_contacts",
+            "unknown",
+        })
+
+    def test_action_registry_has_four_entries(self) -> None:
+        assert len(ACTION_REGISTRY) == 4
+
+    def test_action_registry_entries_have_correct_fields(self) -> None:
+        intents = {entry["intent"] for entry in ACTION_REGISTRY}
+        agents = {entry["agent"] for entry in ACTION_REGISTRY}
+        assert intents == {"discover_events", "rank_speakers", "generate_outreach", "check_contacts"}
+        assert "Discovery Agent" in agents
+        assert "Matching Agent" in agents
+        assert "Outreach Agent" in agents
+        assert "Contacts Agent" in agents
