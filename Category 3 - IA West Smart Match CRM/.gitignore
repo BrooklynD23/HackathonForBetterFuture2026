@@ -10,3 +10,8 @@ cache/**/*.json
 !cache/demo_fixtures/*.json
 *.pyc
 .streamlit/secrets.toml
+
+# Claude Code working artifacts
+.claude/orchestrator/
+.claude/handoff-*.md
+claude-progress.txt

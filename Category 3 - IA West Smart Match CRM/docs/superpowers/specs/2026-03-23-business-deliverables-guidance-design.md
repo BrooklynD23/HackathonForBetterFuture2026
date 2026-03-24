@@ -58,7 +58,7 @@ All headline numbers pre-calculated from actual CSV data:
 | Stat | Value | Source |
 |------|-------|--------|
 | Board volunteers | 18 across 10 metro designations, grouped into 7 consolidated regions | data_speaker_profiles.csv |
-| Metro regions (consolidated) | Seattle, Portland, SF, Los Angeles area (5 sub-designations: LA, LA-West, LA-East, LA-North, LA-Long Beach), Ventura/Thousand Oaks, San Diego. Note: speaker profiles use 10 distinct labels; the IA event calendar groups these into 7 regions. Use "7 regions" in deliverables for cleaner narrative. | data_speaker_profiles.csv + data_event_calendar.csv |
+| Metro regions (consolidated) | Seattle, Portland, SF, Los Angeles area (5 sub-designations: LA, LA-West, LA-East, LA-North, LA-Long Beach), Ventura/Thousand Oaks, Orange County/Long Beach, San Diego. Note: speaker profiles use 10 distinct labels; the IA event calendar groups these into 7 regions; `config.py` METRO_REGIONS lists 11 entries (adds OC/Long Beach as a distinct metro). Use "7 regions" in deliverables for cleaner narrative. | data_speaker_profiles.csv + data_event_calendar.csv |
 | CPP events | 15 distinct opportunities | data_cpp_events_contacts.csv |
 | CPP courses | 35 sections (10 High / 16 Medium / 9 Low guest lecture fit) | data_cpp_course_schedule.csv |
 | High-fit course percentage | 28.6% (10/35) | Derived |
@@ -283,7 +283,7 @@ Three concrete biases to name with countermeasures:
 
 | Bias | Mechanism | Mitigation Built |
 |------|-----------|-----------------|
-| Geographic clustering | LA-area speakers (4 of 7 metros are LA sub-regions) have proximity to more universities, inflating geographic_proximity scores | `coverage_diversity` factor (5% weight) penalizes over-assigned speakers; weight sliders let leadership manually reduce geographic_proximity influence |
+| Geographic clustering | LA-area speakers (5 of 10 speaker metro designations are LA sub-regions) have proximity to more universities, inflating geographic_proximity scores | `coverage_diversity` factor (5% weight) penalizes over-assigned speakers; weight sliders let leadership manually reduce geographic_proximity influence |
 | Expertise tag density | Speakers with richer/longer expertise tags could generate inflated topic_relevance scores | Cosine similarity normalizes vector magnitude — inherently handled by the math |
 | Incumbency advantage | `historical_conversion` factor (5% weight) favors previously placed speakers; new board members disadvantaged | Factor capped at 5% weight; `coverage_diversity` explicitly boosts underutilized speakers; new speakers start with neutral (not zero) baseline |
 

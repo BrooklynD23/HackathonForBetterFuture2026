@@ -7,14 +7,17 @@
 ```
 Read ".claude/handoff-phase3.md" in "Category 3 - IA West Smart Match CRM/" and follow it step by step:
 
-1. Implement event_urgency() factor in factors.py
-2. Implement coverage_diversity() factor in factors.py
-3. Add 2 FactorSpec entries to config.py FACTOR_REGISTRY + rebalance weights
+1. Add 2 FactorSpec entries to config.py FACTOR_REGISTRY + rebalance weights
+2. Implement event_urgency() factor in factors.py
+3. Implement coverage_diversity() factor in factors.py
 4. Add dispatch entries in engine.py compute_match_score()
-5. Create tests/test_factors_extended.py with TDD
-6. Update weight-asserting tests in test_engine.py
-7. Run full test suite: .venv/bin/python -m pytest -v
-8. Write handoff for Phase 4
+5. Update explanations.py (template + few-shot + generate_match_explanation)
+6. Update email_gen.py alias_map
+7. Create tests/test_factors_extended.py with TDD
+8. Update ALL test fixtures (6 files) for 8-factor factor_scores dicts
+9. Update demo fixture match_explanations.json
+10. Run full test suite: .venv/bin/python -m pytest -v
+11. Commit and write handoff for Phase 4
 ```
 
 ---
@@ -25,7 +28,7 @@ Read ".claude/handoff-phase3.md" in "Category 3 - IA West Smart Match CRM/" and 
 - **Branch:** sprint5-cat3
 - **Venv:** `.venv/bin/python` (python3.12)
 - **Test command:** `.venv/bin/python -m pytest -v`
-- **Baseline:** 424 passed, 1 pre-existing failure (`test_embeddings.py::test_get_api_key_requires_real_gemini_key` — environment-dependent, IGNORE)
+- **Baseline:** 425 tests collected, 1 pre-existing failure (`test_embeddings.py::test_get_api_key_requires_real_gemini_key` — environment-dependent, IGNORE)
 - **Master plan:** `/home/danny/.claude/plans/deep-wiggling-cupcake.md` (Phase 3: lines 238-291)
 - **Phase sequence:** Phase 0 (done) -> Phase 1 (done) -> Phase 2 (done) -> **Phase 3 (implement)** -> Phase 4 (next)
 
@@ -35,7 +38,7 @@ Read ".claude/handoff-phase3.md" in "Category 3 - IA West Smart Match CRM/" and 
 |-------|--------|---------|
 | 0 — Engine Factor Registry | `1443fdb` | FactorSpec registry in config.py, single source of truth for 6 factors |
 | 1 — Landing Page | `21d41bc` | Academic Curator design system, view switching, 21 new tests |
-| 2 — Geodesic Fallback | pending | Haversine geodesic fallback, OC coordinate fix, 12 new tests |
+| 2 — Geodesic Fallback | `8b95b77` | Haversine geodesic fallback, OC coordinate fix, 12 new tests |
 
 ---
 
@@ -47,49 +50,19 @@ Add `event_urgency` and `coverage_diversity` factors (6-factor -> 8-factor match
 
 ## FILE-BY-FILE IMPLEMENTATION GUIDE
 
-### 1. `src/config.py` — FACTOR_REGISTRY (lines 79-92) + DEFAULT_WEIGHTS (line 96)
+### 1. `src/config.py` — FACTOR_REGISTRY (lines 79-96) + DEFAULT_WEIGHTS (line 100)
 
-**Current state (6 factors):**
+**ALREADY DONE.** The 8-factor registry with rebalanced weights is already in place (lines 79-96). Verify the following entries exist at the end of `FACTOR_REGISTRY`:
 ```python
-FACTOR_REGISTRY: Final[tuple[FactorSpec, ...]] = (
-    FactorSpec("topic_relevance", "Topic Relevance", "Topic", 0.30,
-               "topic alignment", "Topic Match"),
-    FactorSpec("role_fit", "Role Fit", "Role Fit", 0.25,
-               "role compatibility", "Role Fit"),
-    FactorSpec("geographic_proximity", "Geographic Proximity", "Proximity", 0.20,
-               "geographic proximity", "Geographic Fit"),
-    FactorSpec("calendar_fit", "Calendar Fit", "Calendar", 0.15,
-               "calendar alignment", "Calendar Fit"),
-    FactorSpec("historical_conversion", "Historical Conversion", "History", 0.05,
-               "engagement history", "Engagement History"),
-    FactorSpec("student_interest", "Student Interest", "Student Int.", 0.05,
-               "student interest potential", "Student Interest"),
-)
-```
-
-**Target state (8 factors with rebalanced weights):**
-```python
-FACTOR_REGISTRY: Final[tuple[FactorSpec, ...]] = (
-    FactorSpec("topic_relevance", "Topic Relevance", "Topic", 0.25,          # was 0.30
-               "topic alignment", "Topic Match"),
-    FactorSpec("role_fit", "Role Fit", "Role Fit", 0.20,                     # was 0.25
-               "role compatibility", "Role Fit"),
-    FactorSpec("geographic_proximity", "Geographic Proximity", "Proximity", 0.20,
-               "geographic proximity", "Geographic Fit"),
-    FactorSpec("calendar_fit", "Calendar Fit", "Calendar", 0.15,
-               "calendar alignment", "Calendar Fit"),
-    FactorSpec("historical_conversion", "Historical Conversion", "History", 0.05,
-               "engagement history", "Engagement History"),
-    FactorSpec("student_interest", "Student Interest", "Student Int.", 0.05,
-               "student interest potential", "Student Interest"),
-    FactorSpec("event_urgency", "Event Urgency", "Urgency", 0.05,            # NEW
+    FactorSpec("event_urgency", "Event Urgency", "Urgency", 0.05,
                "scheduling urgency", "Event Urgency"),
-    FactorSpec("coverage_diversity", "Coverage Diversity", "Coverage", 0.05,  # NEW
+    FactorSpec("coverage_diversity", "Coverage Diversity", "Coverage", 0.05,
                "assignment diversity", "Coverage Balance"),
-)
 ```
 
-**Derived constants auto-update:** `FACTOR_KEYS`, `DEFAULT_WEIGHTS`, `FACTOR_DISPLAY_LABELS`, etc. are all derived from `FACTOR_REGISTRY` (lines 95-100), so they update automatically.
+**Weight rebalance already applied:** `topic_relevance` 0.30->0.25, `role_fit` 0.25->0.20. All 8 weights sum to 1.00.
+
+**Derived constants auto-update:** `FACTOR_KEYS`, `DEFAULT_WEIGHTS`, `FACTOR_DISPLAY_LABELS`, etc. are all derived from `FACTOR_REGISTRY` (lines 98-104), so they update automatically.
 
 ---
 
@@ -176,7 +149,68 @@ factor_scores: dict[str, float] = {
 
 ---
 
-### 4. `tests/test_factors_extended.py` — CREATE NEW FILE
+### 4. `src/matching/explanations.py` — Add new factors to prompt template + few-shot + generation
+
+**4a. EXPLANATION_USER_TEMPLATE (lines 56-61)** — Add 2 new score lines:
+
+Current:
+```python
+- Historical Conversion: {historical_conversion:.2f}
+- Student Interest: {student_interest:.2f}
+```
+
+Target (append after student_interest):
+```python
+- Historical Conversion: {historical_conversion:.2f}
+- Student Interest: {student_interest:.2f}
+- Event Urgency: {event_urgency:.2f}
+- Coverage Diversity: {coverage_diversity:.2f}
+```
+
+**4b. FEW_SHOT_EXAMPLES (lines 67-134)** — Add new factor scores to `.format()` calls:
+
+The two `.format()` calls start at line 70 (first example) and line 103 (second example). Add 2 new kwargs after `student_interest` in each:
+```python
+event_urgency=0.50,        # neutral default for examples
+coverage_diversity=0.50,   # neutral default for examples
+```
+
+**4c. `generate_match_explanation()` (lines 326-343)** — Add new kwargs to `.format()` call:
+
+Current format call (line 337-343):
+```python
+topic_relevance=factor_scores.get("topic_relevance", 0.0),
+role_fit=factor_scores.get("role_fit", 0.0),
+geographic_proximity=factor_scores.get("geographic_proximity", 0.0),
+calendar_fit=factor_scores.get("calendar_fit", 0.0),
+historical_conversion=factor_scores.get("historical_conversion", 0.0),
+student_interest=factor_scores.get("student_interest", 0.0),
+```
+
+Add after `student_interest`:
+```python
+event_urgency=factor_scores.get("event_urgency", 0.0),
+coverage_diversity=factor_scores.get("coverage_diversity", 0.0),
+```
+
+**4d. `_normalized_factor_scores()` (line 157-163)** — No change needed. It already iterates `FACTOR_LABELS` which derives from `FACTOR_PROMPT_LABELS` which derives from `FACTOR_REGISTRY`. Auto-expands to 8 factors.
+
+---
+
+### 5. `src/outreach/email_gen.py` — Add new factor aliases
+
+**`_match_score_value()` alias_map (lines 50-58)** — Add 2 new entries:
+
+```python
+"event_urgency": ("event_urgency",),
+"coverage_diversity": ("coverage_diversity",),
+```
+
+**EMAIL_USER_PROMPT_TEMPLATE (lines 149-183)** — DECISION: Do NOT add new factors to email prompt. The email template only shows 3 scores (topic, role, geo) as MATCH QUALITY. Adding urgency/coverage to outreach emails would confuse recipients. Leave unchanged.
+
+---
+
+### 6. `tests/test_factors_extended.py` — CREATE NEW FILE
 
 **Template:**
 ```python
@@ -223,25 +257,79 @@ class TestCoverageDiversity:
 
 ---
 
-### 5. Tests Requiring Mechanical Updates
+### 7. Tests Requiring Mechanical Updates — COMPLETE LIST
 
-**Weight-asserting tests that reference `DEFAULT_WEIGHTS` values:**
+#### 7a. Tests that will AUTO-PASS (no changes needed)
 
-| File | Line | What to Update |
-|------|------|----------------|
-| `tests/test_engine.py` | 7 | Import is fine (already imports `DEFAULT_WEIGHTS`) |
-| `tests/test_engine.py` | 180 | `test_default_weights_produce_nonzero_total` — should still pass since it just checks > 0 |
-| `tests/test_engine.py` | 576 | Uses `DEFAULT_WEIGHTS["student_interest"]` — value unchanged (0.05), but `compute_match_score` call needs `event_urgency` + `coverage_diversity` entries in result |
-| `tests/test_landing_page.py` | 99-111 | `test_donut_uses_default_weights` — checks `len(DEFAULT_WEIGHTS) == 6` → will fail, needs update to 8 |
-| `tests/test_landing_page.py` | 118-126 | Checks `f"The Bridge: {len(DEFAULT_WEIGHTS)}-Factor MATCH_SCORE"` → "6-Factor" becomes "8-Factor" |
+These tests use `DEFAULT_WEIGHTS` dynamically or check `> 0` / `<= 1.0`:
+- `test_engine.py:180` — `test_default_weights_produce_nonzero_total` (checks `> 0`)
+- `test_engine.py:159` — `test_factor_scores_in_unit_range` (iterates result dict)
+- `test_engine.py:140` — `test_total_score_equals_sum_of_weighted` (sums values)
 
-**Engine tests that call `compute_match_score()`:** These will need the new factors in results. Since `FACTOR_KEYS` is derived from `FACTOR_REGISTRY`, the engine will automatically include the new factors — but existing assertions on `factor_scores` dict may need updating if they check exact key counts.
+#### 7b. Tests with HARDCODED 6-factor weight dicts — MUST UPDATE to 8-factor
+
+| File | Lines | What to Change |
+|------|-------|----------------|
+| `tests/test_engine.py` | 202-209 | `custom_weights` dict in `test_custom_weights_override_defaults` — add `"event_urgency": 0.0, "coverage_diversity": 0.0` |
+| `tests/test_engine.py` | 252-258 | `heavy_weights` dict in `test_weight_normalization` — add 2 new keys |
+| `tests/test_engine.py` | 279-286 | `zero_weights` dict in `test_all_zero_weights_give_zero_total` — add 2 new keys |
+| `tests/test_engine.py` | 643-650 | `custom_weights` in `test_student_interest_override_recomputes_weighted_scores` — add 2 new keys |
+
+#### 7c. Tests with HARDCODED 6-factor `factor_scores` dicts — MUST ADD 2 new keys
+
+| File | Lines | What to Change |
+|------|-------|----------------|
+| `tests/test_explanations.py` | 19-26 | `_make_match_result()` — add `"event_urgency": 0.50, "coverage_diversity": 0.50` to `factor_scores` |
+| `tests/test_email_gen.py` | 43-53 | `_make_match_scores()` — add 2 new factor_scores entries |
+| `tests/test_matches_tab.py` | 120-127 | Hardcoded `factor_scores` dict — add 2 new entries |
+| `tests/test_matches_tab.py` | 238-241 | Another `factor_scores` dict — add 2 new entries |
+| `tests/test_volunteer_dashboard.py` | 11-36 | `match_results` fixture — add `"event_urgency"` and `"coverage_diversity"` columns to ALL 8 rows |
+| `tests/test_acceptance.py` | 42-48 | `scores` dict in `test_feedback_entry_fields_correct` — add 2 new entries |
+
+#### 7d. Landing page tests — dynamic count assertions
+
+| File | Lines | What to Change |
+|------|-------|----------------|
+| `tests/test_landing_page.py` | 109-111 | `test_donut_uses_default_weights` — assertions use `len(DEFAULT_WEIGHTS)` dynamically, so they auto-pass (6→8). **NO CHANGE NEEDED.** |
+| `tests/test_landing_page.py` | 126 | `test_donut_heading_uses_dynamic_factor_count` — checks `f"{len(DEFAULT_WEIGHTS)}-Factor"` dynamically. **NO CHANGE NEEDED.** |
+
+#### 7e. Acceptance test — weight suggestion assertion
+
+| File | Lines | What to Change |
+|------|-------|----------------|
+| `tests/test_acceptance.py` | 387-388 | `test_generate_weight_suggestions_above_threshold` — asserts `"0.20"` is current weight for `geographic_proximity`. Value is unchanged (0.20). **NO CHANGE NEEDED.** |
 
 ---
 
-### 6. Demo Fixtures to Update
+### 8. Demo Fixtures to Update
 
-**`cache/demo_fixtures/match_explanations.json`** — if this file contains hardcoded factor score examples, add `event_urgency` and `coverage_diversity` entries.
+**`cache/demo_fixtures/match_explanations.json`** — Add 2 new factor scores:
+
+Current (6 factors):
+```json
+"factor_scores": {
+    "topic_relevance": 0.85,
+    "role_fit": 0.90,
+    "geographic_proximity": 0.82,
+    "calendar_fit": 0.88,
+    "historical_conversion": 0.50,
+    "student_interest": 0.75
+}
+```
+
+Target (8 factors):
+```json
+"factor_scores": {
+    "topic_relevance": 0.85,
+    "role_fit": 0.90,
+    "geographic_proximity": 0.82,
+    "calendar_fit": 0.88,
+    "historical_conversion": 0.50,
+    "student_interest": 0.75,
+    "event_urgency": 0.50,
+    "coverage_diversity": 0.50
+}
+```
 
 ---
 
@@ -265,7 +353,7 @@ class TestCoverageDiversity:
 ```
 feat: add event_urgency + coverage_diversity factors (Phase 3)
 
-Sprint 6 Phase 3. Expands matching from 6 to 8 factors. Adds
+Sprint 5 Phase 3. Expands matching from 6 to 8 factors. Adds
 event_urgency (date proximity / recurrence urgency) and
 coverage_diversity (speaker assignment balancing). Rebalances
 default weights: topic_relevance 0.30->0.25, role_fit 0.25->0.20.

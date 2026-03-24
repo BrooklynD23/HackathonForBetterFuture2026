@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>IA SmartMatch | Coordinator Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fc;
+        }
+        .headline-font {
+            font-family: 'Inter Tight', sans-serif;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(24px);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "surface-container-high": "#e6e8eb",
+                "tertiary": "#784600",
+                "on-surface": "#191c1e",
+                "on-tertiary-fixed-variant": "#693c00",
+                "surface-container": "#eceef1",
+                "secondary-fixed-dim": "#bcc7dd",
+                "on-secondary": "#ffffff",
+                "on-background": "#191c1e",
+                "surface-dim": "#d8dadd",
+                "on-secondary-fixed-variant": "#3c475a",
+                "error": "#ba1a1a",
+                "on-tertiary-container": "#ffe7d2",
+                "on-tertiary": "#ffffff",
+                "on-surface-variant": "#414750",
+                "surface-container-highest": "#e0e3e6",
+                "error-container": "#ffdad6",
+                "outline": "#727782",
+                "primary-fixed-dim": "#a2c9ff",
+                "on-primary-fixed-variant": "#004881",
+                "inverse-primary": "#a2c9ff",
+                "surface-variant": "#e0e3e6",
+                "secondary-fixed": "#d8e3fa",
+                "inverse-surface": "#2d3133",
+                "surface": "#f7f9fc",
+                "outline-variant": "#c1c7d2",
+                "secondary-container": "#d5e0f7",
+                "secondary": "#545f72",
+                "primary-fixed": "#d3e4ff",
+                "inverse-on-surface": "#eff1f4",
+                "tertiary-container": "#9a5b00",
+                "on-error-container": "#93000a",
+                "on-primary": "#ffffff",
+                "background": "#f7f9fc",
+                "surface-container-low": "#f2f4f7",
+                "on-primary-container": "#e1ecff",
+                "on-secondary-fixed": "#111c2c",
+                "tertiary-fixed-dim": "#ffb86e",
+                "surface-bright": "#f7f9fc",
+                "primary": "#005394",
+                "on-primary-fixed": "#001c38",
+                "surface-tint": "#1960a3",
+                "primary-container": "#2b6cb0",
+                "on-tertiary-fixed": "#2c1600",
+                "on-secondary-container": "#586377",
+                "on-error": "#ffffff",
+                "tertiary-fixed": "#ffdcbd",
+                "surface-container-lowest": "#ffffff"
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1.5rem", "full": "9999px"},
+            },
+          },
+        }
+      </script>
+</head>
+<body class="text-on-surface">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-sm dark:shadow-none">
+<div class="flex items-center justify-between px-8 h-16 w-full max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-xl font-semibold tracking-tighter text-blue-900 dark:text-blue-100 headline-font">IA SmartMatch</span>
+<div class="hidden md:flex gap-6 items-center font-['Inter'] font-medium text-sm tracking-tight">
+<a class="text-blue-700 dark:text-blue-400 border-b-2 border-blue-700 dark:border-blue-400 pb-1" href="#">Dashboard</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">Matches</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">Pipeline</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">Discovery</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">Analytics</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+<input class="pl-10 pr-4 py-1.5 bg-surface-container-low border-none rounded-full text-sm w-64 focus:ring-2 focus:ring-primary/20" placeholder="Search institutional data..." type="text"/>
+</div>
+<button class="p-2 text-slate-500 hover:bg-blue-50/50 rounded-full transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-blue-50/50 rounded-full transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<img alt="Coordinator Profile" class="w-8 h-8 rounded-full border border-outline-variant/20" data-alt="Professional headshot of a campus coordinator" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUIwmwkZ9pxQ3hSi92E6s_XdDqL2RK_ojzV99jv5gbC39WFLUcf4JoycTCl0TULwQGXrzSi0ATbHwIDuzmJcUj7BPbIjCQlZ0a6MkU1tkUVdsnNvR7h-YuUvF2Ql7fyNGzSooxwYTgUjc85SPHB1fkFYB9CGKUGUWM5sfd4AmU5PF41Gg3naWEB00PvXdRFLg9Horw8_d5a8vhatRtmAE791fIb9QWX9tYJGVVCyKACB98mx5e7-QB3ZaCC6eHGlf0-BR-JyKnHF0"/>
+</div>
+</div>
+</nav>
+<div class="flex min-h-screen pt-16 bg-surface">
+<!-- SideNavBar (Suppressed for focused dashboard view as per hierarchy if desired, but included here for navigation anchor) -->
+<aside class="hidden lg:flex flex-col py-6 px-4 gap-2 h-[calc(100vh-64px)] w-64 bg-slate-50 border-r-0 sticky top-16">
+<div class="px-4 mb-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined">school</span>
+</div>
+<div>
+<p class="text-sm font-bold text-blue-900 headline-font">Academic Curator</p>
+<p class="text-[10px] text-slate-500 uppercase tracking-widest">Institutional Unit</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-2.5 bg-white text-blue-700 rounded-lg shadow-sm font-semibold text-sm" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+                    Dashboard
+                </a>
+<a class="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-200/50 rounded-lg transition-transform duration-150 active:scale-95 text-sm font-semibold" href="#">
+<span class="material-symbols-outlined">handshake</span>
+                    Matches
+                </a>
+<a class="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-200/50 rounded-lg transition-transform duration-150 active:scale-95 text-sm font-semibold" href="#">
+<span class="material-symbols-outlined">account_tree</span>
+                    Pipeline
+                </a>
+<a class="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-200/50 rounded-lg transition-transform duration-150 active:scale-95 text-sm font-semibold" href="#">
+<span class="material-symbols-outlined">travel_explore</span>
+                    Discovery
+                </a>
+<a class="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-200/50 rounded-lg transition-transform duration-150 active:scale-95 text-sm font-semibold" href="#">
+<span class="material-symbols-outlined">analytics</span>
+                    Analytics
+                </a>
+</nav>
+<button class="mt-4 mx-2 py-3 bg-gradient-to-br from-primary to-primary-container text-white rounded-xl shadow-md flex items-center justify-center gap-2 font-semibold text-sm hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-sm">add</span>
+                New Match
+            </button>
+<div class="mt-auto pt-6 border-t border-slate-200/50 space-y-1">
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:bg-slate-200/50 rounded-lg text-xs font-semibold" href="#">
+<span class="material-symbols-outlined text-sm">help</span>
+                    Help Center
+                </a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:bg-slate-200/50 rounded-lg text-xs font-semibold" href="#">
+<span class="material-symbols-outlined text-sm">contact_support</span>
+                    Support
+                </a>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 p-8 overflow-x-hidden">
+<!-- Header Section -->
+<header class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+<div>
+<h1 class="text-4xl font-bold tracking-tight text-on-surface headline-font">Institutional Dashboard</h1>
+<p class="text-slate-500 mt-2 font-medium">Monitoring West Coast Campus Event Density &amp; Volunteer Alignment.</p>
+</div>
+<div class="flex items-center gap-3 bg-white p-1.5 rounded-2xl shadow-sm border border-outline-variant/10">
+<button class="px-4 py-2 rounded-xl text-sm font-semibold bg-primary text-white shadow-sm">Real-time</button>
+<button class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-500 hover:bg-slate-50">Historical</button>
+</div>
+</header>
+<!-- Metrics Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-outline-variant/5 flex items-center justify-between">
+<div>
+<p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Scraped Events Today</p>
+<h3 class="text-3xl font-bold headline-font text-primary">1,284</h3>
+<p class="text-xs text-green-600 mt-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">trending_up</span> +12% from yesterday
+                        </p>
+</div>
+<div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+<span class="material-symbols-outlined">data_object</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-outline-variant/5 flex items-center justify-between">
+<div>
+<p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">New POC Found</p>
+<h3 class="text-3xl font-bold headline-font text-primary">42</h3>
+<p class="text-xs text-blue-600 mt-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">verified_user</span> 8 priority institutions
+                        </p>
+</div>
+<div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+<span class="material-symbols-outlined">person_add</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-outline-variant/5 flex items-center justify-between">
+<div>
+<p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Volunteer Availability</p>
+<h3 class="text-3xl font-bold headline-font text-primary">88%</h3>
+<div class="w-32 h-1.5 bg-slate-100 rounded-full mt-3 overflow-hidden">
+<div class="w-[88%] h-full bg-primary"></div>
+</div>
+</div>
+<div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+<span class="material-symbols-outlined">group</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Large Interactive Map -->
+<div class="lg:col-span-8 flex flex-col gap-6">
+<section class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/5 overflow-hidden flex flex-col h-[500px]">
+<div class="p-6 border-b border-outline-variant/5 flex items-center justify-between bg-white">
+<div>
+<h2 class="text-lg font-bold headline-font">Campus Event Density</h2>
+<p class="text-xs text-slate-500">Heat map distribution: Portland to San Diego</p>
+</div>
+<div class="flex gap-2">
+<span class="flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-[10px] font-bold">
+<span class="w-2 h-2 rounded-full bg-blue-600"></span> HIGH DENSITY
+                                </span>
+</div>
+</div>
+<div class="relative flex-1 bg-slate-100 overflow-hidden">
+<!-- Placeholder for Map with Heatmap overlay -->
+<img alt="West Coast USA Map" class="w-full h-full object-cover opacity-60 grayscale brightness-110" data-alt="Detailed map of the West Coast United States showing California and Oregon" data-location="West Coast USA" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpRip8sDLVx3NNsU7R0FGdndbsIUiefHQdmvVCscQu9l7rMV4KEGObH4pmL4UI5kW8PaRxephIuEV7rFU_wNAIhvoNBlr1MJOhKeTx6JESmp6IUDwgoyIhNPlZZOln_adhRGGNPAHvcoIkU6bti5YodbxlahKzQuRppTPj_zU9vFEAXVyjonc6QTHZa9o07mVrJLSMU49PsiP0rFovNtmLNcrTQV_IiujXq_NCLh08EEN9qhrHpUdld-Xr7CVDKGx27GSuVH7Dcdc"/>
+<!-- Heatmap Circles (Absolute Positioned) -->
+<div class="absolute top-1/4 left-1/4 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl"></div>
+<div class="absolute top-1/2 left-1/3 w-48 h-48 bg-blue-600/30 rounded-full blur-3xl"></div>
+<div class="absolute bottom-1/4 left-1/2 w-40 h-40 bg-blue-400/20 rounded-full blur-3xl"></div>
+<div class="absolute bottom-12 right-1/4 w-56 h-56 bg-blue-700/25 rounded-full blur-3xl"></div>
+<!-- Marker Overlays -->
+<div class="absolute top-1/4 left-1/4 group cursor-pointer">
+<div class="w-4 h-4 bg-primary border-2 border-white rounded-full shadow-lg"></div>
+<div class="hidden group-hover:block absolute top-6 left-1/2 -translate-x-1/2 w-32 glass-panel p-2 rounded-lg text-[10px] shadow-xl border border-white/40">
+<p class="font-bold">Portland State Univ.</p>
+<p class="text-slate-500">12 Pending Events</p>
+</div>
+</div>
+<div class="absolute bottom-1/3 left-1/3 group cursor-pointer">
+<div class="w-4 h-4 bg-primary border-2 border-white rounded-full shadow-lg scale-125"></div>
+<div class="hidden group-hover:block absolute top-6 left-1/2 -translate-x-1/2 w-32 glass-panel p-2 rounded-lg text-[10px] shadow-xl border border-white/40">
+<p class="font-bold">Stanford University</p>
+<p class="text-slate-500">45 Active Matches</p>
+</div>
+</div>
+<div class="absolute bottom-12 right-1/4 group cursor-pointer">
+<div class="w-4 h-4 bg-primary border-2 border-white rounded-full shadow-lg"></div>
+<div class="hidden group-hover:block absolute top-6 left-1/2 -translate-x-1/2 w-32 glass-panel p-2 rounded-lg text-[10px] shadow-xl border border-white/40">
+<p class="font-bold">UC San Diego</p>
+<p class="text-slate-500">8 High Priority</p>
+</div>
+</div>
+<!-- Map Legend -->
+<div class="absolute bottom-6 left-6 glass-panel p-4 rounded-xl border border-white/40 shadow-sm">
+<p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Legend</p>
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2 text-[10px] font-medium">
+<span class="w-2 h-2 rounded-full bg-blue-700"></span> Institutional Hubs
+                                    </div>
+<div class="flex items-center gap-2 text-[10px] font-medium">
+<span class="w-2 h-2 rounded-full bg-blue-400 opacity-50"></span> Scraping Coverage
+                                    </div>
+</div>
+</div>
+</div>
+</section>
+<!-- Matching (Main) Section -->
+<section class="bg-surface-container-low p-8 rounded-2xl">
+<div class="flex items-center justify-between mb-8">
+<h2 class="text-2xl font-bold headline-font">Active High-Priority Matches</h2>
+<button class="text-sm font-semibold text-primary flex items-center gap-1">
+                                View Pipeline <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<div class="space-y-4">
+<!-- Match Card 1 -->
+<div class="bg-surface-container-lowest p-5 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-transform hover:scale-[1.01] cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400">
+<span class="material-symbols-outlined">biotech</span>
+</div>
+<div>
+<h4 class="font-bold text-base">Bio-Ethics Symposium 2024</h4>
+<p class="text-xs text-slate-500">UC Berkeley • Oct 12-14</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="text-right">
+<p class="text-[10px] font-bold text-slate-400 uppercase">Alignment</p>
+<p class="text-sm font-bold text-green-600">94% Fit</p>
+</div>
+<div class="flex -space-x-2">
+<img alt="Volunteer" class="w-8 h-8 rounded-full border-2 border-white" data-alt="Portrait of a volunteer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1gun6rWKhzP0Z1BPH4h-1kw1rt4seP-1EWFbUu1Ftmg_KHZ78-FtoH6glaE8LIBZSqR0pL00692svf-0Uy41azJQKhKPR2QkxyWk8oioCfQGQ3lGyMZO_Qtt8OONQsvoUQUpsh8FmBdQHkq6bhoK9KQFYyZ-r-6bXpIXooA6Zt3fkQUj00TTcD4PrKk6dU4M2XK0U0x7wyjXNMQZQL9bfoyZ0hu7enzeHB2d7Kw_bsT-66mWKCKw8BURId1SLpEFTHm54oTQLPyo"/>
+<img alt="Volunteer" class="w-8 h-8 rounded-full border-2 border-white" data-alt="Portrait of a male volunteer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgdnsH8CKpjNWUx2PqVoj0D1Q6C5aFfSGZWVwnaZtUS-DrEs3lbzVBNfJNZIdVAex4RWhkMiPFicLo12DsJ-wDbexaD4UnlIeLdeYcxF-xqnZ4IYCd4ypiKobYwei8k5JH97G2u_2G8jREPsKFY2Ywbkn71BwIWSnHHEzFgGDRxD8_sHorrZpHXQnhqVGH8OmkL79T8HMNBTlYe0u6KXFAJia2zjcBSAmMVqbJoGN7BbyYCzG2_s-2A46a-7B5zPZkwpRitwmJXME"/>
+<div class="w-8 h-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-400">+3</div>
+</div>
+<button class="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg text-xs font-bold hover:bg-blue-100 transition-colors">Assign</button>
+</div>
+</div>
+<!-- Match Card 2 -->
+<div class="bg-surface-container-lowest p-5 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-transform hover:scale-[1.01] cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400">
+<span class="material-symbols-outlined">architecture</span>
+</div>
+<div>
+<h4 class="font-bold text-base">Sustainable Design Workshop</h4>
+<p class="text-xs text-slate-500">University of Oregon • Nov 02</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="text-right">
+<p class="text-[10px] font-bold text-slate-400 uppercase">Alignment</p>
+<p class="text-sm font-bold text-primary">82% Fit</p>
+</div>
+<div class="flex -space-x-2">
+<img alt="Volunteer" class="w-8 h-8 rounded-full border-2 border-white" data-alt="Portrait of a volunteer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuArUFZGmd93GX4Tzm44T4j48CIOxYhnS6YdXvOr2uoBnyvG7dlGuxoZzu8Pd0oIdoG493oGRO6rDrWk4sPTu--y_LvhY0JTTWf8LLD9rTSvCvN5gT31duEfGqATmvE7HvVlQCFJI86uR_mlWhQNBOjxMfxHF8VDbVTSiK3gfJZTtc4Tmm_Sfk2_1TqQyUM2vPlb4ul1QXyljh5HP0wxpPL8m5jDBhQh9hAesef8ksgH0lEy93R3TGp6iqwIwet3edmDaw_96esZb_g"/>
+<div class="w-8 h-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-400">+1</div>
+</div>
+<button class="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg text-xs font-bold hover:bg-blue-100 transition-colors">Assign</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Live Feed -->
+<div class="lg:col-span-4 space-y-6">
+<section class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/5 h-full flex flex-col overflow-hidden">
+<div class="p-6 border-b border-outline-variant/5 flex items-center justify-between sticky top-0 bg-white z-10">
+<h2 class="text-lg font-bold headline-font">Live Discovery Feed</h2>
+<span class="flex h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
+</div>
+<div class="flex-1 p-6 overflow-y-auto max-h-[1000px] no-scrollbar">
+<div class="space-y-6">
+<!-- Feed Item 1 -->
+<div class="relative pl-6 border-l-2 border-blue-100 pb-2">
+<div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-white border-2 border-blue-500"></div>
+<p class="text-[10px] font-bold text-primary uppercase mb-1">Just Now</p>
+<h5 class="text-sm font-bold text-on-surface">New Event Scraped: AI Research Forum</h5>
+<p class="text-xs text-slate-500 mt-1">Caltech, Pasadena • Detected via RSS/Academic Calendar</p>
+<div class="mt-3 flex gap-2">
+<span class="px-2 py-0.5 bg-slate-100 text-[10px] font-semibold rounded text-slate-600">Computer Science</span>
+<span class="px-2 py-0.5 bg-slate-100 text-[10px] font-semibold rounded text-slate-600">High Impact</span>
+</div>
+</div>
+<!-- Feed Item 2 -->
+<div class="relative pl-6 border-l-2 border-blue-100 pb-2">
+<div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-white border-2 border-blue-200"></div>
+<p class="text-[10px] font-bold text-slate-400 uppercase mb-1">14 Minutes Ago</p>
+<h5 class="text-sm font-bold text-on-surface">POC Identified: Dr. Sarah Chen</h5>
+<p class="text-xs text-slate-500 mt-1">Lead Coordinator for Graduate Affairs at UCLA</p>
+<div class="mt-3">
+<button class="text-xs font-bold text-primary underline underline-offset-4">Connect now</button>
+</div>
+</div>
+<!-- Feed Item 3 -->
+<div class="relative pl-6 border-l-2 border-blue-100 pb-2">
+<div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-white border-2 border-blue-200"></div>
+<p class="text-[10px] font-bold text-slate-400 uppercase mb-1">2 Hours Ago</p>
+<h5 class="text-sm font-bold text-on-surface">Data Refresh Complete</h5>
+<p class="text-xs text-slate-500 mt-1">Oregon State University calendar sync successful. 18 new entries.</p>
+</div>
+<!-- Feed Item 4 -->
+<div class="relative pl-6 border-l-2 border-blue-100 pb-2">
+<div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-white border-2 border-blue-200"></div>
+<p class="text-[10px] font-bold text-slate-400 uppercase mb-1">3 Hours Ago</p>
+<h5 class="text-sm font-bold text-on-surface">Volunteer Alert: Availability Shift</h5>
+<p class="text-xs text-slate-500 mt-1">Mark Thompson (Regional Lead) updated status to 'Active'.</p>
+</div>
+<!-- Feed Item 5 -->
+<div class="relative pl-6 border-l-2 border-blue-100 pb-2">
+<div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-white border-2 border-blue-200"></div>
+<p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Yesterday</p>
+<h5 class="text-sm font-bold text-on-surface">Monthly Summary Generated</h5>
+<p class="text-xs text-slate-500 mt-1">Academic engagement is up 22% in the Southern California region.</p>
+</div>
+</div>
+</div>
+<div class="p-4 bg-slate-50 border-t border-outline-variant/5 text-center">
+<button class="text-xs font-bold text-slate-500 hover:text-primary transition-colors uppercase tracking-widest">Load More Activities</button>
+</div>
+</section>
+</div>
+</div>
+</main>
+</div>
+<!-- Floating Action Button (FAB) - Contextual to Home -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-br from-primary to-primary-container text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-105 transition-transform">
+<span class="material-symbols-outlined">add</span>
+</button>
+</body></html>

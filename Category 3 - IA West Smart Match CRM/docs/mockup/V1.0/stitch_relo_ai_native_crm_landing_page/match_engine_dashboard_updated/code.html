@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>IA SmartMatch Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-container": "#d5e0f7",
+              "on-tertiary-fixed-variant": "#693c00",
+              "on-primary": "#ffffff",
+              "on-secondary": "#ffffff",
+              "on-error-container": "#93000a",
+              "secondary-fixed": "#d8e3fa",
+              "error": "#ba1a1a",
+              "outline-variant": "#c1c7d2",
+              "on-secondary-fixed": "#111c2c",
+              "on-surface": "#191c1e",
+              "inverse-primary": "#a2c9ff",
+              "surface-dim": "#d8dadd",
+              "surface-container-low": "#f2f4f7",
+              "on-background": "#191c1e",
+              "primary-container": "#2b6cb0",
+              "on-secondary-container": "#586377",
+              "inverse-on-surface": "#eff1f4",
+              "on-secondary-fixed-variant": "#3c475a",
+              "background": "#f7f9fc",
+              "on-primary-container": "#e1ecff",
+              "primary-fixed": "#d3e4ff",
+              "tertiary-container": "#9a5b00",
+              "tertiary-fixed-dim": "#ffb86e",
+              "on-error": "#ffffff",
+              "secondary-fixed-dim": "#bcc7dd",
+              "tertiary-fixed": "#ffdcbd",
+              "secondary": "#545f72",
+              "on-primary-fixed-variant": "#004881",
+              "surface-container-highest": "#e0e3e6",
+              "surface-bright": "#f7f9fc",
+              "surface-tint": "#1960a3",
+              "on-primary-fixed": "#001c38",
+              "on-tertiary": "#ffffff",
+              "inverse-surface": "#2d3133",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary-container": "#ffe7d2",
+              "error-container": "#ffdad6",
+              "on-tertiary-fixed": "#2c1600",
+              "primary": "#005394",
+              "surface-container-high": "#e6e8eb",
+              "surface-container": "#eceef1",
+              "on-surface-variant": "#414750",
+              "tertiary": "#784600",
+              "outline": "#727782",
+              "surface": "#f7f9fc",
+              "primary-fixed-dim": "#a2c9ff",
+              "surface-variant": "#e0e3e6"
+            },
+            fontFamily: {
+              "headline": ["Inter Tight", "Inter", "sans-serif"],
+              "body": ["Inter", "sans-serif"],
+              "label": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bg-primary-gradient {
+            background: linear-gradient(135deg, #005394 0%, #2b6cb0 100%);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- Sidebar Navigation -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-slate-50 dark:bg-slate-950 flex flex-col p-4 gap-2 z-40">
+<div class="flex items-center gap-3 mb-8 px-2">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-bold">W</div>
+<div>
+<h2 class="text-lg font-semibold text-slate-900 dark:text-white leading-tight">IA West Chapter</h2>
+<p class="text-[10px] text-slate-500 uppercase tracking-widest font-medium">Regional Coordination</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-800 text-blue-700 dark:text-blue-400 rounded-xl shadow-sm font-medium transition-transform active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="text-sm">Matches</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 hover:translate-x-1 transition-all rounded-xl" href="#">
+<span class="material-symbols-outlined">person_search</span>
+<span class="text-sm">Speaker Database</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 hover:translate-x-1 transition-all rounded-xl" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="text-sm">Scraped Events</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 hover:translate-x-1 transition-all rounded-xl" href="#">
+<span class="material-symbols-outlined">auto_awesome</span>
+<span class="text-sm">Discovery Engine</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 hover:translate-x-1 transition-all rounded-xl" href="#">
+<span class="material-symbols-outlined">account_tree</span>
+<span class="text-sm">Pipeline Tracker</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 hover:translate-x-1 transition-all rounded-xl" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-sm">Analytics</span>
+</a>
+</nav>
+<div class="mt-auto border-t border-slate-200 dark:border-slate-800 pt-4 space-y-1">
+<button class="w-full flex items-center gap-3 px-4 py-3 bg-primary-gradient text-white rounded-xl shadow-md font-medium text-sm mb-4">
+<span class="material-symbols-outlined">add</span>
+<span>New Match Request</span>
+</button>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="text-sm">Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 mr-80 min-h-screen p-8 bg-surface">
+<!-- Header & Search -->
+<header class="max-w-4xl mx-auto mb-12">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h1 class="font-headline text-3xl font-bold tracking-tight text-on-surface mb-2">UCLA Career Fair 2026</h1>
+<p class="text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+                        April 28, 2026
+                        <span class="mx-2 text-outline-variant">•</span>
+<span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 bg-tertiary-fixed text-on-tertiary-fixed rounded-md">
+<span class="material-symbols-outlined text-xs">database</span>
+                            Scraped Event
+                        </span>
+</p>
+</div>
+<div class="flex gap-2">
+<span class="px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant text-xs font-semibold">Active Search</span>
+<span class="px-3 py-1 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-semibold">84 Matches Found</span>
+</div>
+</div>
+<div class="relative group mb-4">
+<div class="absolute inset-y-0 left-6 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-primary">search</span>
+</div>
+<input class="w-full pl-14 pr-6 py-5 bg-surface-container-lowest border-none rounded-2xl shadow-sm text-lg focus:ring-2 focus:ring-primary/20 placeholder:text-outline/60 transition-all" placeholder="Find internal specialists for UCLA Data Science Hackathon..." type="text"/>
+</div>
+<div class="flex flex-wrap gap-2 px-1">
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant rounded-full text-xs font-medium transition-colors">
+<span class="material-symbols-outlined text-sm">score</span>
+                    Score matches
+                </button>
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant rounded-full text-xs font-medium transition-colors">
+<span class="material-symbols-outlined text-sm">auto_fix_high</span>
+                    Generate outreach
+                </button>
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant rounded-full text-xs font-medium transition-colors">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+                    Diversity filter
+                </button>
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant rounded-full text-xs font-medium transition-colors">
+<span class="material-symbols-outlined text-sm">share</span>
+                    Export list
+                </button>
+</div>
+</header>
+<!-- Top Matches Section -->
+<section class="max-w-4xl mx-auto">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline text-xl font-semibold">Internal Specialist Matches</h3>
+<button class="text-primary text-sm font-semibold flex items-center gap-1">View All <span class="material-symbols-outlined text-sm">arrow_forward</span></button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Speaker Card 1 -->
+<div class="bg-surface-container-lowest p-6 rounded-[24px] shadow-sm hover:shadow-md transition-shadow group border border-outline-variant/10">
+<div class="flex justify-between items-start mb-6">
+<div class="flex gap-4">
+<div class="w-16 h-16 rounded-2xl overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Portrait of a female professional speaker" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCFwQC1G8xLRsFClEg6DzjuYbdXb0oc2gTt2BgH-5DKkA-xFZHcD7fIRsmPlR8czsnTVIRL35ITWs-Ko21B8ByZMnoCcog-Yp9AT1bsBMCA_OK9MT46lc2ijNfoK94LUkmxUY2In45ptRVdQsgKUZDgXSRUBkSMW9kDSlBQ__mlJ3He0yo-cpSqHryqiRJDCCdWmbeMU2xPYX1UAx8R3seBtBm9EFQs2PtI7dHZ9VejNXEdxWyvcWSQ9wp91kk9vZd3QwXg-6LlNc"/>
+</div>
+<div>
+<h4 class="font-bold text-lg leading-tight">Dr. Elena Rodriguez</h4>
+<p class="text-on-surface-variant text-sm">Lead ML Architect, Varia Systems</p>
+</div>
+</div>
+<div class="text-right">
+<div class="text-primary font-bold text-2xl">98%</div>
+<div class="text-[10px] uppercase tracking-wider font-bold text-outline">Match Score</div>
+</div>
+</div>
+<!-- 6-Factor Visualization -->
+<div class="grid grid-cols-3 gap-2 mb-6">
+<div class="flex flex-col gap-1">
+<span class="text-[9px] text-outline font-bold uppercase">Topic</span>
+<div class="h-1 bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[98%]"></div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-[9px] text-outline font-bold uppercase">Role</span>
+<div class="h-1 bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[95%]"></div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-[9px] text-outline font-bold uppercase">Prox.</span>
+<div class="h-1 bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[90%]"></div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-[9px] text-outline font-bold uppercase">Cal.</span>
+<div class="h-1 bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[85%]"></div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-[9px] text-outline font-bold uppercase">Hist.</span>
+<div class="h-1 bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[100%]"></div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-[9px] text-outline font-bold uppercase">Impact</span>
+<div class="h-1 bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[96%]"></div>
+</div>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-2.5 bg-primary-gradient text-white rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity">Select</button>
+<button class="w-12 h-11 flex items-center justify-center bg-surface-container-low text-on-surface rounded-xl hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+<!-- Speaker Card 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-[24px] shadow-sm hover:shadow-md transition-shadow group border border-outline-variant/10">
+<div class="flex justify-between items-start mb-6">
+<div class="flex gap-4">
+<div class="w-16 h-16 rounded-2xl overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Portrait of a male professional speaker" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjKjL3kLzRmGpYvxrqcRbCiox_1rayBTIC1DnpVcMA7ds7HNdDDrh54K3ov3QOp2YywAGkDVD4Wg4grzN3skG9D5R47DUXX01ICY1xX3F-89a_c92eDj0SL0o-iklJHdJDBukLt7VCOKx-kqJL6R4T_P_2uNMwipr3jMbuk6s7HBkCIPz2EnsUru2g34cV1_BrSDf5JTLERWxINMdz54eU81BKOtgX6WYBHETW_JWYyzzJGzX_ym67OwC_8mqZN69ne3f73EQe2mg"/>
+</div>
+<div>
+<h4 class="font-bold text-lg leading-tight">Marcus Chen</h4>
+<p class="text-on-surface-variant text-sm">VP of Engineering, CloudScale</p>
+</div>
+</div>
+<div class="text-right">
+<div class="text-primary font-bold text-2xl">94%</div>
+<div class="text-[10px] uppercase tracking-wider font-bold text-outline">Match Score</div>
+</div>
+</div>
+<!-- 6-Factor Visualization -->
+<div class="grid grid-cols-3 gap-2 mb-6">
+<div class="flex flex-col gap-1">
+<span class="text-[9px] text-outline font-bold uppercase">Topic</span>
+<div class="h-1 bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[92%]"></div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-[9px] text-outline font-bold uppercase">Role</span>
+<div class="h-1 bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[98%]"></div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-[9px] text-outline font-bold uppercase">Prox.</span>
+<div class="h-1 bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[75%]"></div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-[9px] text-outline font-bold uppercase">Cal.</span>
+<div class="h-1 bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[90%]"></div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-[9px] text-outline font-bold uppercase">Hist.</span>
+<div class="h-1 bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[94%]"></div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-[9px] text-outline font-bold uppercase">Impact</span>
+<div class="h-1 bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[88%]"></div>
+</div>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-2.5 bg-primary-gradient text-white rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity">Select</button>
+<button class="w-12 h-11 flex items-center justify-center bg-surface-container-low text-on-surface rounded-xl hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+<!-- Speaker Card 3 (Featured/Wider) -->
+<div class="md:col-span-2 bg-surface-container-lowest p-6 rounded-[24px] shadow-sm hover:shadow-md transition-shadow border border-outline-variant/10 flex flex-col md:flex-row gap-8">
+<div class="md:w-1/3 border-r border-outline-variant/10 pr-6">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Portrait of a female industry expert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfUSRPyHmYwd6pvff7Q7meTXsI4kcpJjMOubB5OziwCikNV0JsoVDnwwvZYoB3RjA_WMsVn9OAhWqUNL2M3S-PX2oTrZH3R__9tDfmSndh7UZ3NtFbB1PgIIZChymBJdFR6xvxkn7QRzRICOZyKdte8aRfzd-Xhsgjo3dPopES-_N1CnT51-b0KeKUIzEq9a08-wR15RwI9w8hthP0mO94D4PfnUfPyK80tLN1HMatJ3SMq6plB60EVm9NbN6JJ2TWO_unsSzyEnA"/>
+</div>
+<div>
+<h4 class="font-bold text-base">Sarah Jenkins</h4>
+<p class="text-xs text-on-surface-variant">Director, Ethical AI Lab</p>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center text-sm">
+<span class="text-on-surface-variant font-bold uppercase text-[10px] tracking-wider">Point of Contact</span>
+<span class="font-semibold text-primary">Direct Verified</span>
+</div>
+<div class="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[100%]"></div>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed">
+                                Sarah has spoken at 4 UC-wide events in the last year. Agents identified her as the primary lead for the "AI for Social Good" initiative.
+                            </p>
+</div>
+</div>
+<!-- Expanded Score Breakdown Area -->
+<div class="flex-1">
+<h5 class="text-xs font-bold uppercase tracking-widest text-outline mb-4">Detailed Score Breakdown</h5>
+<div class="grid grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-6">
+<div class="space-y-1">
+<div class="flex justify-between items-end">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase">Topic Fit <span class="text-outline font-normal">(35%)</span></span>
+<span class="text-sm font-bold text-primary">9.8</span>
+</div>
+<div class="h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[98%]"></div>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between items-end">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase">Role Seniority <span class="text-outline font-normal">(25%)</span></span>
+<span class="text-sm font-bold text-primary">8.5</span>
+</div>
+<div class="h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[85%]"></div>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between items-end">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase">Proximity <span class="text-outline font-normal">(20%)</span></span>
+<span class="text-sm font-bold text-primary">9.2</span>
+</div>
+<div class="h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[92%]"></div>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between items-end">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase">Calendar <span class="text-outline font-normal">(15%)</span></span>
+<span class="text-sm font-bold text-primary">7.8</span>
+</div>
+<div class="h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[78%]"></div>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between items-end">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase">Hist. Impact <span class="text-outline font-normal">(5%)</span></span>
+<span class="text-sm font-bold text-primary">10.0</span>
+</div>
+<div class="h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[100%]"></div>
+</div>
+</div>
+<div class="flex items-end justify-end gap-3 pt-2">
+<button class="px-4 py-2 bg-surface-container-high text-on-surface rounded-xl text-xs font-semibold hover:bg-surface-container-highest transition-colors">Compare</button>
+<button class="px-4 py-2 bg-primary-gradient text-white rounded-xl text-xs font-semibold">Initiate Outreach</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Right Rail Details -->
+<aside class="w-80 h-screen fixed right-0 top-0 bg-white border-l border-outline-variant/20 p-6 z-40 overflow-y-auto">
+<div class="mb-10">
+<h3 class="font-headline text-lg font-semibold mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">info</span>
+                Event Intelligence
+            </h3>
+<!-- Point of Contact Data (Emphasized) -->
+<div class="bg-surface-container-lowest border-2 border-primary/20 p-4 rounded-2xl mb-6 relative overflow-hidden">
+<div class="absolute top-0 right-0 px-2 py-0.5 bg-primary text-white text-[9px] font-bold rounded-bl-lg uppercase">Verified POC</div>
+<div class="text-[10px] font-bold text-primary uppercase tracking-wider mb-2">Primary Point of Contact</div>
+<div class="flex items-center gap-3 mb-3">
+<img alt="POC" class="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1bMigh93m-y289SPTJcBCB53p4IPZN0bJXKtfdQkr2bKpJKMrosFbq6DR7_Fl7Pt5xzY7iX66jOOFgcLsduez2BfGnWL29rVRAU9_0HaZPUfEO1qthmBoyRYps02QL7X1ldpBIxJCQ9eEsSROLnjE8Vwo9p4gckinknAd2t_fNAXQXSg89BCLAuPhO5WeBk9xsz0uuSR5me-eMr2NTDV8vuPvpQxD5gw7gTBAddMaemzMjkYhrhFC2z2yjk9wkxB9V0HpMerWqNk"/>
+<div>
+<p class="text-sm font-bold text-on-surface">Dr. Linda Nguyen</p>
+<p class="text-[11px] text-on-surface-variant">UCLA Career Center Lead</p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-2 bg-surface-container-high text-[11px] font-bold rounded-lg flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-xs">mail</span> Message
+                    </button>
+<button class="flex-1 py-2 bg-surface-container-high text-[11px] font-bold rounded-lg flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-xs">call</span> Call
+                    </button>
+</div>
+</div>
+<!-- AI Insight -->
+<div class="bg-primary/5 p-4 rounded-2xl border border-primary/10 mb-6">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary text-sm">psychology</span>
+<span class="text-xs font-bold text-primary uppercase tracking-wider">AI Reasoning</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed">
+                    Prioritize candidates with <strong>"UCLA Alumna"</strong> tags. Scraped historic data shows a 45% higher acceptance rate for alumni-led sessions at this specific venue.
+                </p>
+</div>
+<!-- Target Audience from Scraped Event -->
+<div class="bg-surface p-4 rounded-2xl mb-6">
+<div class="text-[10px] font-bold text-outline uppercase tracking-wider mb-2">TARGET AUDIENCE</div>
+<p class="text-sm font-medium text-on-surface mb-4">500+ UCLA Undergraduates specializing in CS and Statistics.</p>
+<div class="flex -space-x-2">
+<img class="w-8 h-8 rounded-full border-2 border-surface" data-alt="Avatar of user 1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1bMigh93m-y289SPTJcBCB53p4IPZN0bJXKtfdQkr2bKpJKMrosFbq6DR7_Fl7Pt5xzY7iX66jOOFgcLsduez2BfGnWL29rVRAU9_0HaZPUfEO1qthmBoyRYps02QL7X1ldpBIxJCQ9eEsSROLnjE8Vwo9p4gckinknAd2t_fNAXQXSg89BCLAuPhO5WeBk9xsz0uuSR5me-eMr2NTDV8vuPvpQxD5gw7gTBAddMaemzMjkYhrhFC2z2yjk9wkxB9V0HpMerWqNk"/>
+<img class="w-8 h-8 rounded-full border-2 border-surface" data-alt="Avatar of user 2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwk9lYWqyatqkituPvJgdeJprO_1b6ETK_a-oqvk9SRPdpuBlEKjUNyN0IiNlFX5nZJP9flRWM99-9-UpCFRAZl1AJB760s1KiILpj33Kl9eRPd9Ddm-EpwM25ZCovJmyEsd-Aka6dGXSiVUqE7wSTmtFeCGOO6ZJXG3_I6qx9Lj6OxyxrQwjdbLTlVMdEox_FvlC58l2UWKVMIUwPYt72TqBRr2dYay2aV-e16F2TtwOj8dtqK1Mj8QAiAWkbdP3RTn-WnUa7e4k"/>
+<img class="w-8 h-8 rounded-full border-2 border-surface" data-alt="Avatar of user 3" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYlmjrycDCMtLsZnmjAtTL9H0QPBHB8PgT9lnJxjDtE4_6ZX3RXHnQdzC5hrRM43UkMBjIMzTde3Sst18ofNf6Aa347LcB_T8y_wcQdEqPm_LUkxdvE4mmgGScCSi2XNWJtj86Mi3auTu5kFPoE2H4CfdH-lpvC5DwTIYSZNOhidSeeuSZJw8ouI2PhvLWpRBhjQ8Zb7K-A3lE--dHon_tTGnaW-gZG2-QFzbcCBcfBrkD6pjaoQgWHOS35Tjx8gbwW0qRlZmE2As"/>
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-surface-container-high flex items-center justify-center text-[10px] font-bold">+12</div>
+</div>
+</div>
+<!-- Calendar Preview -->
+<div class="mb-8">
+<div class="flex justify-between items-center mb-4">
+<h4 class="text-xs font-bold text-outline uppercase tracking-wider">Availability (April)</h4>
+<span class="text-[10px] text-primary font-bold">Show detailed view</span>
+</div>
+<div class="grid grid-cols-7 gap-1 text-center">
+<div class="text-[8px] font-bold py-1">M</div>
+<div class="text-[8px] font-bold py-1">T</div>
+<div class="text-[8px] font-bold py-1">W</div>
+<div class="text-[8px] font-bold py-1">T</div>
+<div class="text-[8px] font-bold py-1">F</div>
+<div class="text-[8px] font-bold py-1">S</div>
+<div class="text-[8px] font-bold py-1">S</div>
+<div class="text-[10px] p-1 text-outline">24</div>
+<div class="text-[10px] p-1 text-outline">25</div>
+<div class="text-[10px] p-1 text-outline">26</div>
+<div class="text-[10px] p-1 text-outline">27</div>
+<div class="text-[10px] p-1 bg-primary text-white rounded-md font-bold">28</div>
+<div class="text-[10px] p-1">29</div>
+<div class="text-[10px] p-1">30</div>
+</div>
+</div>
+<!-- Outreach Preview -->
+<div class="space-y-4">
+<h4 class="text-xs font-bold text-outline uppercase tracking-wider">Outreach Preview</h4>
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-4">
+<p class="text-[11px] text-on-surface-variant font-medium mb-2">Subject: Speaking at UCLA...</p>
+<p class="text-[11px] text-on-surface-variant/80 italic line-clamp-3">
+                        Hi [Speaker Name], given your incredible background in [Expertise] and your role as an internal specialist...
+                    </p>
+<div class="mt-3 pt-3 border-t border-outline-variant/10 flex justify-between items-center">
+<span class="text-[10px] text-primary font-bold">Edit Template</span>
+<span class="material-symbols-outlined text-sm text-outline">open_in_new</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-auto">
+<button class="w-full py-4 bg-surface-container-high text-on-surface font-bold rounded-2xl text-sm flex items-center justify-center gap-2 hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-sm">mail</span>
+                Send Bulk Outreach
+            </button>
+</div>
+</aside>
+</body></html>

@@ -56,3 +56,10 @@ output/
 # ── OS ───────────────────────────────────────────────────
 .DS_Store
 desktop.ini
+
+# ── Claude Code working artifacts ────────────────────────
+.claude/settings.local.json
+.claude/orchestrator/
+.claude/handoff-*.md
+claude-progress.txt
+.planning/config.json
