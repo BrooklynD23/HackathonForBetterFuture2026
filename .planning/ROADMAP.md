@@ -27,7 +27,7 @@
 Plans:
 - [x] 08-01-PLAN.md — Design system, HTML base wrapper, and page router foundation
 - [x] 08-02-PLAN.md — Data loading helpers for UI templates
-- [ ] 08-03-PLAN.md — Landing page (pixel-faithful HTML via st.components.v1.html)
+- [x] 08-03-PLAN.md — Landing page (pixel-faithful HTML via st.components.v1.html)
 - [x] 08-04-PLAN.md — Login/role-selection page
 - [ ] 08-05-PLAN.md — Coordinator dashboard, match engine, and app.py wiring
 
