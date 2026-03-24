@@ -9,18 +9,49 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from src.config import DEFAULT_WEIGHTS
+from src.config import DEFAULT_WEIGHTS, FACTOR_DISPLAY_LABELS, FACTOR_KEYS, FACTOR_SHORT_LABELS
+from src.demo_mode import demo_or_live
 from src.matching.engine import rank_speakers_for_course, rank_speakers_for_event
 from src.matching.explanations import (
     fallback_match_explanation,
     generate_match_explanation,
     load_cached_explanation,
 )
+from src.feedback.acceptance import render_feedback_buttons
 from src.outreach.ics_generator import ICS_CONTENT_TYPE, generate_ics
+from src.runtime_state import (
+    get_matching_events_df,
+    init_runtime_state,
+    set_match_results,
+)
 from src.ui.email_panel import render_email_preview
 from src.utils import format_course_display_name, format_course_identifier
 
 logger = logging.getLogger(__name__)
+
+
+def _event_option_id(event_row: pd.Series) -> str:
+    """Return the stable ID used to select an event."""
+    return str(event_row.get("event_id", "") or event_row.get("Event / Program", ""))
+
+
+def _event_option_label(event_row: pd.Series) -> str:
+    """Return a label that disambiguates same-named events."""
+    event_name = str(event_row.get("Event / Program", "Event"))
+    host_unit = str(event_row.get("Host / Unit", "") or "").strip()
+    event_date = str(
+        event_row.get("Date", event_row.get("Recurrence (typical)", "")) or ""
+    ).strip()
+    details = " | ".join(part for part in [host_unit, event_date] if part)
+    return f"{event_name} ({details})" if details else event_name
+
+
+def validate_weights(weights: dict[str, float]) -> str | None:
+    """Return an error message when weights are invalid for scoring."""
+    total = sum(float(value) for value in weights.values())
+    if total <= 0:
+        return "At least one weight must be greater than 0. Please adjust weights."
+    return None
 
 
 @st.cache_data(show_spinner=False)
@@ -49,7 +80,12 @@ def render_matches_tab(
     ia_event_calendar: pd.DataFrame,
 ) -> None:
     """Render the Matches tab in the Streamlit app."""
-    _render_weight_sliders()
+    init_runtime_state()
+    available_events = get_matching_events_df(events)
+    weight_error = _render_weight_sliders()
+    if weight_error:
+        st.error(weight_error)
+        return
 
     view_mode = st.sidebar.radio(
         "View Mode",
@@ -60,7 +96,7 @@ def render_matches_tab(
 
     if view_mode == "Events":
         _render_event_matches(
-            events, speakers, speaker_embeddings, event_embeddings,
+            available_events, speakers, speaker_embeddings, event_embeddings,
             ia_event_calendar,
         )
     else:
@@ -70,19 +106,12 @@ def render_matches_tab(
         )
 
 
-def _render_weight_sliders() -> None:
+def _render_weight_sliders() -> str | None:
     """Render 6 weight-tuning sliders in the sidebar."""
     st.sidebar.markdown("### Match Weights")
     st.sidebar.caption("Adjust weights to change ranking priorities. Weights are normalized automatically.")
 
-    factor_labels = {
-        "topic_relevance": "Topic Relevance",
-        "role_fit": "Role Fit",
-        "geographic_proximity": "Geographic Proximity",
-        "calendar_fit": "Calendar Fit",
-        "historical_conversion": "Historical Conversion",
-        "student_interest": "Student Interest",
-    }
+    factor_labels = FACTOR_DISPLAY_LABELS
 
     if "match_weights" not in st.session_state:
         st.session_state["match_weights"] = dict(DEFAULT_WEIGHTS)
@@ -104,19 +133,22 @@ def _render_weight_sliders() -> None:
     st.session_state["match_weights"] = updated_weights
 
     w = st.session_state["match_weights"]
+    weight_error = validate_weights(w)
     total = sum(w.values())
-    if total > 0:
+    if weight_error is None:
         st.sidebar.markdown("---")
         st.sidebar.caption("Normalized weights:")
         for k, v in w.items():
             normalized = v / total
             st.sidebar.text(f"  {factor_labels[k]}: {normalized:.0%}")
     else:
-        st.sidebar.warning("All weights are zero. Scores will be 0.0.")
+        st.sidebar.error(weight_error)
 
     if st.sidebar.button("Reset to Defaults", key="reset_weights"):
         st.session_state["match_weights"] = dict(DEFAULT_WEIGHTS)
         st.rerun()
+
+    return weight_error
 
 
 def _render_event_matches(
@@ -127,22 +159,27 @@ def _render_event_matches(
     ia_event_calendar: pd.DataFrame,
 ) -> None:
     """Render event-based matching view."""
-    event_names = events["Event / Program"].tolist()
-    selected_event_name = st.selectbox(
+    event_options = {
+        _event_option_id(row): _event_option_label(row)
+        for _, row in events.iterrows()
+    }
+    selected_event_id = st.selectbox(
         "Select an Event",
-        options=event_names,
+        options=list(event_options),
+        format_func=lambda option: event_options[option],
         index=0,
         key="selected_event",
     )
 
-    selected_event = events[
-        events["Event / Program"] == selected_event_name
-    ].iloc[0]
+    selected_event = events[events.apply(_event_option_id, axis=1) == selected_event_id].iloc[0]
+    selected_event_name = str(selected_event.get("Event / Program", selected_event_id))
 
     st.markdown(f"### Top 3 Matches for: *{selected_event_name}*")
 
     weights = st.session_state.get("match_weights", DEFAULT_WEIGHTS)
-    event_emb = event_embeddings.get(selected_event_name, None)
+    event_emb = event_embeddings.get(selected_event_name)
+    if event_emb is None:
+        event_emb = event_embeddings.get(selected_event_id)
 
     top_matches = rank_speakers_for_event(
         event_row=selected_event,
@@ -153,6 +190,7 @@ def _render_event_matches(
         weights=weights,
         top_n=3,
     )
+    set_match_results(top_matches)
 
     for match in top_matches:
         _render_match_card(match=match, event=selected_event)
@@ -221,6 +259,7 @@ def _render_course_matches(
         weights=weights,
         top_n=3,
     )
+    set_match_results(top_matches)
 
     for match in top_matches:
         _render_match_card(
@@ -298,6 +337,15 @@ def _render_match_card(
                 key=f"ics_{rank}",
             )
 
+        # --- Feedback buttons ---
+        _event_id = match.get("event_id") or match.get("event_name", "Event")
+        render_feedback_buttons(
+            event_id=_event_id,
+            speaker_id=match.get("speaker_name", ""),
+            match_score=match.get("total_score", 0.0),
+            factor_scores=match.get("factor_scores", {}),
+        )
+
         # --- Email preview panel ---
         pending = st.session_state.get("pending_email_match")
         if pending and pending.get("speaker_name") == match.get("speaker_name"):
@@ -331,12 +379,18 @@ def _render_match_explanation(match: dict, event: pd.Series) -> None:
 
     if st.button(button_label, key=button_key):
         with st.spinner("Generating AI explanation..."):
-            explanation = generate_match_explanation(
+            payload = demo_or_live(
+                generate_match_explanation,
                 match_result=match,
                 event_category=event_category,
                 event_volunteer_roles=event_volunteer_roles,
                 event_audience=event_audience,
+                fixture_key="match_explanations",
             )
+            if isinstance(payload, dict):
+                explanation = str(payload.get("explanation", explanation))
+            else:
+                explanation = str(payload)
 
     st.markdown("**Why this match?**")
     st.caption("AI wording is generated on demand to keep weight tuning responsive.")
@@ -345,22 +399,8 @@ def _render_match_explanation(match: dict, event: pd.Series) -> None:
 
 def _create_radar_chart(factor_scores: dict[str, float]) -> go.Figure:
     """Create a Plotly radar chart for the 6 match factors."""
-    factor_order = [
-        "topic_relevance",
-        "role_fit",
-        "geographic_proximity",
-        "calendar_fit",
-        "historical_conversion",
-        "student_interest",
-    ]
-    display_labels = [
-        "Topic",
-        "Role Fit",
-        "Proximity",
-        "Calendar",
-        "History",
-        "Student Int.",
-    ]
+    factor_order = list(FACTOR_KEYS)
+    display_labels = [FACTOR_SHORT_LABELS[k] for k in FACTOR_KEYS]
 
     values = [factor_scores.get(f, 0.0) for f in factor_order]
     values_closed = values + [values[0]]

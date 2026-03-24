@@ -1,0 +1,61 @@
+[
+  {
+    "name": "Maria Santos",
+    "email": "m.santos@cpp.edu",
+    "org": "Cal Poly Pomona Career Center",
+    "role": "Director of Employer Relations",
+    "comm_history": [
+      {"date": "2026-01-15", "type": "email", "summary": "Introduced IA West speaker program; Maria expressed strong interest in spring career fair."},
+      {"date": "2026-02-10", "type": "call", "summary": "Confirmed participation in March career fair; discussed two potential speaker slots."}
+    ],
+    "last_contact": "2026-02-10",
+    "follow_up_due": "2026-02-28"
+  },
+  {
+    "name": "James Okafor",
+    "email": "james.okafor@engineering.ucla.edu",
+    "org": "UCLA Henry Samueli School of Engineering",
+    "role": "Associate Dean of Student Affairs",
+    "comm_history": [
+      {"date": "2026-01-22", "type": "email", "summary": "Initial outreach about IA West board speakers for senior capstone symposium."},
+      {"date": "2026-03-01", "type": "email", "summary": "Followed up on capstone panel logistics; waiting for James to confirm dates."}
+    ],
+    "last_contact": "2026-03-01",
+    "follow_up_due": "2026-03-15"
+  },
+  {
+    "name": "Karen Liu",
+    "email": "k.liu@fullerton.edu",
+    "org": "CSUF Mihaylo College of Business",
+    "role": "Internship Program Coordinator",
+    "comm_history": [
+      {"date": "2026-02-05", "type": "email", "summary": "Connected about accounting and finance speaker series for spring semester."},
+      {"date": "2026-02-20", "type": "meeting", "summary": "Met at NACE regional conference; Karen wants two speakers for April symposium."}
+    ],
+    "last_contact": "2026-02-20",
+    "follow_up_due": "2026-03-10"
+  },
+  {
+    "name": "David Hernandez",
+    "email": "dhernandez@sdsu.edu",
+    "org": "San Diego State University Career Services",
+    "role": "Career Programs Manager",
+    "comm_history": [
+      {"date": "2026-03-05", "type": "email", "summary": "Reached out regarding IA West tech industry speaker for May networking event."}
+    ],
+    "last_contact": "2026-03-05",
+    "follow_up_due": "2026-04-15"
+  },
+  {
+    "name": "Priya Nair",
+    "email": "pnair@ucdavis.edu",
+    "org": "UC Davis Graduate School of Management",
+    "role": "Corporate Relations Director",
+    "comm_history": [
+      {"date": "2026-03-18", "type": "email", "summary": "Initial contact about MBA speaker series for fall semester; very enthusiastic."},
+      {"date": "2026-03-22", "type": "call", "summary": "Confirmed interest; Priya will circulate event dates to the GSM events team."}
+    ],
+    "last_contact": "2026-03-22",
+    "follow_up_due": "2026-04-30"
+  }
+]

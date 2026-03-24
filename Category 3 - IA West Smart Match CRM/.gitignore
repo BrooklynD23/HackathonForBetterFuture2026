@@ -1,8 +1,12 @@
 .env
 .venv/
 __pycache__/
+data/feedback_log.csv
 cache/*.npy
 cache/*.pkl
-cache/cache_manifest.json
+cache/*.json
+cache/**/*.json
+!cache/demo_fixtures/
+!cache/demo_fixtures/*.json
 *.pyc
 .streamlit/secrets.toml

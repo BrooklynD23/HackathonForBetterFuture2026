@@ -13,6 +13,9 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+from src.ui.styles import inject_custom_css  # noqa: E402
+inject_custom_css()
+
 from src.config import CACHE_DIR, has_gemini_api_key, validate_config  # noqa: E402
 from src.data_loader import load_all  # noqa: E402
 from src.embeddings import (  # noqa: E402
@@ -23,9 +26,27 @@ from src.embeddings import (  # noqa: E402
 from src.ui.matches_tab import render_matches_tab as render_matches_tab_ui  # noqa: E402
 from src.ui.discovery_tab import render_discovery_tab  # noqa: E402
 from src.ui.pipeline_tab import render_pipeline_tab  # noqa: E402
+from src.ui.expansion_map import render_expansion_map  # noqa: E402
+from src.ui.volunteer_dashboard import render_volunteer_dashboard  # noqa: E402
+from src.ui.command_center import render_command_center_tab  # noqa: E402
+from src.ui.landing_page import render_landing_page  # noqa: E402
+from src.feedback.acceptance import render_feedback_sidebar  # noqa: E402
+from src.demo_mode import init_demo_mode  # noqa: E402
+from src.runtime_state import (  # noqa: E402
+    get_match_results_df,
+    get_matching_events_df,
+    init_runtime_state,
+)
 from src.utils import format_course_identifier, summarize_missing_keys  # noqa: E402
 
 logger = logging.getLogger(__name__)
+
+DATASET_FILE_NAMES = {
+    "speakers": "data_speaker_profiles.csv",
+    "events": "data_cpp_events_contacts.csv",
+    "courses": "data_cpp_course_schedule.csv",
+    "calendar": "data_event_calendar.csv",
+}
 
 
 def _embedding_cache_issues(
@@ -105,7 +126,7 @@ def _resolve_embedding_lookup_dicts(
     embedding_bootstrap_error = None
     cache_generated = False
 
-    if embedding_issues and has_gemini_api_key():
+    if _should_attempt_embedding_bootstrap(embedding_issues):
         try:
             speaker_embeddings, event_embeddings, course_embeddings = generate_embedding_lookup_dicts(
                 speakers_df=datasets.speakers,
@@ -134,6 +155,32 @@ def _resolve_embedding_lookup_dicts(
     )
 
 
+def _empty_dataset_issues(datasets) -> list[str]:
+    """Return file-specific errors for headers-only or empty datasets."""
+    issues: list[str] = []
+    for attr_name, file_name in DATASET_FILE_NAMES.items():
+        dataset = getattr(datasets, attr_name)
+        if len(dataset) == 0:
+            issues.append(f"No {attr_name} found in data file. Please check {file_name}.")
+    return issues
+
+
+def _should_attempt_embedding_bootstrap(embedding_issues: list[str]) -> bool:
+    """Skip live Gemini cache generation when the app is intentionally offline."""
+    if not embedding_issues:
+        return False
+    if st.session_state.get("demo_mode", False):
+        return False
+    return has_gemini_api_key()
+
+
+def _matches_tab_can_render(embedding_issues: list[str]) -> bool:
+    """Allow non-topic matching to remain usable in demo/offline conditions."""
+    if not embedding_issues:
+        return True
+    return st.session_state.get("demo_mode", False) or not has_gemini_api_key()
+
+
 # ── Sidebar ─────────────────────────────────────────────────────────────────
 
 def render_sidebar():
@@ -153,13 +200,29 @@ def render_sidebar():
         st.divider()
 
         st.markdown("### Data Summary")
-        return st.container()
+        data_container = st.container()
+        st.divider()
+        init_demo_mode()
+        st.checkbox(
+            "Demo Mode (offline fixtures)",
+            key="demo_mode",
+            help="Toggle to use cached fixture data instead of live API calls.",
+        )
+
+        # View navigation
+        if st.session_state.get("current_view") == "crm":
+            if st.button("Back to Home", use_container_width=True):
+                st.session_state["current_view"] = "landing"
+                st.rerun()
+
+        return data_container
 
 
 # ── Main App ────────────────────────────────────────────────────────────────
 
 def main() -> None:
     """Main application entry point."""
+    init_runtime_state()
     config_errors = validate_config()
     if config_errors:
         st.error("Configuration errors detected:")
@@ -173,8 +236,8 @@ def main() -> None:
         try:
             datasets = load_all()
         except Exception as e:
-            st.error(f"Failed to load data: {e}")
             logger.exception("Failed to load datasets.")
+            st.error("Failed to load data. Please check the application logs for details.")
             st.stop()
             return
 
@@ -189,6 +252,14 @@ def main() -> None:
         ])
         st.metric("Total Records", total)
 
+    empty_dataset_issues = _empty_dataset_issues(datasets)
+    if empty_dataset_issues:
+        with st.sidebar:
+            for issue in empty_dataset_issues:
+                st.error(issue)
+        st.stop()
+        return
+
     all_issues = []
     for qr in datasets.quality_results:
         all_issues.extend(qr.issues)
@@ -197,6 +268,8 @@ def main() -> None:
             with st.expander("Data Quality Warnings", expanded=False):
                 for issue in all_issues:
                     st.warning(issue)
+
+    available_events = get_matching_events_df(datasets.events)
 
     with st.spinner("Preparing embedding cache..."):
         (
@@ -212,10 +285,17 @@ def main() -> None:
         with st.sidebar:
             st.success("Embedding cache generated successfully for Matches.")
 
+    matches_tab_available = _matches_tab_can_render(embedding_issues)
+
     if embedding_issues:
         logger.error("Embedding cache validation failed: %s", "; ".join(embedding_issues))
         with st.sidebar:
-            if embedding_bootstrap_error:
+            if matches_tab_available:
+                st.warning(
+                    "Embedding cache missing or incomplete. Matches will continue with fallback "
+                    "scoring until speaker, event, and course embeddings are regenerated."
+                )
+            elif embedding_bootstrap_error:
                 st.error(
                     "Embedding cache generation failed. Matching remains disabled until "
                     "the cache can be regenerated."
@@ -231,28 +311,48 @@ def main() -> None:
                     "to let the app generate it automatically."
                 )
 
-    tab_matches, tab_discovery, tab_pipeline = st.tabs([
+    # ── View Switching: Landing Page vs CRM ──────────────────────────────
+    if st.session_state.get("current_view", "landing") == "landing":
+        render_landing_page(datasets)
+        return
+
+    # ── CRM Tab Layout ─────────────────────────────────────────────────
+    tab_command, tab_matches, tab_discovery, tab_pipeline, tab_expansion, tab_volunteers = st.tabs([
+        "🤖 Command Center",
         "🎯 Matches",
         "🔍 Discovery",
         "📊 Pipeline",
+        "🗺️ Expansion",
+        "👥 Volunteers",
     ])
+
+    with tab_command:
+        render_command_center_tab()
 
     with tab_matches:
         if embedding_issues:
-            st.error(
-                "Embedding cache missing or incomplete. Matches can run after the app "
-                "successfully generates speaker, event, and course embeddings."
-            )
+            if matches_tab_available:
+                st.warning(
+                    "Embedding cache missing or incomplete. Matches remain available, but "
+                    "topic relevance is using fallback scoring until embeddings are regenerated."
+                )
+            else:
+                st.error(
+                    "Embedding cache missing or incomplete. Matches can run after the app "
+                    "successfully generates speaker, event, and course embeddings."
+                )
             with st.expander("Embedding cache validation details", expanded=True):
                 for issue in embedding_issues:
                     st.write(f"- {issue}")
                 if embedding_bootstrap_error:
                     st.write(f"- Automatic generation failed: {embedding_bootstrap_error}")
+                elif st.session_state.get("demo_mode", False):
+                    st.write("- Automatic generation is skipped while Demo Mode is enabled.")
                 elif not has_gemini_api_key():
                     st.write("- Automatic generation is unavailable until `GEMINI_API_KEY` is configured.")
-        else:
+        if matches_tab_available:
             render_matches_tab_ui(
-                events=datasets.events,
+                events=available_events,
                 courses=datasets.courses,
                 speakers=datasets.speakers,
                 speaker_embeddings=speaker_embeddings,
@@ -265,7 +365,33 @@ def main() -> None:
         render_discovery_tab(datasets)
 
     with tab_pipeline:
-        render_pipeline_tab(datasets)
+        render_pipeline_tab()
+
+    with tab_expansion:
+        threshold = st.slider(
+            "Proximity Threshold",
+            min_value=0.0,
+            max_value=1.0,
+            value=0.30,
+            step=0.05,
+            key="expansion_threshold",
+        )
+        fig = render_expansion_map(datasets.speakers, threshold)
+        st.plotly_chart(fig, use_container_width=True, key="expansion_map")
+
+    with tab_volunteers:
+        from src.feedback.acceptance import init_feedback_state
+        init_feedback_state()
+        feedback_log = st.session_state.get("feedback_log", [])
+        render_volunteer_dashboard(
+            speakers_df=datasets.speakers,
+            match_results=get_match_results_df(),
+            events_df=available_events,
+            feedback_log=feedback_log,
+        )
+
+    # Feedback summary in sidebar (only in CRM view)
+    render_feedback_sidebar()
 
 
 if __name__ == "__main__":

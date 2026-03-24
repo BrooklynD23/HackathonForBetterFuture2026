@@ -17,6 +17,8 @@ Use this page as the entry point for Category 3 planning and implementation docs
 
 - `Category 3 - IA West Smart Match CRM/docs/gemini_provider_decision_2026-03-18.md`
   Provider decision memo documenting the Gemini Developer API runtime adoption, recommended models, and migration notes.
+- `Category 3 - IA West Smart Match CRM/docs/sprints/sprint-3-swarm-orchestration-plan.md`
+  Historical orchestration artifact for the Sprint 3 feature burst. Use it as execution history, not as an authority over the canonical sprint plan.
 - `Category 3 - IA West Smart Match CRM/docs/sprints/sprint-0-foundation.md` through `sprint-4-ship.md`
   Derived implementation specs. These should stay aligned with the canonical docs above.
 - `Category 3 - IA West Smart Match CRM/PLAN.md`
@@ -45,6 +47,18 @@ These are useful for audit history, but they are not implementation authority:
 - Scrape cache: `cache/scrapes/<sha256(url)>.json`
 - Email cache: `cache/emails/<hashed-key>.json`
 - Explanation cache: `cache/explanations/<cache-key>.json`, and only successful Gemini responses should be persisted there
-- Canonical match-result keys: `total_score` and `factor_scores.{topic_relevance, role_fit, geographic_proximity, calendar_fit, historical_conversion, student_interest}`
+- Canonical match-result keys: `total_score` and `factor_scores.{topic_relevance, role_fit, geographic_proximity, calendar_fit, historical_conversion, student_interest, event_urgency, coverage_diversity}` (8 factors)
+- Shared runtime contract: dynamic cross-tab state lives in `st.session_state`, with `match_results_df`, `scraped_events`, `feedback_log`, `emails_generated`, and `demo_mode` treated as the live session contract
 - CSV-backed event rows use literal headers such as `Event / Program`, `Host / Unit`, and `Volunteer Roles (fit)`
+- Pipeline and Volunteer views should consume normalized runtime state, not assume dynamic fields on `LoadedDatasets`
+- Demo Mode must affect production call sites, not only helper utilities or isolated tests
 - Custom URL discovery is restricted to public `http/https` university hosts and must reject localhost/private-network targets
+
+## Current Sprint Status
+
+- Sprint 5 closeout engineering work is complete on `sprint5-cat3`.
+- Latest live verification baseline from the project virtualenv is green: `./.venv/bin/python -m pytest -q` -> `424 passed in 66.40s` (82% coverage).
+- Latest targeted Phase 3 regression set is green: `tests/test_discovery_tab.py tests/test_matches_tab.py tests/test_engine.py tests/test_app.py tests/test_acceptance.py tests/test_volunteer_dashboard.py` -> `87 passed in 6.56s`.
+- Latest preflight baseline passes with warnings only for un-warmed live caches: missing embedding artifacts plus empty or absent `cache/scrapes/`, `cache/extractions/`, `cache/explanations/`, and `cache/emails/`.
+- Sprint 5 review artifact: `Category 3 - IA West Smart Match CRM/docs/reviews/2026-03-21-sprint5-code-review.md`.
+- Manual demo-day steps still require a machine with `GEMINI_API_KEY` to warm live caches, a rehearsal pass using the real environment, and completion of the human-run logs under `docs/testing/`.

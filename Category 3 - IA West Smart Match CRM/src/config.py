@@ -1,6 +1,8 @@
-"""Centralized configuration loaded from environment variables."""
+"""Centralized configuration loaded from environment variables and secrets."""
 
 import os
+import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Final
 
@@ -13,14 +15,45 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / os.getenv("DATA_DIR", "data")
 CACHE_DIR = PROJECT_ROOT / os.getenv("CACHE_DIR", "cache")
 
+
+def _secret_or_env(name: str, default: str = "") -> str:
+    """Read a config value from env first, then Streamlit secrets if available."""
+    env_value = os.getenv(name)
+    if env_value:
+        return env_value
+
+    if "streamlit" not in sys.modules:
+        return default
+    st = sys.modules["streamlit"]
+
+    secrets = getattr(st, "secrets", None)
+    if secrets is None:
+        return default
+
+    try:
+        value = secrets.get(name)
+    except Exception:
+        return default
+
+    if value in (None, ""):
+        return default
+    return str(value)
+
 # --- Gemini ---
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+GEMINI_API_KEY = _secret_or_env("GEMINI_API_KEY", "")
 GEMINI_BASE_URL = os.getenv(
     "GEMINI_BASE_URL",
     "https://generativelanguage.googleapis.com/v1beta",
 )
 GEMINI_EMBEDDING_MODEL = os.getenv("GEMINI_EMBEDDING_MODEL", "gemini-embedding-001")
 GEMINI_TEXT_MODEL = os.getenv("GEMINI_TEXT_MODEL", "gemini-2.5-flash-lite")
+
+# --- Voice I/O (Phase 4) ---
+KITTENTTS_VOICE: Final[str] = os.getenv("KITTENTTS_VOICE", "Bella")
+KITTENTTS_MODEL_ID: Final[str] = "KittenML/kitten-tts-mini-0.8"
+KITTENTTS_SAMPLE_RATE: Final[int] = 24000
+WHISPER_MODEL_SIZE: Final[str] = os.getenv("WHISPER_MODEL_SIZE", "base")
+WHISPER_COMPUTE_TYPE: Final[str] = "int8"
 
 # --- Embedding ---
 EMBEDDING_DIMENSION = int(os.getenv("EMBEDDING_DIMENSION", "1536"))
@@ -37,15 +70,45 @@ EVENT_CALENDAR_CSV = "data_event_calendar.csv"
 PAGE_TITLE = os.getenv("STREAMLIT_PAGE_TITLE", "IA SmartMatch CRM")
 
 
-# ---------- Default Matching Weights ----------
-DEFAULT_WEIGHTS: Final[dict[str, float]] = {
-    "topic_relevance": 0.30,
-    "role_fit": 0.25,
-    "geographic_proximity": 0.20,
-    "calendar_fit": 0.15,
-    "historical_conversion": 0.05,
-    "student_interest": 0.05,
-}
+# ---------- Factor Registry (single source of truth) ----------
+
+@dataclass(frozen=True)
+class FactorSpec:
+    """Immutable specification for a matching factor."""
+    key: str
+    display_label: str
+    short_label: str
+    default_weight: float
+    prompt_label: str
+    email_alias: str
+
+
+FACTOR_REGISTRY: Final[tuple[FactorSpec, ...]] = (
+    FactorSpec("topic_relevance", "Topic Relevance", "Topic", 0.25,
+               "topic alignment", "Topic Match"),
+    FactorSpec("role_fit", "Role Fit", "Role Fit", 0.20,
+               "role compatibility", "Role Fit"),
+    FactorSpec("geographic_proximity", "Geographic Proximity", "Proximity", 0.20,
+               "geographic proximity", "Geographic Fit"),
+    FactorSpec("calendar_fit", "Calendar Fit", "Calendar", 0.15,
+               "calendar alignment", "Calendar Fit"),
+    FactorSpec("historical_conversion", "Historical Conversion", "History", 0.05,
+               "engagement history", "Engagement History"),
+    FactorSpec("student_interest", "Student Interest", "Student Int.", 0.05,
+               "student interest potential", "Student Interest"),
+    FactorSpec("event_urgency", "Event Urgency", "Urgency", 0.05,
+               "scheduling urgency", "Event Urgency"),
+    FactorSpec("coverage_diversity", "Coverage Diversity", "Coverage", 0.05,
+               "assignment diversity", "Coverage Balance"),
+)
+
+# Derived constants — identical values to pre-refactor
+FACTOR_KEYS: Final[tuple[str, ...]] = tuple(f.key for f in FACTOR_REGISTRY)
+DEFAULT_WEIGHTS: Final[dict[str, float]] = {f.key: f.default_weight for f in FACTOR_REGISTRY}
+FACTOR_DISPLAY_LABELS: Final[dict[str, str]] = {f.key: f.display_label for f in FACTOR_REGISTRY}
+FACTOR_SHORT_LABELS: Final[dict[str, str]] = {f.key: f.short_label for f in FACTOR_REGISTRY}
+FACTOR_PROMPT_LABELS: Final[dict[str, str]] = {f.key: f.prompt_label for f in FACTOR_REGISTRY}
+FACTOR_EMAIL_ALIASES: Final[dict[str, str]] = {f.key: f.email_alias for f in FACTOR_REGISTRY}
 
 # ---------- Metro Regions ----------
 METRO_REGIONS: Final[list[str]] = [
@@ -242,11 +305,44 @@ ROLE_ALIASES: Final[dict[str, list[str]]] = {
     "volunteer": ["volunteer"],
 }
 
+# ---------- Region Coordinates (lat, lng) ----------
+# Centroid coordinates for speaker metro regions and university campuses.
+# Used by geographic_proximity geodesic fallback and expansion map visualization.
+REGION_COORDINATES: Final[dict[str, tuple[float, float]]] = {
+    "Ventura / Thousand Oaks": (34.2164, -119.0376),
+    "Los Angeles — West":     (34.0259, -118.4965),
+    "Los Angeles":            (34.0522, -118.2437),
+    "Los Angeles — North":    (34.1808, -118.3090),
+    "Los Angeles — East":     (34.0579, -117.8214),
+    "Los Angeles — Long Beach": (33.7701, -118.1937),
+    "Orange County / Long Beach": (33.7175, -117.8311),
+    "San Francisco":          (37.7749, -122.4194),
+    "Portland":               (45.5152, -122.6784),
+    "San Diego":              (32.7157, -117.1611),
+    "Seattle":                (47.6062, -122.3321),
+}
+
+UNIVERSITY_COORDINATES: Final[dict[str, tuple[float, float]]] = {
+    "UCLA":                   (34.0689, -118.4452),
+    "SDSU":                   (32.7757, -117.0719),
+    "UC Davis":               (38.5382, -121.7617),
+    "USC":                    (34.0224, -118.2851),
+    "Portland State":         (45.5116, -122.6857),
+    "Cal Poly Pomona":        (34.0565, -117.8215),
+    "CSULB":                  (33.7838, -118.1141),
+    "UC San Diego":           (32.8801, -117.2340),
+    "UW (Seattle)":           (47.6553, -122.3035),
+    "USF":                    (37.7765, -122.4506),
+    "SFSU":                   (37.7219, -122.4782),
+}
+
+MAX_FALLBACK_DISTANCE_MILES: Final[float] = 600.0
+
 # ---------- Historical Conversion Defaults ----------
 DEFAULT_HISTORICAL_CONVERSION: Final[float] = 0.50
 
 # ---------- Explanation Config ----------
-EXPLANATION_CACHE_DIR: Final[str] = "cache/explanations"
+EXPLANATION_CACHE_DIR: Final[str] = str(CACHE_DIR / "explanations")
 EXPLANATION_MODEL: Final[str] = GEMINI_TEXT_MODEL
 EXPLANATION_MAX_TOKENS: Final[int] = 250
 EXPLANATION_TEMPERATURE: Final[float] = 0.4
@@ -254,12 +350,12 @@ EXPLANATION_TEMPERATURE: Final[float] = 0.4
 
 # ---------- Email Generation Config ----------
 # ---------- Extraction Config ----------
-EXTRACTION_CACHE_DIR: Final[str] = "cache/extractions"
+EXTRACTION_CACHE_DIR: Final[str] = str(CACHE_DIR / "extractions")
 EXTRACTION_MODEL: Final[str] = GEMINI_TEXT_MODEL
 EXTRACTION_MAX_TOKENS: Final[int] = 4000
 EXTRACTION_TEMPERATURE: Final[float] = 0.1
 
-EMAIL_CACHE_DIR: Final[str] = "cache/emails"
+EMAIL_CACHE_DIR: Final[str] = str(CACHE_DIR / "emails")
 EMAIL_MODEL: Final[str] = GEMINI_TEXT_MODEL
 EMAIL_MAX_TOKENS: Final[int] = 500
 EMAIL_TEMPERATURE: Final[float] = 0.7

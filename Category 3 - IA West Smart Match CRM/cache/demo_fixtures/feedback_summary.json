@@ -1,0 +1,44 @@
+{
+  "feedback_entries": [
+    {
+      "speaker": "Travis Miller",
+      "event": "AI for a Better Future Hackathon",
+      "decision": "accept",
+      "weight_adjustments": {
+        "topic_relevance": 0.05,
+        "role_fit": 0.0,
+        "geographic_proximity": -0.02
+      },
+      "comment": "Great fit for my expertise area."
+    },
+    {
+      "speaker": "Jessica Chen",
+      "event": "UCLA Data Analytics Hackathon",
+      "decision": "accept",
+      "weight_adjustments": {
+        "topic_relevance": 0.0,
+        "role_fit": 0.03,
+        "geographic_proximity": 0.0
+      },
+      "comment": "Close to home, happy to participate."
+    },
+    {
+      "speaker": "Michael Torres",
+      "event": "SDSU Career Fair",
+      "decision": "decline",
+      "weight_adjustments": {
+        "topic_relevance": -0.05,
+        "role_fit": -0.03,
+        "geographic_proximity": 0.0
+      },
+      "comment": "Schedule conflict with another commitment."
+    }
+  ],
+  "aggregate": {
+    "total_feedback": 3,
+    "accepts": 2,
+    "declines": 1,
+    "accept_rate": 0.667
+  },
+  "generated_at": "2026-03-17T10:00:00Z"
+}

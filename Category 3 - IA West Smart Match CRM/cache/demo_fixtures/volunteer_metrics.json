@@ -1,0 +1,39 @@
+{
+  "speakers": [
+    {
+      "name": "Travis Miller",
+      "title": "SVP Sales & Client Development",
+      "company": "PureSpectrum",
+      "events_matched": 3,
+      "events_accepted": 2,
+      "utilization_pct": 66.7,
+      "expertise_cluster": "Data & Analytics"
+    },
+    {
+      "name": "Jessica Chen",
+      "title": "VP Consumer Insights",
+      "company": "Procter & Gamble",
+      "events_matched": 4,
+      "events_accepted": 3,
+      "utilization_pct": 75.0,
+      "expertise_cluster": "Consumer Insights"
+    },
+    {
+      "name": "Michael Torres",
+      "title": "Director Market Research",
+      "company": "Qualtrics",
+      "events_matched": 2,
+      "events_accepted": 1,
+      "utilization_pct": 50.0,
+      "expertise_cluster": "Market Research"
+    }
+  ],
+  "summary": {
+    "total_speakers": 8,
+    "active_speakers": 3,
+    "avg_utilization_pct": 63.9,
+    "total_events_matched": 9,
+    "total_events_accepted": 6
+  },
+  "generated_at": "2026-03-17T10:00:00Z"
+}

@@ -7,6 +7,7 @@
 - `sprint-2-discovery-email.md`
 - `sprint-3-polish-freeze.md`
 - `sprint-4-ship.md`
+- `sprint-5-final-closeout.md`
 
 These five files are the current implementation specs for the Category 3 build. They are derived from:
 
@@ -27,3 +28,13 @@ These five files are the current implementation specs for the Category 3 build. 
 - Read `../README.md` first.
 - Do not treat `PLAN.md` as execution authority.
 - Expect flat embedding files in `cache/`, hashed scrape files in `cache/scrapes/`, and hashed email files in `cache/emails/`.
+- Expect live cross-tab runtime state in `st.session_state`, not on `LoadedDatasets`.
+
+## Sprint 5 Closeout Baseline
+
+- Sprint 3 integration audit and Sprint 4 hardening are already reflected in the checked-in runtime; Sprint 5 closeout engineering work is now complete on `sprint5-cat3`.
+- Current verification baseline: `./.venv/bin/python -m pytest -q` -> `424 passed in 66.40s` (82% code coverage).
+- Current targeted Phase 3 regression baseline: `87 passed in 6.56s`.
+- Current preflight baseline: `./.venv/bin/python scripts/sprint4_preflight.py` passes with warnings only for un-warmed live caches (embedding artifacts plus scrape, extraction, explanation, and email caches).
+- Current review artifact: `Category 3 - IA West Smart Match CRM/docs/reviews/2026-03-21-sprint5-code-review.md`.
+- Current manual/demo-day follow-ups remain: warm live caches on the demo machine, verify the real rehearsal path, and complete the human-run testing logs under `docs/testing/`.

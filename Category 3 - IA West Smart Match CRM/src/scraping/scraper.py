@@ -21,6 +21,8 @@ from urllib.robotparser import RobotFileParser
 import requests
 from bs4 import BeautifulSoup  # noqa: F401 – used downstream
 
+from src.config import CACHE_DIR
+
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -32,30 +34,35 @@ UNIVERSITY_TARGETS: dict[str, dict[str, str]] = {
         "url": "https://career.ucla.edu/events/",
         "method": "bs4",
         "label": "UCLA Career Center Events",
+        "region": "Los Angeles",
     },
     "SDSU": {
         "url": "https://www.sdsu.edu/events-calendar",
         "method": "playwright",
         "label": "San Diego State University Events",
+        "region": "San Diego",
     },
     "UC Davis": {
         "url": "https://careercenter.ucdavis.edu/career-center-services/career-fairs",
         "method": "bs4",
         "label": "UC Davis Career Fairs",
+        "region": "San Francisco",
     },
     "USC": {
         "url": "https://careers.usc.edu/events/",
         "method": "bs4",
         "label": "USC Career Center Events",
+        "region": "Los Angeles",
     },
     "Portland State": {
         "url": "https://www.pdx.edu/careers/events",
         "method": "bs4",
         "label": "Portland State University Career Events",
+        "region": "Portland",
     },
 }
 
-DEFAULT_CACHE_DIR: str = "cache/scrapes"
+DEFAULT_CACHE_DIR: str = str(CACHE_DIR / "scrapes")
 RATE_LIMIT_SECONDS: float = 5.0
 CACHE_TTL_HOURS: int = 24
 ALLOWED_CUSTOM_HOST_SUFFIXES: tuple[str, ...] = (".edu",)
@@ -63,6 +70,7 @@ USER_AGENT: str = (
     "IASmartMatchBot/1.0 (+https://github.com/ia-west-smartmatch; "
     "educational-hackathon-project)"
 )
+CACHE_ONLY_SCRAPE_ENV: str = "SMARTMATCH_CACHE_ONLY"
 
 
 # ---------------------------------------------------------------------------
@@ -151,6 +159,8 @@ def _cache_path(url: str, cache_dir: str) -> str:
 def load_from_cache(
     url: str,
     cache_dir: str = DEFAULT_CACHE_DIR,
+    *,
+    allow_expired: bool = False,
 ) -> dict[str, Any] | None:
     """
     Load a cached scrape result if it exists and has not expired.
@@ -166,8 +176,16 @@ def load_from_cache(
     if not os.path.exists(path):
         return None
 
-    with open(path, "r", encoding="utf-8") as fh:
-        data: dict[str, Any] = json.load(fh)
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+    except (json.JSONDecodeError, OSError) as exc:
+        logger.warning("Failed to load scrape cache for %s: %s", url, exc)
+        return None
+
+    if not isinstance(data, dict):
+        logger.warning("Invalid scrape cache payload for %s: expected object", url)
+        return None
 
     try:
         scraped_at = datetime.fromisoformat(data["scraped_at"])
@@ -179,9 +197,36 @@ def load_from_cache(
         scraped_at = scraped_at.replace(tzinfo=UTC)
 
     ttl = timedelta(hours=data.get("ttl_hours", CACHE_TTL_HOURS))
-    if datetime.now(UTC) - scraped_at > ttl:
+    cache_age = datetime.now(UTC) - scraped_at
+    is_stale = cache_age > ttl
+    if is_stale and not allow_expired:
         return None  # expired
-    return data
+
+    hydrated = dict(data)
+    hydrated["scraped_at"] = scraped_at.isoformat()
+    hydrated["cache_age_hours"] = round(cache_age.total_seconds() / 3600, 2)
+    hydrated["is_stale"] = is_stale
+    return hydrated
+
+
+def _cache_result_payload(
+    cached: dict[str, Any],
+    *,
+    source: str,
+    message: str | None = None,
+) -> dict[str, Any]:
+    """Return a normalized scrape payload for cached or stale cache hits."""
+    payload = dict(cached)
+    payload["source"] = source
+    payload["robots_ok"] = True
+    if message:
+        payload["message"] = message
+    return payload
+
+
+def _cache_only_mode_enabled() -> bool:
+    """Return whether scraping should avoid live network calls."""
+    return os.getenv(CACHE_ONLY_SCRAPE_ENV, "").strip().lower() in {"1", "true", "yes", "on"}
 
 
 def save_to_cache(
@@ -348,9 +393,24 @@ def scrape_university(
     # 1. Check cache first
     cached = load_from_cache(url, cache_dir)
     if cached is not None:
-        cached["source"] = "cache"
-        cached["robots_ok"] = True  # was checked on original scrape
-        return cached
+        return _cache_result_payload(cached, source="cache")
+
+    stale_cached = load_from_cache(url, cache_dir, allow_expired=True)
+
+    if _cache_only_mode_enabled():
+        if stale_cached is not None:
+            source = "cache" if not stale_cached.get("is_stale") else "stale_cache"
+            message = None
+            if source == "stale_cache":
+                message = (
+                    "Live scrape unavailable. Showing cached results from "
+                    f"{stale_cached.get('scraped_at')}."
+                )
+            return _cache_result_payload(stale_cached, source=source, message=message)
+        raise RuntimeError(
+            "Cache-only scraping mode is enabled, but no cached scrape artifact exists "
+            f"for {url}."
+        )
 
     # 2. robots.txt compliance
     robots_ok = check_robots_txt(url)
@@ -365,10 +425,22 @@ def scrape_university(
     resolved_ips = _resolve_validated_ips(parsed.hostname)
 
     # 4. Live scrape
-    if method == "playwright":
-        html = _scrape_playwright(url)
-    else:
-        html = _validated_scrape_bs4(url, resolved_ips)
+    try:
+        if method == "playwright":
+            html = _scrape_playwright(url)
+        else:
+            html = _validated_scrape_bs4(url, resolved_ips)
+    except Exception as exc:
+        if stale_cached is not None:
+            return _cache_result_payload(
+                stale_cached,
+                source="stale_cache",
+                message=(
+                    "Live scrape unavailable. Showing cached results from "
+                    f"{stale_cached.get('scraped_at')}."
+                ),
+            )
+        raise exc
 
     # 5. Cache the result
     save_to_cache(url, html, method, cache_dir)
