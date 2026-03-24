@@ -25,7 +25,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 ### v2.0 — Jarvis Agent Coordinator
 
 - [ ] **Phase 4: Voice I/O Foundation** - Validate KittenTTS (TTS) and faster-whisper (STT) on demo hardware; deliver a working voice panel with text fallback before any agent complexity is added.
-- [ ] **Phase 5: Coordinator Core and HITL Approval Gate** - Implement the Gemini-powered intent parser and the approval state machine; prove the full voice → intent → propose → approve/reject cycle with stubbed agent execution.
+- [x] **Phase 5: Coordinator Core and HITL Approval Gate** - Implement the Gemini-powered intent parser and the approval state machine; prove the full voice → intent → propose → approve/reject cycle with stubbed agent execution. (completed 2026-03-24)
 - [ ] **Phase 6: Agent Tool Wrappers and Result Bus** - Wrap existing SmartMatch services as OpenClaw-callable tools; establish background-threading safety; add POC contact data layer; deliver direct-dispatch fallback path.
 - [ ] **Phase 7: NemoClaw Lead Agent and Live Dashboard** - Integrate NemoClaw orchestrator; complete the Command Center with real-time per-agent status; add proactive Jarvis suggestions; deliver end-to-end demo.
 
@@ -112,7 +112,7 @@ Plans:
 
 Plans:
 - [x] 05-01-PLAN.md — Coordinator core modules: approval state machine, intent parser, proactive suggestions (pure Python + tests)
-- [ ] 05-02-PLAN.md — UI integration: action cards, approve/reject buttons, proactive injection into Command Center
+- [x] 05-02-PLAN.md — UI integration: action cards, approve/reject buttons, proactive injection into Command Center
 
 ### Phase 6: Agent Tool Wrappers and Result Bus
 **Goal**: Approved actions dispatch to real SmartMatch services running in background threads, results return to the Command Center without blocking the Streamlit script thread, and all 392 existing tests still pass with zero signature changes to existing functions.
@@ -148,6 +148,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 2. Documentation and Governance Reconciliation | 2/2 | Complete | 2026-03-20 |
 | 3. Adversarial Audit and Sprint Closure | 3/3 | Complete | 2026-03-21 |
 | 4. Voice I/O Foundation | 2/3 | In Progress|  |
-| 5. Coordinator Core and HITL Approval Gate | 1/2 | In Progress|  |
+| 5. Coordinator Core and HITL Approval Gate | 2/2 | Complete   | 2026-03-24 |
 | 6. Agent Tool Wrappers and Result Bus | 0/TBD | Not started | - |
 | 7. NemoClaw Lead Agent and Live Dashboard | 0/TBD | Not started | - |
