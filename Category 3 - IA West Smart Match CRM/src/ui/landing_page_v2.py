@@ -63,21 +63,22 @@ def _build_body(specialist: dict[str, str]) -> str:
   <div class="flex items-center gap-8">
     <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-50 font-headline">IA SmartMatch</span>
     <div class="hidden md:flex gap-6">
-      <a class="text-blue-700 dark:text-blue-400 font-semibold border-b-2 border-blue-700 dark:border-blue-400 pb-1" href="#">Dashboard</a>
-      <a class="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">Matches</a>
-      <a class="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">Pipeline</a>
-      <a class="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">Discovery</a>
-      <a class="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">Analytics</a>
+      <a class="text-blue-700 dark:text-blue-400 font-semibold border-b-2 border-blue-700 dark:border-blue-400 pb-1" href="#dashboard">Dashboard</a>
+      <a class="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#matches">Matches</a>
+      <a class="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#pipeline">Pipeline</a>
+      <a class="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#discovery">Discovery</a>
+      <a class="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#analytics">Analytics</a>
     </div>
   </div>
   <div class="flex gap-4">
     <button class="text-slate-600 font-medium px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-all"
-            onclick="window.parent.postMessage({{type: 'streamlit:setComponentValue', value: 'login'}}, '*')">Sign in</button>
-    <button class="hero-gradient text-white px-6 py-2 rounded-xl font-semibold shadow-sm hover:opacity-90 active:scale-[0.98] transition-all">Add Specialist</button>
+            onclick="window.iaSmartMatch.navigate('login'); return false;">Sign in</button>
+    <button class="hero-gradient text-white px-6 py-2 rounded-xl font-semibold shadow-sm hover:opacity-90 active:scale-[0.98] transition-all"
+            onclick="window.iaSmartMatch.navigate('matches', {{role: 'coordinator', demo: true}}); return false;">Add Specialist</button>
   </div>
 </nav>
 
-<main class="pt-24">
+<main id="top" class="pt-24">
 
   <!-- Hero Section -->
   <section class="px-8 py-20 max-w-7xl mx-auto flex flex-col items-center text-center">
@@ -89,13 +90,15 @@ def _build_body(specialist: dict[str, str]) -> str:
       Bridge the gap between your internal industry expertise and live academic needs through automated web-scraped signals and high-fidelity matching.
     </p>
     <div class="flex flex-wrap gap-4 justify-center">
-      <button class="hero-gradient text-on-primary px-8 py-4 rounded-xl text-lg font-bold shadow-lg" href="#">Start Matching</button>
-      <button class="bg-surface-container-high text-on-surface px-8 py-4 rounded-xl text-lg font-semibold" href="#">View Demo</button>
+      <button class="hero-gradient text-on-primary px-8 py-4 rounded-xl text-lg font-bold shadow-lg"
+              onclick="window.iaSmartMatch.navigate('login'); return false;">Start Matching</button>
+      <button class="bg-surface-container-high text-on-surface px-8 py-4 rounded-xl text-lg font-semibold"
+              onclick="window.iaSmartMatch.navigate('dashboard', {{role: 'coordinator', demo: true}}); return false;">View Demo</button>
     </div>
   </section>
 
   <!-- Product Preview Mockup (Bento Style) -->
-  <section class="px-8 pb-32 max-w-7xl mx-auto">
+  <section id="dashboard" class="px-8 pb-32 max-w-7xl mx-auto">
     <div class="bg-surface-container-low rounded-[2.5rem] p-4 md:p-8 shadow-sm">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
@@ -128,7 +131,8 @@ def _build_body(specialist: dict[str, str]) -> str:
                   <p class="text-xs text-on-surface-variant uppercase">Match Score</p>
                   <p class="text-xl font-bold text-primary">94%</p>
                 </div>
-                <button class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-bold">Sync CRM</button>
+                <button class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-bold"
+                        onclick="window.iaSmartMatch.navigate('matches', {{role: 'coordinator', demo: true}}); return false;">Sync CRM</button>
               </div>
             </div>
             <!-- Detail View Integration -->
@@ -176,7 +180,7 @@ def _build_body(specialist: dict[str, str]) -> str:
   </section>
 
   <!-- Features Grid -->
-  <section class="bg-surface-container-low py-32">
+  <section id="pipeline" class="bg-surface-container-low py-32">
     <div class="px-8 max-w-7xl mx-auto">
       <div class="mb-20">
         <h2 class="text-4xl font-headline font-bold mb-4">Complete Specialist Engagement Pipeline</h2>
@@ -209,7 +213,7 @@ def _build_body(specialist: dict[str, str]) -> str:
   </section>
 
   <!-- Technical Visualization: 6-factor MATCH_SCORE -->
-  <section class="py-32 px-8 max-w-7xl mx-auto overflow-hidden">
+  <section id="matches" class="py-32 px-8 max-w-7xl mx-auto overflow-hidden">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
       <div>
         <h2 class="text-4xl font-headline font-bold mb-6 leading-tight">The Bridge: 6-factor MATCH_SCORE</h2>
@@ -327,7 +331,7 @@ def _build_body(specialist: dict[str, str]) -> str:
   </section>
 
   <!-- Automation Pipeline -->
-  <section class="bg-surface-container py-32 px-8 overflow-hidden">
+  <section id="discovery" class="bg-surface-container py-32 px-8 overflow-hidden">
     <div class="max-w-7xl mx-auto">
       <div class="grid lg:grid-cols-2 gap-24 items-center">
         <div class="order-2 lg:order-1 relative">
@@ -375,7 +379,7 @@ def _build_body(specialist: dict[str, str]) -> str:
   </section>
 
   <!-- Analytics Dashboard Section -->
-  <section class="py-32 px-8 max-w-7xl mx-auto">
+  <section id="analytics" class="py-32 px-8 max-w-7xl mx-auto">
     <h2 class="text-4xl font-headline font-bold mb-16 text-center">Engagement &amp; Scraping Analytics</h2>
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <div class="lg:col-span-2 bg-surface-container-lowest rounded-3xl p-8 shadow-sm">
@@ -451,8 +455,10 @@ def _build_body(specialist: dict[str, str]) -> str:
     <h2 class="text-5xl font-headline font-bold mb-8">Ready to sync your database with the web?</h2>
     <p class="text-xl text-on-surface-variant mb-12 max-w-2xl mx-auto">Join the IA West network and transform how your internal specialist database interacts with real-world university opportunities.</p>
     <div class="flex flex-wrap gap-4 justify-center">
-      <button class="hero-gradient text-on-primary px-10 py-5 rounded-2xl text-xl font-bold shadow-xl active:scale-95 transition-all">Connect Database</button>
-      <button class="bg-surface-container-lowest text-on-surface px-10 py-5 rounded-2xl text-xl font-bold shadow-sm border border-outline-variant/20 hover:bg-surface-container transition-all">Schedule Demo</button>
+      <button class="hero-gradient text-on-primary px-10 py-5 rounded-2xl text-xl font-bold shadow-xl active:scale-95 transition-all"
+              onclick="window.iaSmartMatch.navigate('matches', {{role: 'coordinator', demo: true}}); return false;">Connect Database</button>
+      <button class="bg-surface-container-lowest text-on-surface px-10 py-5 rounded-2xl text-xl font-bold shadow-sm border border-outline-variant/20 hover:bg-surface-container transition-all"
+              onclick="window.iaSmartMatch.navigate('dashboard', {{role: 'coordinator', demo: true}}); return false;">Schedule Demo</button>
     </div>
   </section>
 
@@ -468,30 +474,30 @@ def _build_body(specialist: dict[str, str]) -> str:
     <div class="space-y-4">
       <p class="font-headline font-semibold text-slate-900 dark:text-white">Product</p>
       <ul class="space-y-2">
-        <li><a class="text-slate-500 dark:text-slate-400 hover:text-blue-700 transition-colors" href="#">Specialist CRM</a></li>
-        <li><a class="text-slate-500 dark:text-slate-400 hover:text-blue-700 transition-colors" href="#">Scraping Engine</a></li>
+        <li><a class="text-slate-500 dark:text-slate-400 hover:text-blue-700 transition-colors" href="#matches">Specialist CRM</a></li>
+        <li><a class="text-slate-500 dark:text-slate-400 hover:text-blue-700 transition-colors" href="#discovery">Scraping Engine</a></li>
       </ul>
     </div>
     <div class="space-y-4">
       <p class="font-headline font-semibold text-slate-900 dark:text-white">About</p>
       <ul class="space-y-2">
-        <li><a class="text-slate-500 dark:text-slate-400 hover:text-blue-700 transition-colors" href="#">About IA West</a></li>
-        <li><a class="text-slate-500 dark:text-slate-400 hover:text-blue-700 transition-colors" href="#">Contact</a></li>
+        <li><a class="text-slate-500 dark:text-slate-400 hover:text-blue-700 transition-colors" href="#dashboard">About IA West</a></li>
+        <li><a class="text-slate-500 dark:text-slate-400 hover:text-blue-700 transition-colors" href="#top">Contact</a></li>
       </ul>
     </div>
     <div class="space-y-4">
       <p class="font-headline font-semibold text-slate-900 dark:text-white">Legal</p>
       <ul class="space-y-2">
-        <li><a class="text-slate-500 dark:text-slate-400 hover:text-blue-700 transition-colors" href="#">Privacy</a></li>
-        <li><a class="text-slate-500 dark:text-slate-400 hover:text-blue-700 transition-colors" href="#">Legal</a></li>
+        <li><a class="text-slate-500 dark:text-slate-400 hover:text-blue-700 transition-colors" href="#analytics">Privacy</a></li>
+        <li><a class="text-slate-500 dark:text-slate-400 hover:text-blue-700 transition-colors" href="#analytics">Legal</a></li>
       </ul>
     </div>
   </div>
   <div class="px-12 py-8 border-t border-slate-50 dark:border-slate-800 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
     <p class="text-slate-400 text-sm">&copy; 2026 IA West. All rights reserved.</p>
     <div class="flex gap-6">
-      <span class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-blue-600 transition-colors">language</span>
-      <span class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-blue-600 transition-colors">public</span>
+      <a href="#top" class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-blue-600 transition-colors">language</a>
+      <a href="#top" class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-blue-600 transition-colors">public</a>
     </div>
   </div>
 </footer>
@@ -528,4 +534,4 @@ def render_landing_page_v2() -> None:
     with col2:
         if st.button("View Demo", use_container_width=True):
             set_user_role("coordinator")
-            navigate_to("coordinator")
+            navigate_to("dashboard", role="coordinator", demo=True)

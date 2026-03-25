@@ -23,13 +23,6 @@ from src.embeddings import (  # noqa: E402
     generate_embedding_lookup_dicts,
     load_embedding_lookup_dicts,
 )
-from src.ui.matches_tab import render_matches_tab as render_matches_tab_ui  # noqa: E402
-from src.ui.discovery_tab import render_discovery_tab  # noqa: E402
-from src.ui.pipeline_tab import render_pipeline_tab  # noqa: E402
-from src.ui.expansion_map import render_expansion_map  # noqa: E402
-from src.ui.volunteer_dashboard import render_volunteer_dashboard  # noqa: E402
-from src.ui.command_center import render_command_center_tab  # noqa: E402
-from src.ui.landing_page import render_landing_page  # noqa: E402
 from src.feedback.acceptance import render_feedback_sidebar  # noqa: E402
 from src.demo_mode import init_demo_mode  # noqa: E402
 from src.runtime_state import (  # noqa: E402
@@ -209,13 +202,119 @@ def render_sidebar():
             help="Toggle to use cached fixture data instead of live API calls.",
         )
 
-        # View navigation
-        if st.session_state.get("current_view") == "crm":
-            if st.button("Back to Home", use_container_width=True):
-                st.session_state["current_view"] = "landing"
-                st.rerun()
-
         return data_container
+
+
+WORKSPACE_NAV_ITEMS = (
+    ("Dashboard", "dashboard"),
+    ("Matches", "matches"),
+    ("Discovery", "discovery"),
+    ("Pipeline", "pipeline"),
+    ("Analytics", "analytics"),
+    ("Match Engine", "match_engine"),
+)
+
+
+def _render_workspace_navigation(current_page: str) -> None:
+    """Render the primary workspace navigation row for authenticated pages."""
+    from src.ui.page_router import navigate_to  # noqa: E402
+
+    cols = st.columns(len(WORKSPACE_NAV_ITEMS) + 1)
+    for (label, page), col in zip(WORKSPACE_NAV_ITEMS, cols, strict=False):
+        with col:
+            if st.button(
+                label,
+                key=f"workspace_nav_{page}",
+                use_container_width=True,
+                disabled=current_page == page,
+            ):
+                navigate_to(page)
+    with cols[-1]:
+        if st.button("Sign Out", key="workspace_nav_sign_out", use_container_width=True):
+            navigate_to("landing", role=None, demo=False)
+    st.divider()
+
+
+def _render_matches_workspace(
+    *,
+    available_events,
+    datasets,
+    speaker_embeddings,
+    event_embeddings,
+    course_embeddings,
+    embedding_issues,
+    embedding_bootstrap_error,
+    matches_tab_available: bool,
+) -> None:
+    """Render the matches workspace page with embedding warnings."""
+    st.header("Matches")
+    if embedding_issues:
+        if matches_tab_available:
+            st.warning(
+                "Embedding cache missing or incomplete. Matches remain available, but "
+                "topic relevance is using fallback scoring until embeddings are regenerated."
+            )
+        else:
+            st.error(
+                "Embedding cache missing or incomplete. Matches can run after the app "
+                "successfully generates speaker, event, and course embeddings."
+            )
+        with st.expander("Embedding cache validation details", expanded=True):
+            for issue in embedding_issues:
+                st.write(f"- {issue}")
+            if embedding_bootstrap_error:
+                st.write(f"- Automatic generation failed: {embedding_bootstrap_error}")
+            elif st.session_state.get("demo_mode", False):
+                st.write("- Automatic generation is skipped while Demo Mode is enabled.")
+            elif not has_gemini_api_key():
+                st.write("- Automatic generation is unavailable until `GEMINI_API_KEY` is configured.")
+    if matches_tab_available:
+        from src.ui.matches_tab import render_matches_tab as render_matches_tab_ui  # noqa: E402
+
+        render_matches_tab_ui(
+            events=available_events,
+            courses=datasets.courses,
+            speakers=datasets.speakers,
+            speaker_embeddings=speaker_embeddings,
+            event_embeddings=event_embeddings,
+            course_embeddings=course_embeddings,
+            ia_event_calendar=datasets.calendar,
+        )
+
+
+def _render_analytics_workspace(datasets, available_events) -> None:
+    """Render expansion and volunteer analytics in a reachable routed page."""
+    from src.feedback.acceptance import init_feedback_state  # noqa: E402
+    from src.ui.expansion_map import render_expansion_map  # noqa: E402
+    from src.ui.volunteer_dashboard import render_volunteer_dashboard  # noqa: E402
+
+    st.header("Analytics")
+    st.caption("Coverage, expansion readiness, and volunteer engagement analytics.")
+
+    threshold = st.slider(
+        "Proximity Threshold",
+        min_value=0.0,
+        max_value=1.0,
+        value=0.30,
+        step=0.05,
+        key="expansion_threshold",
+    )
+    figure = render_expansion_map(datasets.speakers, threshold)
+    st.plotly_chart(
+        figure,
+        use_container_width=True,
+        config={"displayModeBar": False},
+        key="expansion_map",
+    )
+
+    init_feedback_state()
+    feedback_log = st.session_state.get("feedback_log", [])
+    render_volunteer_dashboard(
+        speakers_df=datasets.speakers,
+        match_results=get_match_results_df(),
+        events_df=available_events,
+        feedback_log=feedback_log,
+    )
 
 
 # ── Main App ────────────────────────────────────────────────────────────────
@@ -245,23 +344,12 @@ def main() -> None:
         render_login_page()
         return
 
-    if current_page == "coordinator":
-        from src.ui.coordinator_dashboard import render_coordinator_dashboard  # noqa: E402
-        render_coordinator_dashboard()
-        return
-
-    if current_page == "match_engine":
-        from src.ui.match_engine_page import render_match_engine_page  # noqa: E402
-        render_match_engine_page()
-        return
-    # ── End V2 Page Routing ──────────────────────────────────────────────────
-
     sidebar_container = render_sidebar()
 
     with st.spinner("Loading data..."):
         try:
             datasets = load_all()
-        except Exception as e:
+        except Exception:
             logger.exception("Failed to load datasets.")
             st.error("Failed to load data. Please check the application logs for details.")
             st.stop()
@@ -337,86 +425,53 @@ def main() -> None:
                     "to let the app generate it automatically."
                 )
 
-    # ── View Switching: Landing Page vs CRM ──────────────────────────────
-    if st.session_state.get("current_view", "landing") == "landing":
-        render_landing_page(datasets)
+    _render_workspace_navigation(current_page)
+
+    if current_page == "dashboard":
+        from src.ui.coordinator_dashboard import render_coordinator_dashboard  # noqa: E402
+
+        show_dashboard_command_center = st.checkbox(
+            "Show Jarvis Command Center",
+            key="show_dashboard_command_center",
+            help="Keep Jarvis close to the workspace nav during demos and live coordinator reviews.",
+        )
+        render_coordinator_dashboard(datasets.speakers)
+        if show_dashboard_command_center:
+            from src.ui.command_center import render_command_center_tab  # noqa: E402
+
+            st.divider()
+            render_command_center_tab()
+    elif current_page == "matches":
+        _render_matches_workspace(
+            available_events=available_events,
+            datasets=datasets,
+            speaker_embeddings=speaker_embeddings,
+            event_embeddings=event_embeddings,
+            course_embeddings=course_embeddings,
+            embedding_issues=embedding_issues,
+            embedding_bootstrap_error=embedding_bootstrap_error,
+            matches_tab_available=matches_tab_available,
+        )
+    elif current_page == "discovery":
+        from src.ui.discovery_tab import render_discovery_tab  # noqa: E402
+
+        render_discovery_tab(datasets)
+    elif current_page == "pipeline":
+        from src.ui.pipeline_tab import render_pipeline_tab  # noqa: E402
+
+        render_pipeline_tab()
+    elif current_page == "analytics":
+        _render_analytics_workspace(datasets, available_events)
+    elif current_page == "match_engine":
+        from src.ui.match_engine_page import render_match_engine_page  # noqa: E402
+
+        render_match_engine_page()
+    else:
+        from src.ui.page_router import navigate_to  # noqa: E402
+
+        navigate_to("landing")
         return
 
-    # ── CRM Tab Layout ─────────────────────────────────────────────────
-    tab_command, tab_matches, tab_discovery, tab_pipeline, tab_expansion, tab_volunteers = st.tabs([
-        "🤖 Command Center",
-        "🎯 Matches",
-        "🔍 Discovery",
-        "📊 Pipeline",
-        "🗺️ Expansion",
-        "👥 Volunteers",
-    ])
-
-    with tab_command:
-        render_command_center_tab()
-
-    with tab_matches:
-        if embedding_issues:
-            if matches_tab_available:
-                st.warning(
-                    "Embedding cache missing or incomplete. Matches remain available, but "
-                    "topic relevance is using fallback scoring until embeddings are regenerated."
-                )
-            else:
-                st.error(
-                    "Embedding cache missing or incomplete. Matches can run after the app "
-                    "successfully generates speaker, event, and course embeddings."
-                )
-            with st.expander("Embedding cache validation details", expanded=True):
-                for issue in embedding_issues:
-                    st.write(f"- {issue}")
-                if embedding_bootstrap_error:
-                    st.write(f"- Automatic generation failed: {embedding_bootstrap_error}")
-                elif st.session_state.get("demo_mode", False):
-                    st.write("- Automatic generation is skipped while Demo Mode is enabled.")
-                elif not has_gemini_api_key():
-                    st.write("- Automatic generation is unavailable until `GEMINI_API_KEY` is configured.")
-        if matches_tab_available:
-            render_matches_tab_ui(
-                events=available_events,
-                courses=datasets.courses,
-                speakers=datasets.speakers,
-                speaker_embeddings=speaker_embeddings,
-                event_embeddings=event_embeddings,
-                course_embeddings=course_embeddings,
-                ia_event_calendar=datasets.calendar,
-            )
-
-    with tab_discovery:
-        render_discovery_tab(datasets)
-
-    with tab_pipeline:
-        render_pipeline_tab()
-
-    with tab_expansion:
-        threshold = st.slider(
-            "Proximity Threshold",
-            min_value=0.0,
-            max_value=1.0,
-            value=0.30,
-            step=0.05,
-            key="expansion_threshold",
-        )
-        fig = render_expansion_map(datasets.speakers, threshold)
-        st.plotly_chart(fig, use_container_width=True, key="expansion_map")
-
-    with tab_volunteers:
-        from src.feedback.acceptance import init_feedback_state
-        init_feedback_state()
-        feedback_log = st.session_state.get("feedback_log", [])
-        render_volunteer_dashboard(
-            speakers_df=datasets.speakers,
-            match_results=get_match_results_df(),
-            events_df=available_events,
-            feedback_log=feedback_log,
-        )
-
-    # Feedback summary in sidebar (only in CRM view)
     render_feedback_sidebar()
 
 

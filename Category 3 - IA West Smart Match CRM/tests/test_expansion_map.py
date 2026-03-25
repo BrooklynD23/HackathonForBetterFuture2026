@@ -11,6 +11,8 @@ from src.ui.expansion_map import (
     UNIVERSITY_COORDS,
     build_connection_data,
     compute_geographic_proximity,
+    get_unmapped_speaker_metros,
+    render_coordinator_density_map,
     render_expansion_map,
 )
 
@@ -179,6 +181,24 @@ def test_render_expansion_map_has_university_traces(sample_speakers_df: pd.DataF
         if hasattr(t, "marker") and t.marker and t.marker.symbol == "diamond"
     ]
     assert len(uni_traces) > 0
+
+
+def test_get_unmapped_speaker_metros_returns_missing_values() -> None:
+    """Unknown metro values should be surfaced for warning display."""
+    df = pd.DataFrame(
+        [
+            {"Name": "Known", "Metro Region": "Los Angeles", "Title": "VP", "Company": "IA West"},
+            {"Name": "Unknown", "Metro Region": "Narnia", "Title": "CEO", "Company": "Fantasy"},
+        ]
+    )
+    assert get_unmapped_speaker_metros(df) == {"Narnia"}
+
+
+def test_render_coordinator_density_map_returns_figure_and_unmapped(sample_speakers_df: pd.DataFrame):
+    """Coordinator density map should render and report no unmapped metros for valid data."""
+    fig, unmapped = render_coordinator_density_map(sample_speakers_df)
+    assert isinstance(fig, go.Figure)
+    assert unmapped == set()
 
 
 # ---------- Expertise clusters ----------

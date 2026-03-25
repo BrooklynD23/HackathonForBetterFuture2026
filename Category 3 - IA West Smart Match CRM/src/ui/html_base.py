@@ -19,6 +19,29 @@ from src.ui.design_system import (
     TAILWIND_CONFIG,
 )
 
+NAV_BRIDGE_SCRIPT = """
+<script>
+window.iaSmartMatch = {
+  navigate: function(route, options) {
+    const config = options || {};
+    const target = new URL(window.parent.location.href);
+    target.searchParams.set("route", route);
+    if (config.role) {
+      target.searchParams.set("role", config.role);
+    } else {
+      target.searchParams.delete("role");
+    }
+    if (config.demo) {
+      target.searchParams.set("demo", "1");
+    } else if (config.demo === false) {
+      target.searchParams.delete("demo");
+    }
+    window.parent.location.href = target.toString();
+  }
+};
+</script>
+"""
+
 
 def wrap_html(
     body: str,
@@ -54,6 +77,7 @@ def wrap_html(
         f"{TAILWIND_CDN}"
         f"{TAILWIND_CONFIG}"
         f"{SHARED_CSS}"
+        f"{NAV_BRIDGE_SCRIPT}"
         "</head>"
         '<body class="bg-surface font-body text-on-surface antialiased">'
         f"{body}"

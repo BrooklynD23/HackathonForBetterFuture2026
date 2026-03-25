@@ -8,6 +8,11 @@ from unittest.mock import MagicMock
 # Mock streamlit before any src module can import it
 if "streamlit" not in sys.modules:
     _mock_st = types.ModuleType("streamlit")
+    _mock_st_errors = types.ModuleType("streamlit.errors")
+
+    class _MockStreamlitAPIException(Exception):
+        """Minimal stand-in for Streamlit's widget-state mutation exception."""
+
     _mock_st.markdown = MagicMock()  # type: ignore[attr-defined]
     _mock_st.error = MagicMock()  # type: ignore[attr-defined]
     _mock_st.info = MagicMock()  # type: ignore[attr-defined]
@@ -62,8 +67,11 @@ if "streamlit" not in sys.modules:
     _mock_st.chat_input = MagicMock()  # type: ignore[attr-defined]
     _mock_st.chat_message = MagicMock()  # type: ignore[attr-defined]
     _mock_st.fragment = lambda **kw: (lambda f: f)  # type: ignore[attr-defined]
+    _mock_st.errors = _mock_st_errors  # type: ignore[attr-defined]
+    _mock_st_errors.StreamlitAPIException = _MockStreamlitAPIException  # type: ignore[attr-defined]
 
     sys.modules["streamlit"] = _mock_st
+    sys.modules["streamlit.errors"] = _mock_st_errors
 
 # Mock voice I/O libraries (not installed in CI)
 for mod_name in ("kittentts", "faster_whisper", "streamlit_webrtc", "soundfile", "av"):

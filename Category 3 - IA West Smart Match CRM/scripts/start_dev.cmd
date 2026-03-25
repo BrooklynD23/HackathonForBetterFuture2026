@@ -15,6 +15,14 @@ if not exist "%PYTHON_EXE%" (
   exit /b 1
 )
 
+echo Syncing Python dependencies ^(requirements.txt^)...
+"%PYTHON_EXE%" -m pip install -q -r requirements.txt
+if errorlevel 1 (
+  echo pip install -r requirements.txt failed.
+  popd
+  exit /b 1
+)
+
 echo Starting CAT3 dev backend on http://127.0.0.1:%BACKEND_PORT%
 start "CAT3 Backend" cmd /k ""%PYTHON_EXE%" scripts\dev_backend.py --host 127.0.0.1 --port %BACKEND_PORT%"
 

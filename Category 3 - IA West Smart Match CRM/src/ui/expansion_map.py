@@ -7,12 +7,16 @@ Renders a Plotly scatter_geo figure with three layers:
 3. Connection lines (opacity proportional to geographic_proximity score)
 """
 
-import plotly.graph_objects as go
-import pandas as pd
-from math import radians, sin, cos, sqrt, atan2
+import logging
+from math import atan2, cos, radians, sin, sqrt
 from typing import Dict, List, Tuple
 
+import plotly.graph_objects as go
+import pandas as pd
+
 from src.config import REGION_COORDINATES, UNIVERSITY_COORDINATES
+
+logger = logging.getLogger(__name__)
 
 # ---------- Coordinate Lookup Tables ----------
 # Coordinates are now sourced from config.py (single source of truth).
@@ -106,6 +110,121 @@ def build_connection_data(
                     "lons": [s_lon, u_lon, None],
                 })
     return connections
+
+
+def get_unmapped_speaker_metros(speakers_df: pd.DataFrame) -> set[str]:
+    """Return any metro-region values missing from the coordinate lookup."""
+    metros = {
+        str(metro).strip()
+        for metro in speakers_df.get("Metro Region", pd.Series(dtype=str)).dropna().tolist()
+        if str(metro).strip()
+    }
+    return {metro for metro in metros if metro not in SPEAKER_METRO_COORDS}
+
+
+def render_coordinator_density_map(
+    speakers_df: pd.DataFrame,
+    proximity_threshold: float = 0.3,
+) -> tuple[go.Figure, set[str]]:
+    """Render the coordinator dashboard campus-density map."""
+    unmapped_metros = get_unmapped_speaker_metros(speakers_df)
+    if unmapped_metros:
+        logger.warning("Unmapped speaker metros excluded from coordinator density map: %s", sorted(unmapped_metros))
+
+    speaker_counts_by_metro: Dict[str, int] = {}
+    for _, speaker in speakers_df.iterrows():
+        metro = str(speaker.get("Metro Region", "")).strip()
+        if metro in SPEAKER_METRO_COORDS:
+            speaker_counts_by_metro[metro] = speaker_counts_by_metro.get(metro, 0) + 1
+
+    coverage_by_university = {name: 0 for name in UNIVERSITY_COORDS}
+    for connection in build_connection_data(speakers_df, proximity_threshold):
+        coverage_by_university[connection["university"]] += 1
+
+    figure = go.Figure()
+
+    university_names = list(UNIVERSITY_COORDS.keys())
+    university_lats = [UNIVERSITY_COORDS[name][0] for name in university_names]
+    university_lons = [UNIVERSITY_COORDS[name][1] for name in university_names]
+    university_coverage = [coverage_by_university[name] for name in university_names]
+    university_sizes = [18 + (count * 3) for count in university_coverage]
+    university_hover = [
+        f"<b>{name}</b><br>{coverage_by_university[name]} reachable speakers"
+        for name in university_names
+    ]
+    figure.add_trace(
+        go.Scattergeo(
+            lat=university_lats,
+            lon=university_lons,
+            mode="markers+text",
+            text=university_names,
+            textposition="top center",
+            marker=dict(
+                size=university_sizes,
+                color=university_coverage,
+                colorscale="Blues",
+                cmin=0,
+                cmax=max(university_coverage) if university_coverage else 1,
+                showscale=False,
+                line=dict(width=1.5, color="#FFFFFF"),
+            ),
+            name="Campus Density",
+            hoverinfo="text",
+            hovertext=university_hover,
+        )
+    )
+
+    metro_names = list(speaker_counts_by_metro.keys())
+    metro_lats = [SPEAKER_METRO_COORDS[name][0] for name in metro_names]
+    metro_lons = [SPEAKER_METRO_COORDS[name][1] for name in metro_names]
+    metro_sizes = [8 + (speaker_counts_by_metro[name] * 2) for name in metro_names]
+    metro_hover = [
+        f"<b>{name}</b><br>{speaker_counts_by_metro[name]} speaker(s)"
+        for name in metro_names
+    ]
+    figure.add_trace(
+        go.Scattergeo(
+            lat=metro_lats,
+            lon=metro_lons,
+            mode="markers",
+            marker=dict(
+                size=metro_sizes,
+                color="#1E3A5F",
+                opacity=0.8,
+                symbol="circle",
+                line=dict(width=1, color="#DBEAFE"),
+            ),
+            name="Speaker Coverage",
+            hoverinfo="text",
+            hovertext=metro_hover,
+        )
+    )
+
+    figure.update_layout(
+        title=dict(
+            text="Campus Opportunity Density and Speaker Coverage",
+            font=dict(size=18, color="#1E3A5F"),
+        ),
+        geo=dict(
+            scope="usa",
+            projection_type="albers usa",
+            showland=True,
+            landcolor="#F3F4F6",
+            showlakes=True,
+            lakecolor="#DBEAFE",
+            showcountries=False,
+            showsubunits=True,
+            subunitcolor="#D1D5DB",
+            lonaxis=dict(range=[-125, -115]),
+            lataxis=dict(range=[31, 49]),
+            center=dict(lat=38.5, lon=-120.5),
+        ),
+        legend=dict(orientation="h", yanchor="bottom", y=-0.12, xanchor="center", x=0.5),
+        margin=dict(l=0, r=0, t=50, b=60),
+        height=520,
+    )
+
+    return figure, unmapped_metros
 
 
 def render_expansion_map(

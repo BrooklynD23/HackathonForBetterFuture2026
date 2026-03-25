@@ -14,6 +14,9 @@ if [[ ! -x "$PYTHON_BIN" ]]; then
   exit 1
 fi
 
+echo "Syncing Python dependencies (requirements.txt)..."
+"$PYTHON_BIN" -m pip install -q -r "$ROOT_DIR/requirements.txt"
+
 echo "Starting CAT3 dev backend on http://127.0.0.1:${BACKEND_PORT}"
 "$PYTHON_BIN" scripts/dev_backend.py --host 127.0.0.1 --port "$BACKEND_PORT" &
 BACKEND_PID=$!

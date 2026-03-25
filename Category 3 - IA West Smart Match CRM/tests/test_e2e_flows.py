@@ -1,348 +1,185 @@
-"""
-E2E Tests for IA SmartMatch CRM landing page → matches → discovery flows.
+"""Playwright E2E coverage for the routed IA SmartMatch demo workspace."""
 
-These tests use Playwright to validate critical user flows:
-1. Landing page renders with 'Start Matching' button
-2. Click to CRM, see 5 tabs (Matches, Discovery, Pipeline, Expansion, Volunteers)
-3. Demo Mode toggle works
-4. Discovery tab can be clicked and loads
-
-Note: These tests require the Streamlit app to be running on http://localhost:8501
-Run with: streamlit run src/app.py --server.port 8501
-
-Then run tests with: pytest tests/test_e2e_flows.py -v
-"""
+from __future__ import annotations
 
 import os
 import time
+from urllib.parse import parse_qs, urlparse
+
 import pytest
-from playwright.sync_api import sync_playwright, Page
+from playwright.sync_api import Page, sync_playwright
 
-
-# Skip these tests if Playwright browser is not available or if SKIP_E2E env var is set
 pytestmark = pytest.mark.skipif(
     os.getenv("SKIP_E2E") == "1",
-    reason="E2E tests skipped (SKIP_E2E=1). Requires running Streamlit app on port 8501"
+    reason="E2E tests skipped (SKIP_E2E=1). Requires a running Streamlit app on port 8501.",
 )
 
 BASE_URL = "http://localhost:8501"
-TIMEOUT = 30000  # 30 seconds
+TIMEOUT_MS = 60_000
 
 
 @pytest.fixture(scope="module")
-def browser_context():
-    """Create a browser context for all tests."""
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        context = browser.new_context()
-        yield context
-        context.close()
+def browser():
+    """Launch a shared browser for the routed workspace checks."""
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=True)
+        yield browser
         browser.close()
 
 
-def wait_for_element(page: Page, selector: str, timeout: int = 5000) -> bool:
-    """Wait for an element to be visible."""
-    try:
-        page.wait_for_selector(selector, timeout=timeout, state="visible")
-        return True
-    except Exception:
-        return False
-
-
-class TestLandingPage:
-    """Tests for landing page functionality."""
-
-    def test_landing_page_loads(self, browser_context):
-        """Test that landing page renders successfully."""
-        page = browser_context.new_page()
-        try:
-            page.goto(BASE_URL, wait_until="domcontentloaded", timeout=TIMEOUT)
-            time.sleep(2)
-
-            # Check page is loaded
-            assert page.url == BASE_URL
-
-            # Check for landing page content by searching for text
-            content = page.content()
-            assert "Academic Curator" in content or "Start Matching" in content, \
-                "Landing page content not found"
-
-        finally:
-            page.close()
-
-    def test_start_matching_button_exists(self, browser_context):
-        """Test that 'Start Matching' button is present."""
-        page = browser_context.new_page()
-        try:
-            page.goto(BASE_URL, wait_until="domcontentloaded", timeout=TIMEOUT)
-            time.sleep(2)
-
-            # Look for Start Matching button
-            buttons = page.query_selector_all("button")
-            button_texts = [btn.text_content() for btn in buttons if btn.text_content()]
-
-            # Check if any button contains 'Start Matching'
-            assert any("Start Matching" in text for text in button_texts), \
-                f"'Start Matching' button not found. Found buttons: {button_texts}"
-
-        finally:
-            page.close()
-
-    def test_view_demo_button_exists(self, browser_context):
-        """Test that 'View Demo' button is present."""
-        page = browser_context.new_page()
-        try:
-            page.goto(BASE_URL, wait_until="domcontentloaded", timeout=TIMEOUT)
-            time.sleep(2)
-
-            # Look for View Demo button
-            buttons = page.query_selector_all("button")
-            button_texts = [btn.text_content() for btn in buttons if btn.text_content()]
-
-            # Check if any button contains 'View Demo'
-            assert any("View Demo" in text for text in button_texts), \
-                f"'View Demo' button not found. Found buttons: {button_texts}"
-
-        finally:
-            page.close()
-
-
-class TestCRMNavigation:
-    """Tests for CRM navigation flows."""
-
-    def test_navigate_to_crm_view(self, browser_context):
-        """Test that clicking 'Start Matching' navigates to CRM view."""
-        page = browser_context.new_page()
-        try:
-            page.goto(BASE_URL, wait_until="domcontentloaded", timeout=TIMEOUT)
-            time.sleep(2)
-
-            # Find and click Start Matching button
-            buttons = page.query_selector_all("button")
-            start_button = None
-            for button in buttons:
-                text = button.text_content()
-                if text and "Start Matching" in text:
-                    start_button = button
-                    break
-
-            assert start_button is not None, "'Start Matching' button not found"
-
-            # Click the button
-            start_button.click()
-            time.sleep(3)
-
-            # Wait for CRM view to load (tabs should appear)
-            page.wait_for_load_state("domcontentloaded", timeout=TIMEOUT)
-            time.sleep(1)
-
-            # Check for tabs using role attribute
-            tabs = page.query_selector_all("[role='tab']")
-            assert len(tabs) >= 5, f"Expected at least 5 tabs, found {len(tabs)}"
-
-        finally:
-            page.close()
-
-    def test_all_crm_tabs_visible(self, browser_context):
-        """Test that all 5 CRM tabs are visible."""
-        page = browser_context.new_page()
-        try:
-            page.goto(BASE_URL, wait_until="domcontentloaded", timeout=TIMEOUT)
-            time.sleep(2)
-
-            # Navigate to CRM
-            buttons = page.query_selector_all("button")
-            for button in buttons:
-                text = button.text_content()
-                if text and "Start Matching" in text:
-                    button.click()
-                    break
-
-            time.sleep(3)
-            page.wait_for_load_state("domcontentloaded", timeout=TIMEOUT)
-
-            # Check for all 5 tabs
-            expected_tabs = ["Matches", "Discovery", "Pipeline", "Expansion", "Volunteers"]
-            tabs = page.query_selector_all("[role='tab']")
-            tab_texts = [tab.text_content() for tab in tabs if tab.text_content()]
-
-            for expected_tab in expected_tabs:
-                found = any(expected_tab in text for text in tab_texts)
-                assert found, f"Expected tab '{expected_tab}' not found. Found: {tab_texts}"
-
-        finally:
-            page.close()
-
-    def test_back_to_home_button(self, browser_context):
-        """Test that 'Back to Home' button returns to landing page."""
-        page = browser_context.new_page()
-        try:
-            page.goto(BASE_URL, wait_until="domcontentloaded", timeout=TIMEOUT)
-            time.sleep(2)
-
-            # Navigate to CRM
-            buttons = page.query_selector_all("button")
-            for button in buttons:
-                text = button.text_content()
-                if text and "Start Matching" in text:
-                    button.click()
-                    break
-
-            time.sleep(3)
-            page.wait_for_load_state("domcontentloaded", timeout=TIMEOUT)
-
-            # Find Back to Home button
-            buttons = page.query_selector_all("button")
-            back_button = None
-            for button in buttons:
-                text = button.text_content()
-                if text and "Back to Home" in text:
-                    back_button = button
-                    break
-
-            if back_button:  # Back button may not always be visible
-                back_button.click()
-                time.sleep(2)
-                page.wait_for_load_state("domcontentloaded", timeout=TIMEOUT)
-
-        finally:
-            page.close()
-
-
-class TestDemoMode:
-    """Tests for Demo Mode functionality."""
-
-    def test_demo_mode_checkbox_exists(self, browser_context):
-        """Test that Demo Mode checkbox is present in CRM view."""
-        page = browser_context.new_page()
-        try:
-            page.goto(BASE_URL, wait_until="domcontentloaded", timeout=TIMEOUT)
-            time.sleep(2)
-
-            # Navigate to CRM
-            buttons = page.query_selector_all("button")
-            for button in buttons:
-                text = button.text_content()
-                if text and "Start Matching" in text:
-                    button.click()
-                    break
-
-            time.sleep(3)
-            page.wait_for_load_state("domcontentloaded", timeout=TIMEOUT)
-
-            # Check for Demo Mode in page content
-            content = page.content()
-            assert "Demo Mode" in content, "Demo Mode toggle not found in page"
-
-        finally:
-            page.close()
-
-    def test_view_demo_button_enables_demo(self, browser_context):
-        """Test that 'View Demo' button enables demo mode."""
-        page = browser_context.new_page()
-        try:
-            page.goto(BASE_URL, wait_until="domcontentloaded", timeout=TIMEOUT)
-            time.sleep(2)
-
-            # Find and click View Demo button
-            buttons = page.query_selector_all("button")
-            view_demo_button = None
-            for button in buttons:
-                text = button.text_content()
-                if text and "View Demo" in text:
-                    view_demo_button = button
-                    break
-
-            assert view_demo_button is not None, "'View Demo' button not found"
-
-            view_demo_button.click()
-            time.sleep(3)
-            page.wait_for_load_state("domcontentloaded", timeout=TIMEOUT)
-
-            # Check that demo mode content is visible
-            content = page.content()
-            # In demo mode, the page should still load with tabs visible
-            assert "[role='tab']" in content or "Demo Mode" in content
-
-        finally:
-            page.close()
-
-
-class TestDiscoveryTab:
-    """Tests for Discovery tab functionality."""
-
-    def test_discovery_tab_clickable(self, browser_context):
-        """Test that Discovery tab can be clicked."""
-        page = browser_context.new_page()
-        try:
-            page.goto(BASE_URL, wait_until="domcontentloaded", timeout=TIMEOUT)
-            time.sleep(2)
-
-            # Navigate to CRM
-            buttons = page.query_selector_all("button")
-            for button in buttons:
-                text = button.text_content()
-                if text and "Start Matching" in text:
-                    button.click()
-                    break
-
-            time.sleep(3)
-            page.wait_for_load_state("domcontentloaded", timeout=TIMEOUT)
-
-            # Find Discovery tab
-            tabs = page.query_selector_all("[role='tab']")
-            discovery_tab = None
-            for tab in tabs:
-                text = tab.text_content()
-                if text and "Discovery" in text:
-                    discovery_tab = tab
-                    break
-
-            assert discovery_tab is not None, "Discovery tab not found"
-
-            # Click it
-            discovery_tab.click()
-            time.sleep(2)
-            page.wait_for_load_state("domcontentloaded", timeout=TIMEOUT)
-
-            # Check if it's now selected
-            is_selected = discovery_tab.get_attribute("aria-selected")
-            assert is_selected == "true", f"Discovery tab not selected (aria-selected={is_selected})"
-
-        finally:
-            page.close()
-
-    def test_discovery_tab_content_loads(self, browser_context):
-        """Test that Discovery tab content loads."""
-        page = browser_context.new_page()
-        try:
-            page.goto(BASE_URL, wait_until="domcontentloaded", timeout=TIMEOUT)
-            time.sleep(2)
-
-            # Navigate to CRM and click Discovery tab
-            buttons = page.query_selector_all("button")
-            for button in buttons:
-                text = button.text_content()
-                if text and "Start Matching" in text:
-                    button.click()
-                    break
-
-            time.sleep(3)
-
-            # Find and click Discovery tab
-            tabs = page.query_selector_all("[role='tab']")
-            for tab in tabs:
-                text = tab.text_content()
-                if text and "Discovery" in text:
-                    tab.click()
-                    break
-
-            time.sleep(2)
-            page.wait_for_load_state("domcontentloaded", timeout=TIMEOUT)
-
-            # Page should have content after clicking Discovery
-            content = page.content()
-            assert len(content) > 1000, "Discovery tab content not loaded"
-
-        finally:
-            page.close()
+@pytest.fixture()
+def page(browser):
+    """Provide an isolated page/context per test to avoid session-state leakage."""
+    context = browser.new_context(viewport={"width": 1440, "height": 1600})
+    page = context.new_page()
+    yield page
+    context.close()
+
+
+def _route(page: Page) -> str | None:
+    return parse_qs(urlparse(page.url).query).get("route", [None])[0]
+
+
+def _wait_for_body_contains(page: Page, substrings: list[str], timeout_ms: int = TIMEOUT_MS) -> str:
+    deadline = time.time() + timeout_ms / 1000
+    last_text = ""
+    while time.time() < deadline:
+        last_text = page.locator("body").inner_text(timeout=10_000)
+        if all(part in last_text for part in substrings):
+            return last_text
+        page.wait_for_timeout(1000)
+    raise AssertionError(f"Missing text {substrings!r}. Last body sample: {last_text[:1200]!r}")
+
+
+def _wait_for_route(page: Page, expected: str, timeout_ms: int = TIMEOUT_MS) -> str:
+    deadline = time.time() + timeout_ms / 1000
+    while time.time() < deadline:
+        if _route(page) == expected:
+            return page.url
+        page.wait_for_timeout(500)
+    raise AssertionError(f"Expected route={expected!r}, got url={page.url!r}")
+
+
+def _open(page: Page, url: str) -> None:
+    page.goto(url, wait_until="domcontentloaded", timeout=TIMEOUT_MS)
+
+
+def _open_landing(page: Page) -> None:
+    _open(page, f"{BASE_URL}/?route=landing")
+    _wait_for_body_contains(page, ["Sign In", "View Demo"])
+    _wait_for_route(page, "landing")
+
+
+def _open_dashboard(page: Page) -> None:
+    _open(page, f"{BASE_URL}/?route=dashboard&role=coordinator&demo=1")
+    _wait_for_body_contains(page, ["Dashboard", "Matches", "Show Jarvis Command Center", "Campus Coverage Map"])
+    _wait_for_route(page, "dashboard")
+
+
+def test_landing_page_loads(page: Page) -> None:
+    """Landing should render the routed CTA buttons."""
+    _open_landing(page)
+
+    assert _route(page) == "landing"
+    assert page.get_by_role("button", name="Sign In").first.is_visible()
+    assert page.get_by_role("button", name="View Demo").first.is_visible()
+
+
+def test_sign_in_navigates_to_login(page: Page) -> None:
+    """Landing Sign In should route to the login selector page."""
+    _open_landing(page)
+
+    page.get_by_role("button", name="Sign In").first.click()
+    _wait_for_body_contains(page, ["Coordinator Demo Login", "Volunteer (Coming Soon)"])
+
+    assert _route(page) == "login"
+    assert "Coordinator Demo Login" in page.locator("body").inner_text()
+
+
+def test_view_demo_navigates_to_dashboard(page: Page) -> None:
+    """View Demo should seed coordinator demo routing and open the dashboard."""
+    _open_landing(page)
+
+    page.get_by_role("button", name="View Demo").first.click()
+    body = _wait_for_body_contains(
+        page,
+        ["Dashboard", "Matches", "Discovery", "Show Jarvis Command Center", "Campus Coverage Map"],
+    )
+    final_url = _wait_for_route(page, "dashboard")
+
+    assert "role=coordinator" in final_url
+    assert "demo=1" in final_url
+    assert "View Match Engine" in body
+
+
+def test_workspace_navigation_reaches_all_routed_pages(page: Page) -> None:
+    """The authenticated workspace row should reach every routed page."""
+    _open_dashboard(page)
+
+    nav_expectations = [
+        ("Matches", "matches", ["Matches", "Select an Event"]),
+        ("Discovery", "discovery", ["University Event Discovery"]),
+        ("Pipeline", "pipeline", ["Engagement Pipeline"]),
+        ("Analytics", "analytics", ["Analytics", "Coverage, expansion readiness, and volunteer engagement analytics."]),
+        ("Match Engine", "match_engine", ["Match workspace is embedded below.", "< Back to Dashboard"]),
+    ]
+
+    for button_name, expected_route, expected_text in nav_expectations:
+        page.get_by_role("button", name=button_name).first.click()
+        _wait_for_body_contains(page, expected_text)
+        assert _route(page) == expected_route
+
+
+def test_deep_link_matches_renders_matches_workspace(page: Page) -> None:
+    """Direct route=matches should land on the Matches workspace."""
+    _open(page, f"{BASE_URL}/?route=matches")
+    body = _wait_for_body_contains(page, ["Matches", "Select an Event"])
+
+    assert _route(page) == "matches"
+    assert "Match Weights" in body
+
+
+def test_deep_link_coordinator_alias_normalizes_to_dashboard(page: Page) -> None:
+    """Coordinator alias routes should normalize to dashboard and keep demo=1."""
+    _open(page, f"{BASE_URL}/?route=coordinator&demo=1")
+    body = _wait_for_body_contains(page, ["Show Jarvis Command Center", "Campus Coverage Map"])
+    final_url = _wait_for_route(page, "dashboard")
+
+    assert "demo=1" in final_url
+    assert "Campus Coverage Map" in body
+
+
+def test_unknown_route_normalizes_to_landing(page: Page) -> None:
+    """Unknown routes should be rewritten back to landing."""
+    _open(page, f"{BASE_URL}/?route=unknown")
+    _wait_for_body_contains(page, ["Sign In", "View Demo"])
+
+    assert _route(page) == "landing"
+
+
+def test_jarvis_command_center_supports_text_commands(page: Page) -> None:
+    """Jarvis should open from the dashboard checkbox and produce a discovery proposal."""
+    _open_dashboard(page)
+
+    page.locator(
+        "label[data-baseweb='checkbox']",
+        has_text="Show Jarvis Command Center",
+    ).first.click(timeout=10_000)
+    _wait_for_body_contains(page, ["Jarvis -- Voice Command Center", "Send Command"])
+
+    page.get_by_role("textbox", name="Command").fill("Find new events")
+    page.get_by_role("button", name="Send Command").click()
+    body = _wait_for_body_contains(page, ["Scrape universities for new events", "Approve", "Reject"])
+
+    assert "Discovery Agent" in body
+
+
+def test_sign_out_returns_to_landing(page: Page) -> None:
+    """Workspace sign-out should clear demo routing without a Streamlit widget-state error."""
+    _open_dashboard(page)
+
+    page.get_by_role("button", name="Sign Out").first.click()
+    body = _wait_for_body_contains(page, ["Sign In", "View Demo"])
+
+    assert _route(page) == "landing"
+    assert "StreamlitAPIException" not in body

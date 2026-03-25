@@ -149,6 +149,7 @@ class TestGenerateEmbeddings:
         assert result.dtype == np.float32
 
     def test_get_api_key_requires_real_gemini_key(self, monkeypatch) -> None:
+        monkeypatch.setattr("src.config.GEMINI_API_KEY", "")
         monkeypatch.setattr("src.embeddings.GEMINI_API_KEY", "")
 
         with pytest.raises(ValueError, match="GEMINI_API_KEY"):

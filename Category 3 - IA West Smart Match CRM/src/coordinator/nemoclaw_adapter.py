@@ -1,6 +1,8 @@
 """NemoClaw parallel dispatch adapter with graceful degradation.
 
 Pure Python — no top-level Streamlit imports. Fully testable in isolation.
+The current app does not call dispatch_parallel(); this module is kept as a
+future integration path for optional batching.
 
 When USE_NEMOCLAW=1 and openclaw-sdk is installed, dispatches tasks in
 parallel using the NemoClaw Agent.batch() API. Otherwise falls back silently

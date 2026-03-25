@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import streamlit as st
 
+from src.ui.expansion_map import render_coordinator_density_map
 from src.ui.data_helpers import (
     get_initials,
     get_recent_poc_activity,
@@ -20,7 +21,7 @@ from src.ui.html_base import render_html_page
 from src.ui.page_router import navigate_to, set_user_role
 
 
-def render_coordinator_dashboard() -> None:
+def render_coordinator_dashboard(speakers_df=None) -> None:
     """Render the full Coordinator Institutional Dashboard page.
 
     Loads real data from data helpers, computes metrics, builds match cards
@@ -100,7 +101,8 @@ def render_coordinator_dashboard() -> None:
             <div class="flex -space-x-2">
               {avatar_html}
             </div>
-            <button class="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg text-xs font-bold hover:bg-blue-100 transition-colors">Assign</button>
+            <button class="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg text-xs font-bold hover:bg-blue-100 transition-colors"
+                    onclick="window.iaSmartMatch.navigate('matches', {{role: 'coordinator', demo: true}}); return false;">Assign</button>
           </div>
         </div>
         """
@@ -121,7 +123,8 @@ def render_coordinator_dashboard() -> None:
           <h5 class="text-sm font-bold text-on-surface">POC Activity: {poc_name}</h5>
           <p class="text-xs text-slate-500 mt-1">{org} &bull; {comm_type} logged</p>
           <div class="mt-3">
-            <button class="text-xs font-bold text-primary underline underline-offset-4">Connect now</button>
+            <button class="text-xs font-bold text-primary underline underline-offset-4"
+                    onclick="window.iaSmartMatch.navigate('discovery', {{role: 'coordinator', demo: true}}); return false;">Connect now</button>
           </div>
         </div>
         """
@@ -185,11 +188,11 @@ def render_coordinator_dashboard() -> None:
     <div class="flex items-center gap-8">
       <span class="text-xl font-semibold tracking-tighter text-blue-900 headline-font">IA SmartMatch</span>
       <div class="hidden md:flex gap-6 items-center font-medium text-sm tracking-tight">
-        <a class="text-blue-700 border-b-2 border-blue-700 pb-1" href="#">Dashboard</a>
-        <a class="text-slate-500 hover:text-blue-600 transition-colors" href="#">Matches</a>
-        <a class="text-slate-500 hover:text-blue-600 transition-colors" href="#">Pipeline</a>
-        <a class="text-slate-500 hover:text-blue-600 transition-colors" href="#">Discovery</a>
-        <a class="text-slate-500 hover:text-blue-600 transition-colors" href="#">Analytics</a>
+        <a class="text-blue-700 border-b-2 border-blue-700 pb-1" href="#" onclick="window.iaSmartMatch.navigate('dashboard', {{role: 'coordinator', demo: true}}); return false;">Dashboard</a>
+        <a class="text-slate-500 hover:text-blue-600 transition-colors" href="#" onclick="window.iaSmartMatch.navigate('matches', {{role: 'coordinator', demo: true}}); return false;">Matches</a>
+        <a class="text-slate-500 hover:text-blue-600 transition-colors" href="#" onclick="window.iaSmartMatch.navigate('pipeline', {{role: 'coordinator', demo: true}}); return false;">Pipeline</a>
+        <a class="text-slate-500 hover:text-blue-600 transition-colors" href="#" onclick="window.iaSmartMatch.navigate('discovery', {{role: 'coordinator', demo: true}}); return false;">Discovery</a>
+        <a class="text-slate-500 hover:text-blue-600 transition-colors" href="#" onclick="window.iaSmartMatch.navigate('analytics', {{role: 'coordinator', demo: true}}); return false;">Analytics</a>
       </div>
     </div>
     <div class="flex items-center gap-4">
@@ -223,37 +226,38 @@ def render_coordinator_dashboard() -> None:
       </div>
     </div>
     <nav class="flex-1 space-y-1">
-      <a class="flex items-center gap-3 px-4 py-2.5 bg-white text-blue-700 rounded-lg shadow-sm font-semibold text-sm" href="#">
+      <a class="flex items-center gap-3 px-4 py-2.5 bg-white text-blue-700 rounded-lg shadow-sm font-semibold text-sm" href="#" onclick="window.iaSmartMatch.navigate('dashboard', {{role: 'coordinator', demo: true}}); return false;">
         <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
         Dashboard
       </a>
-      <a class="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-200/50 rounded-lg transition-transform duration-150 active:scale-95 text-sm font-semibold" href="#">
+      <a class="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-200/50 rounded-lg transition-transform duration-150 active:scale-95 text-sm font-semibold" href="#" onclick="window.iaSmartMatch.navigate('matches', {{role: 'coordinator', demo: true}}); return false;">
         <span class="material-symbols-outlined">handshake</span>
         Matches
       </a>
-      <a class="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-200/50 rounded-lg transition-transform duration-150 active:scale-95 text-sm font-semibold" href="#">
+      <a class="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-200/50 rounded-lg transition-transform duration-150 active:scale-95 text-sm font-semibold" href="#" onclick="window.iaSmartMatch.navigate('pipeline', {{role: 'coordinator', demo: true}}); return false;">
         <span class="material-symbols-outlined">account_tree</span>
         Pipeline
       </a>
-      <a class="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-200/50 rounded-lg transition-transform duration-150 active:scale-95 text-sm font-semibold" href="#">
+      <a class="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-200/50 rounded-lg transition-transform duration-150 active:scale-95 text-sm font-semibold" href="#" onclick="window.iaSmartMatch.navigate('discovery', {{role: 'coordinator', demo: true}}); return false;">
         <span class="material-symbols-outlined">travel_explore</span>
         Discovery
       </a>
-      <a class="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-200/50 rounded-lg transition-transform duration-150 active:scale-95 text-sm font-semibold" href="#">
+      <a class="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-200/50 rounded-lg transition-transform duration-150 active:scale-95 text-sm font-semibold" href="#" onclick="window.iaSmartMatch.navigate('analytics', {{role: 'coordinator', demo: true}}); return false;">
         <span class="material-symbols-outlined">analytics</span>
         Analytics
       </a>
     </nav>
-    <button class="mt-4 mx-2 py-3 bg-gradient-to-br from-primary to-primary-container text-white rounded-xl shadow-md flex items-center justify-center gap-2 font-semibold text-sm hover:opacity-90 transition-opacity">
+    <button class="mt-4 mx-2 py-3 bg-gradient-to-br from-primary to-primary-container text-white rounded-xl shadow-md flex items-center justify-center gap-2 font-semibold text-sm hover:opacity-90 transition-opacity"
+            onclick="window.iaSmartMatch.navigate('matches', {{role: 'coordinator', demo: true}}); return false;">
       <span class="material-symbols-outlined text-sm">add</span>
       New Match
     </button>
     <div class="mt-auto pt-6 border-t border-slate-200/50 space-y-1">
-      <a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:bg-slate-200/50 rounded-lg text-xs font-semibold" href="#">
+      <a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:bg-slate-200/50 rounded-lg text-xs font-semibold" href="#" onclick="window.iaSmartMatch.navigate('analytics', {{role: 'coordinator', demo: true}}); return false;">
         <span class="material-symbols-outlined text-sm">help</span>
         Help Center
       </a>
-      <a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:bg-slate-200/50 rounded-lg text-xs font-semibold" href="#">
+      <a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:bg-slate-200/50 rounded-lg text-xs font-semibold" href="#" onclick="window.iaSmartMatch.navigate('analytics', {{role: 'coordinator', demo: true}}); return false;">
         <span class="material-symbols-outlined text-sm">contact_support</span>
         Support
       </a>
@@ -324,69 +328,28 @@ def render_coordinator_dashboard() -> None:
       <!-- Left: Map + Matches -->
       <div class="lg:col-span-8 flex flex-col gap-6">
 
-        <!-- Campus Event Density Map Placeholder -->
-        <section class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/5 overflow-hidden flex flex-col h-[500px]">
+        <!-- Campus Event Density Map -->
+        <section class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/5 overflow-hidden flex flex-col h-[220px]">
           <div class="p-6 border-b border-outline-variant/5 flex items-center justify-between bg-white">
             <div>
-              <h2 class="text-lg font-bold headline-font">Campus Event Density</h2>
-              <p class="text-xs text-slate-500">Heat map distribution: Portland to San Diego</p>
+              <h2 class="text-lg font-bold headline-font">Campus Coverage Map</h2>
+              <p class="text-xs text-slate-500">The live Plotly coverage map is rendered directly below this dashboard shell.</p>
             </div>
             <div class="flex gap-2">
               <span class="flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-[10px] font-bold">
-                <span class="w-2 h-2 rounded-full bg-blue-600"></span> HIGH DENSITY
+                <span class="w-2 h-2 rounded-full bg-blue-600"></span> LIVE COVERAGE
               </span>
             </div>
           </div>
-          <div class="relative flex-1 bg-slate-200 overflow-hidden">
-            <!-- Heatmap Gradient Circles -->
-            <div class="absolute inset-0 bg-gradient-to-br from-slate-100 via-slate-200 to-slate-300"></div>
-            <div class="absolute top-1/4 left-1/4 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl"></div>
-            <div class="absolute top-1/2 left-1/3 w-48 h-48 bg-blue-600/30 rounded-full blur-3xl"></div>
-            <div class="absolute bottom-1/4 left-1/2 w-40 h-40 bg-blue-400/20 rounded-full blur-3xl"></div>
-            <div class="absolute bottom-12 right-1/4 w-56 h-56 bg-blue-700/25 rounded-full blur-3xl"></div>
-            <!-- Marker: Portland State -->
-            <div class="absolute top-1/4 left-1/4 group cursor-pointer">
-              <div class="w-4 h-4 bg-primary border-2 border-white rounded-full shadow-lg"></div>
-              <div class="hidden group-hover:block absolute top-6 left-1/2 -translate-x-1/2 w-32 glass-panel p-2 rounded-lg text-[10px] shadow-xl border border-white/40">
-                <p class="font-bold">Portland State Univ.</p>
-                <p class="text-slate-500">12 Pending Events</p>
-              </div>
-            </div>
-            <!-- Marker: Stanford -->
-            <div class="absolute bottom-1/3 left-1/3 group cursor-pointer">
-              <div class="w-4 h-4 bg-primary border-2 border-white rounded-full shadow-lg scale-125"></div>
-              <div class="hidden group-hover:block absolute top-6 left-1/2 -translate-x-1/2 w-32 glass-panel p-2 rounded-lg text-[10px] shadow-xl border border-white/40">
-                <p class="font-bold">Stanford University</p>
-                <p class="text-slate-500">45 Active Matches</p>
-              </div>
-            </div>
-            <!-- Marker: UC San Diego -->
-            <div class="absolute bottom-12 right-1/4 group cursor-pointer">
-              <div class="w-4 h-4 bg-primary border-2 border-white rounded-full shadow-lg"></div>
-              <div class="hidden group-hover:block absolute top-6 left-1/2 -translate-x-1/2 w-32 glass-panel p-2 rounded-lg text-[10px] shadow-xl border border-white/40">
-                <p class="font-bold">UC San Diego</p>
-                <p class="text-slate-500">8 High Priority</p>
-              </div>
-            </div>
-            <!-- Marker: Cal Poly Pomona -->
-            <div class="absolute bottom-1/4 right-1/3 group cursor-pointer">
-              <div class="w-4 h-4 bg-primary border-2 border-white rounded-full shadow-lg"></div>
-              <div class="hidden group-hover:block absolute top-6 left-1/2 -translate-x-1/2 w-32 glass-panel p-2 rounded-lg text-[10px] shadow-xl border border-white/40">
-                <p class="font-bold">Cal Poly Pomona</p>
-                <p class="text-slate-500">15 Active Searches</p>
-              </div>
-            </div>
-            <!-- Legend -->
-            <div class="absolute bottom-6 left-6 glass-panel p-4 rounded-xl border border-white/40 shadow-sm">
-              <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Legend</p>
-              <div class="flex flex-col gap-2">
-                <div class="flex items-center gap-2 text-[10px] font-medium">
-                  <span class="w-2 h-2 rounded-full bg-blue-700"></span> Institutional Hubs
-                </div>
-                <div class="flex items-center gap-2 text-[10px] font-medium">
-                  <span class="w-2 h-2 rounded-full bg-blue-400 opacity-50"></span> Scraping Coverage
-                </div>
-              </div>
+          <div class="flex-1 bg-gradient-to-br from-slate-100 via-slate-50 to-blue-50 px-6 py-8 flex flex-col justify-center">
+            <p class="text-sm text-slate-600 leading-relaxed">
+              The routed V2 workspace now uses a live geo chart for campus density, speaker
+              coverage, and hoverable reachability details instead of a decorative mock heatmap.
+            </p>
+            <div class="mt-4 flex flex-wrap gap-2">
+              <span class="px-3 py-1 bg-white text-xs font-semibold rounded-full text-slate-600 shadow-sm">Campus density</span>
+              <span class="px-3 py-1 bg-white text-xs font-semibold rounded-full text-slate-600 shadow-sm">Speaker coverage</span>
+              <span class="px-3 py-1 bg-white text-xs font-semibold rounded-full text-slate-600 shadow-sm">Hover details</span>
             </div>
           </div>
         </section>
@@ -395,7 +358,8 @@ def render_coordinator_dashboard() -> None:
         <section class="bg-surface-container-low p-8 rounded-2xl">
           <div class="flex items-center justify-between mb-8">
             <h2 class="text-2xl font-bold headline-font">Active High-Priority Matches</h2>
-            <button class="text-sm font-semibold text-primary flex items-center gap-1">
+            <button class="text-sm font-semibold text-primary flex items-center gap-1"
+                    onclick="window.iaSmartMatch.navigate('pipeline', {{role: 'coordinator', demo: true}}); return false;">
               View Pipeline <span class="material-symbols-outlined text-sm">arrow_forward</span>
             </button>
           </div>
@@ -437,9 +401,28 @@ def render_coordinator_dashboard() -> None:
     render_html_page(
         body_html,
         title="IA SmartMatch | Coordinator Dashboard",
-        height=5000,
+        height=4700,
         hide_chrome=False,
     )
+
+    if speakers_df is not None:
+        st.markdown("### Campus Coverage Map")
+        st.caption(
+            "Plotly coverage uses campus hubs and synthetic density shading for reachability context; "
+            "it is not a street-map basemap."
+        )
+        figure, unmapped_metros = render_coordinator_density_map(speakers_df)
+        st.plotly_chart(
+            figure,
+            use_container_width=True,
+            config={"displayModeBar": False},
+            key="coordinator_density_map",
+        )
+        if unmapped_metros:
+            st.warning(
+                "Some speaker metros are not mapped yet and were excluded from the coverage map: "
+                + ", ".join(sorted(unmapped_metros))
+            )
 
     # ── Streamlit Navigation Buttons ─────────────────────────────────────────
     col1, col2, col3 = st.columns([1, 1, 1])
@@ -448,8 +431,8 @@ def render_coordinator_dashboard() -> None:
             navigate_to("match_engine")
     with col2:
         if st.button("Sign Out", use_container_width=True):
-            set_user_role(None)  # type: ignore[arg-type]
-            navigate_to("landing")
+            set_user_role(None)
+            navigate_to("landing", role=None, demo=False)
 
 
 # ── Helper ────────────────────────────────────────────────────────────────────

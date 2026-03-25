@@ -2,6 +2,82 @@
 
 ## Current Work
 
+### CRM Routing and Jarvis Fix Pass
+
+_Overlap with **Frontend Routing and Match Engine QA Fix Pass** below: that pass owns the initial router/query-param sync + Match Engine regression work; this pass closes the Jarvis discovery wiring, NemoClaw documentation, coordinator/Jarvis UI ordering, sign-out follow-up, and the dated Playwright demo re-check._
+
+- [x] Refactor Category 3 query-param handling to prefer `st.query_params` on the pinned Streamlit 1.42.x runtime, keep fallback support for legacy experimental APIs, and update router regression tests.
+- [x] Wire the Jarvis `discover_events` tool through scrape + `extract_events(...)`, then update `tests/test_discovery_tool.py` to cover the extracted-event path and the no-Streamlit contract.
+- [x] Document the dormant NemoClaw path in the Category 3 README and add a clarifying module note in `src/coordinator/nemoclaw_adapter.py`.
+- [x] Apply the small demo-hardening UI tweaks: move the Jarvis checkbox above the dashboard iframe, keep the coordinator coverage-map expectation caption honest, and add a brief match-engine discoverability caption.
+- [x] Run targeted verification for the touched Category 3 tests (`test_page_router`, `test_discovery_tool`, `test_app`, `test_match_engine_page`).
+- [x] Run a dated Playwright browser pass on `http://127.0.0.1:8501`, save screenshots under `Category 3 - IA West Smart Match CRM/output/playwright/`, and write the QA report to `Category 3 - IA West Smart Match CRM/docs/testing/2026-03-25-playwright-demo-report.md`.
+- [x] Add a review note here with implementation results, verification evidence, and any residual demo risk.
+
+#### Review
+
+- Implementation:
+  - `page_router.py` now stages demo-mode changes through a pending navigation override so sign-out can clear `demo=1` without tripping Streamlit’s widget-state mutation guard.
+  - `discovery_tool.py` stays wired through scrape + `extract_events(...)`; README/module documentation reflects NemoClaw’s dormant status; dashboard and Match Engine captions/ordering match the intended demo story.
+  - Added `scripts/run_playwright_demo_qa.py` plus updated `tests/test_e2e_flows.py` so the routed workspace, deep links, Jarvis proposal flow, and sign-out path have reproducible browser coverage.
+- Verification:
+  - `python3 -m py_compile 'Category 3 - IA West Smart Match CRM/src/ui/page_router.py' 'Category 3 - IA West Smart Match CRM/tests/test_page_router.py' 'Category 3 - IA West Smart Match CRM/tests/conftest.py' 'Category 3 - IA West Smart Match CRM/scripts/run_playwright_demo_qa.py' 'Category 3 - IA West Smart Match CRM/tests/test_e2e_flows.py'`
+  - `cd 'Category 3 - IA West Smart Match CRM' && /tmp/hbf-pytest-venv/bin/python -m pytest tests/test_page_router.py -q` -> `8 passed`
+  - `cd 'Category 3 - IA West Smart Match CRM' && /tmp/hbf-pytest-venv/bin/python scripts/run_playwright_demo_qa.py` -> `16 cases`, `10 warnings`, `0 page_errors`, `0 request_failures`
+  - `cd 'Category 3 - IA West Smart Match CRM' && /tmp/hbf-pytest-venv/bin/python -m pytest tests/test_e2e_flows.py -q` -> `9 passed`
+  - `cd 'Category 3 - IA West Smart Match CRM' && /tmp/hbf-pytest-venv/bin/python -m pytest -q` -> `591 passed`, `1 failed`
+  - Dated browser report: `Category 3 - IA West Smart Match CRM/docs/testing/2026-03-25-playwright-demo-report.md`
+- Demo outcome:
+  - The Playwright pass covered landing, login, View Demo, deep links, workspace nav, Jarvis toggle + text command + approve path, and sign-out. All 16 scripted checks passed, and screenshots were saved under `Category 3 - IA West Smart Match CRM/output/playwright/`.
+  - Jarvis approval completed end-to-end in the UI with `Found 0 event(s) (source: cache)`, which confirms the patched tool path in this environment.
+- Residual risk:
+  - The embeddings API-key regression was a test isolation issue, not a runtime bug. The targeted regression now passes; the full suite was not rerun after this cleanup-only follow-up.
+  - Jarvis voice/TTS dependencies were absent locally, so the command center degraded to text-only warnings during QA.
+  - Discovery execution completed from cache with zero events here; live discovery quality still depends on cache freshness, network reachability, and Gemini availability.
+  - Cleanup note: removed the accidental mockup `node_modules` tree and added ignore rules so dependency reinstalls do not flood the worktree again.
+
+### Frontend Routing and Match Engine QA Fix Pass
+
+_See **CRM Routing and Jarvis Fix Pass** for Jarvis/NemoClaw/discovery-tool deliverables and the latest Browser MCP table._
+
+- [x] Reproduce the routing defects from the browser QA report against the current router helpers and Streamlit runtime assumptions.
+- [x] Harden query-param read/write behavior so deep links, in-app navigation, and invalid-route normalization keep the URL bar in sync.
+- [x] Improve the Match Engine page so the primary workspace shows meaningful above-the-fold content and an explicit empty state when match data is sparse.
+- [x] Add or update targeted regression tests for router normalization/synchronization and Match Engine rendering.
+- [x] Run targeted verification, then add a review note here summarizing pass/fail status and residual risk.
+
+#### Review
+
+- Root cause for the routing defects was the mixed query-param API usage in `page_router.py`: reads could come from `st.query_params` while writes went through `experimental_set_query_params`, which is fragile on the Streamlit 1.42.x runtime captured in QA.
+- The router now uses one read/write family consistently, so alias routes, unknown-route normalization, and in-app navigation all go through the same query-param sync path.
+- The Match Engine page no longer reserves a 5000px iframe height; it uses a tighter height and renders a visible shortlist summary or explicit empty state instead of leaving the main pane visually blank.
+- Added regression coverage for query-param synchronization and Match Engine sparse-data rendering.
+- Verification:
+  - `python3 -m py_compile 'Category 3 - IA West Smart Match CRM/src/ui/page_router.py' 'Category 3 - IA West Smart Match CRM/src/ui/match_engine_page.py' 'Category 3 - IA West Smart Match CRM/tests/test_page_router.py' 'Category 3 - IA West Smart Match CRM/tests/test_match_engine_page.py'`
+  - `cd 'Category 3 - IA West Smart Match CRM' && /tmp/hbf-pytest-venv/bin/python -m pytest tests/test_page_router.py -q` -> `5 passed`
+  - `cd 'Category 3 - IA West Smart Match CRM' && /tmp/hbf-pytest-venv/bin/python -m pytest tests/test_match_engine_page.py -q` -> `2 passed`
+- Residual risk:
+  - The live browser QA run used Streamlit 1.42.2 on the already-running `:8501` server. I did not re-run that exact browser flow after the patch, so bookmark/deep-link behavior still needs one manual confirmation pass against that runtime.
+- 2026-03-25 closeout: Playwright follow-up on `127.0.0.1:8501` confirms cold `?route=matches`, `?route=coordinator&demo=1`, unknown-route normalization, workspace nav, Jarvis proposal/approve flow, and sign-out; see `Category 3 - IA West Smart Match CRM/docs/testing/2026-03-25-playwright-demo-report.md`.
+
+### UI Audit Review Fix Pass
+
+- [x] Replace the split `current_page`/`current_view` navigation with a single routed V2 workspace.
+- [x] Wire landing, login, coordinator, and match-engine controls to real destinations instead of dead `#` links.
+- [x] Promote the legacy Matches, Discovery, Pipeline, Expansion, and Volunteer surfaces into reachable V2 routes.
+- [x] Replace the coordinator dashboard heatmap placeholder with a real Plotly map and warn on unmapped metro data.
+- [x] Update the affected tests/docs, run targeted verification, and add a review note with results.
+
+#### Review
+
+- Unified the V2 router around query-param-synced `current_page` routes and removed the live dependency on the unreachable `current_view` CRM shell.
+- Wired the landing/login/dashboard/match-engine iframe controls to real page destinations, added a shared iframe navigation bridge, and made the public landing nav scroll to real sections instead of `#`.
+- Exposed reachable V2 pages for Dashboard, Matches, Discovery, Pipeline, Analytics, and Match Engine; Analytics now hosts the expansion map and volunteer dashboard, and the dashboard can surface Jarvis on demand.
+- Replaced the coordinator heatmap mock with a live Plotly campus coverage map built from the shared expansion-map geography logic, including warnings for unmapped metro regions.
+- Verification:
+  - `python3 -m py_compile src/app.py src/ui/page_router.py src/ui/html_base.py src/ui/landing_page_v2.py src/ui/login_page.py src/ui/coordinator_dashboard.py src/ui/match_engine_page.py src/ui/expansion_map.py tests/test_app.py tests/test_expansion_map.py tests/test_page_router.py`
+  - `"/mnt/c/Users/DangT/documents/github/HackathonForBetterFuture2026/.venv/Scripts/python.exe" -m pytest tests/test_app.py tests/test_expansion_map.py tests/test_page_router.py -q` -> `25 passed`
+
 ### Milestone Wrap-Up: v1.0 then v2.0 (Sequential)
 
 - [x] Validate milestone pre-flight status for v1.0 and v2.0 (audit presence, phase completion, requirement coverage).

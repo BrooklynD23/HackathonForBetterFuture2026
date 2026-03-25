@@ -10,3 +10,5 @@
 ## Recent Corrections
 
 - None yet.
+- When testing helpers that validate config, patch the real source module (`src.config`) rather than only a re-exported constant in a downstream module.
+- Clean up generated dependency trees after local installs before checking worktree status so untracked noise does not hide the real changes.

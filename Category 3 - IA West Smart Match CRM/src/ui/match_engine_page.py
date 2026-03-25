@@ -25,6 +25,8 @@ _FACTOR_WIDTHS: list[dict[str, str]] = [
     {"Topic": "92%", "Role": "98%", "Prox.": "75%", "Cal.": "90%", "Hist.": "94%", "Impact": "88%"},
     {"Topic": "95%", "Role": "85%", "Prox.": "92%", "Cal.": "78%", "Hist.": "100%", "Impact": "90%"},
 ]
+_DEFAULT_PAGE_HEIGHT = 1850
+_SPARSE_PAGE_HEIGHT = 1500
 
 
 def render_match_engine_page() -> None:
@@ -53,6 +55,7 @@ def render_match_engine_page() -> None:
     match_count = len(
         [r for r in pipeline if r.get("event_name") == featured_event]
     ) or len(pipeline)
+    ranked_specialist_count = len(top_matches)
 
     # ── Build Specialist Cards (first two) ───────────────────────────────────
     spec_cards_html = ""
@@ -198,6 +201,55 @@ def render_match_engine_page() -> None:
           </div>
         </div>
         """
+    elif top_matches:
+        featured_card_html = f"""
+        <div class="md:col-span-2 bg-primary/5 border border-primary/10 rounded-[28px] p-6 lg:p-8">
+          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div>
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white text-primary text-xs font-bold uppercase tracking-wider mb-4">
+                <span class="material-symbols-outlined text-sm">insights</span>
+                Match Snapshot
+              </div>
+              <h4 class="font-headline text-2xl font-semibold text-on-surface mb-2">Shortlist ready for review</h4>
+              <p class="text-on-surface-variant max-w-2xl">
+                {ranked_specialist_count} ranked specialist{'s' if ranked_specialist_count != 1 else ''} loaded for
+                {featured_event}. Open Matches to refine the shortlist or continue discovery to expand candidate coverage.
+              </p>
+            </div>
+            <div class="grid grid-cols-2 gap-3 min-w-[240px]">
+              <div class="bg-white rounded-2xl p-4 shadow-sm">
+                <div class="text-[11px] font-bold uppercase tracking-wider text-outline mb-1">Ranked Specialists</div>
+                <div class="text-3xl font-bold text-primary">{ranked_specialist_count}</div>
+              </div>
+              <div class="bg-white rounded-2xl p-4 shadow-sm">
+                <div class="text-[11px] font-bold uppercase tracking-wider text-outline mb-1">Pipeline Matches</div>
+                <div class="text-3xl font-bold text-primary">{match_count}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        """
+    else:
+        featured_card_html = """
+        <div class="md:col-span-2 bg-primary/5 border border-dashed border-primary/20 rounded-[28px] p-8 lg:p-10">
+          <div class="max-w-2xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white text-primary text-xs font-bold uppercase tracking-wider mb-4">
+              <span class="material-symbols-outlined text-sm">search_off</span>
+              Match Queue Empty
+            </div>
+            <h4 class="font-headline text-2xl font-semibold text-on-surface mb-3">No ranked specialists available yet</h4>
+            <p class="text-on-surface-variant mb-6">
+              The Match Engine loaded without ranked candidates for the current event. Refresh discovery inputs or open
+              the Matches workspace to generate a shortlist before returning here.
+            </p>
+            <div class="flex flex-wrap gap-3">
+              <span class="px-4 py-2 rounded-full bg-white text-sm font-semibold text-on-surface">Check pipeline fixtures</span>
+              <span class="px-4 py-2 rounded-full bg-white text-sm font-semibold text-on-surface">Generate shortlist in Matches</span>
+              <span class="px-4 py-2 rounded-full bg-white text-sm font-semibold text-on-surface">Retry after discovery refresh</span>
+            </div>
+          </div>
+        </div>
+        """
 
     # ── Build Right Rail POC section ─────────────────────────────────────────
     poc_html = ""
@@ -255,41 +307,42 @@ def render_match_engine_page() -> None:
     </div>
   </div>
   <nav class="flex-1 space-y-1">
-    <a class="flex items-center gap-3 px-4 py-3 bg-white text-blue-700 rounded-xl shadow-sm font-medium transition-transform active:scale-95" href="#">
+    <a class="flex items-center gap-3 px-4 py-3 bg-white text-blue-700 rounded-xl shadow-sm font-medium transition-transform active:scale-95" href="#" onclick="window.iaSmartMatch.navigate('matches', {{role: 'coordinator', demo: true}}); return false;">
       <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
       <span class="text-sm">Matches</span>
     </a>
-    <a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200/50 hover:translate-x-1 transition-all rounded-xl" href="#">
+    <a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200/50 hover:translate-x-1 transition-all rounded-xl" href="#" onclick="window.iaSmartMatch.navigate('dashboard', {{role: 'coordinator', demo: true}}); return false;">
       <span class="material-symbols-outlined">person_search</span>
       <span class="text-sm">Speaker Database</span>
     </a>
-    <a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200/50 hover:translate-x-1 transition-all rounded-xl" href="#">
+    <a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200/50 hover:translate-x-1 transition-all rounded-xl" href="#" onclick="window.iaSmartMatch.navigate('dashboard', {{role: 'coordinator', demo: true}}); return false;">
       <span class="material-symbols-outlined">school</span>
       <span class="text-sm">Scraped Events</span>
     </a>
-    <a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200/50 hover:translate-x-1 transition-all rounded-xl" href="#">
+    <a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200/50 hover:translate-x-1 transition-all rounded-xl" href="#" onclick="window.iaSmartMatch.navigate('discovery', {{role: 'coordinator', demo: true}}); return false;">
       <span class="material-symbols-outlined">auto_awesome</span>
       <span class="text-sm">Discovery Engine</span>
     </a>
-    <a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200/50 hover:translate-x-1 transition-all rounded-xl" href="#">
+    <a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200/50 hover:translate-x-1 transition-all rounded-xl" href="#" onclick="window.iaSmartMatch.navigate('pipeline', {{role: 'coordinator', demo: true}}); return false;">
       <span class="material-symbols-outlined">account_tree</span>
       <span class="text-sm">Pipeline Tracker</span>
     </a>
-    <a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200/50 hover:translate-x-1 transition-all rounded-xl" href="#">
+    <a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200/50 hover:translate-x-1 transition-all rounded-xl" href="#" onclick="window.iaSmartMatch.navigate('analytics', {{role: 'coordinator', demo: true}}); return false;">
       <span class="material-symbols-outlined">analytics</span>
       <span class="text-sm">Analytics</span>
     </a>
   </nav>
   <div class="mt-auto border-t border-slate-200 pt-4 space-y-1">
-    <button class="w-full flex items-center gap-3 px-4 py-3 bg-primary-gradient text-white rounded-xl shadow-md font-medium text-sm mb-4">
+    <button class="w-full flex items-center gap-3 px-4 py-3 bg-primary-gradient text-white rounded-xl shadow-md font-medium text-sm mb-4"
+            onclick="window.iaSmartMatch.navigate('matches', {{role: 'coordinator', demo: true}}); return false;">
       <span class="material-symbols-outlined">add</span>
       <span>New Match Request</span>
     </button>
-    <a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-primary transition-colors" href="#">
+    <a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-primary transition-colors" href="#" onclick="window.iaSmartMatch.navigate('analytics', {{role: 'coordinator', demo: true}}); return false;">
       <span class="material-symbols-outlined">settings</span>
       <span class="text-sm">Settings</span>
     </a>
-    <a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-primary transition-colors" href="#">
+    <a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-primary transition-colors" href="#" onclick="window.iaSmartMatch.navigate('analytics', {{role: 'coordinator', demo: true}}); return false;">
       <span class="material-symbols-outlined">help</span>
       <span class="text-sm">Support</span>
     </a>
@@ -299,7 +352,7 @@ def render_match_engine_page() -> None:
 <!-- Main Content Area -->
 <main class="ml-64 mr-80 min-h-screen p-8 bg-surface">
   <!-- Header & Search -->
-  <header class="max-w-4xl mx-auto mb-12">
+  <header class="max-w-5xl mx-auto mb-12">
     <div class="flex justify-between items-end mb-8">
       <div>
         <h1 class="font-headline text-3xl font-bold tracking-tight text-on-surface mb-2">{featured_event}</h1>
@@ -345,7 +398,7 @@ def render_match_engine_page() -> None:
   </header>
 
   <!-- Internal Specialist Matches Section -->
-  <section class="max-w-4xl mx-auto">
+  <section class="max-w-5xl mx-auto">
     <div class="flex justify-between items-center mb-6">
       <h3 class="font-headline text-xl font-semibold">Internal Specialist Matches</h3>
       <button class="text-primary text-sm font-semibold flex items-center gap-1">View All <span class="material-symbols-outlined text-sm">arrow_forward</span></button>
@@ -437,10 +490,14 @@ def render_match_engine_page() -> None:
 </aside>
 """
 
+    st.caption(
+        "Match workspace is embedded below. Scroll inside the frame to review shortlist details, "
+        "event intelligence, and outreach actions."
+    )
     render_html_page(
         body_html,
         title="IA SmartMatch | Match Engine",
-        height=5000,
+        height=_DEFAULT_PAGE_HEIGHT if top_matches else _SPARSE_PAGE_HEIGHT,
         hide_chrome=False,
     )
 
@@ -448,11 +505,11 @@ def render_match_engine_page() -> None:
     col1, col2 = st.columns([1, 1])
     with col1:
         if st.button("< Back to Dashboard", use_container_width=True):
-            navigate_to("coordinator")
+            navigate_to("dashboard")
     with col2:
         if st.button("Sign Out", use_container_width=True):
-            set_user_role(None)  # type: ignore[arg-type]
-            navigate_to("landing")
+            set_user_role(None)
+            navigate_to("landing", role=None, demo=False)
 
 
 # ── Helper ────────────────────────────────────────────────────────────────────

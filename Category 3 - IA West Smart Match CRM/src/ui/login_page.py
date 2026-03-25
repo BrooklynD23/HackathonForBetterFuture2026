@@ -22,7 +22,9 @@ _LOGIN_BODY: str = """
 <!-- Glass Nav Bar -->
 <nav class="bg-white/80 backdrop-blur-xl shadow-sm fixed top-0 w-full z-50 flex justify-between items-center px-8 py-4">
   <span class="text-xl font-bold tracking-tight text-on-surface font-headline">IA SmartMatch</span>
-  <a href="#" class="text-primary font-semibold text-sm">Back to Home</a>
+  <a href="#"
+     onclick="window.iaSmartMatch.navigate('landing'); return false;"
+     class="text-primary font-semibold text-sm">Back to Home</a>
 </nav>
 
 <!-- Main Content -->
@@ -46,6 +48,7 @@ _LOGIN_BODY: str = """
         <button
           id="demo-login-btn"
           class="w-full py-3 hero-gradient text-white rounded-xl font-semibold text-sm hover:opacity-90 transition-all"
+          onclick="window.iaSmartMatch.navigate('dashboard', {role: 'coordinator', demo: true}); return false;"
         >
           Demo Login
         </button>
@@ -116,7 +119,7 @@ def render_login_page() -> None:
     with col2:
         if st.button("Coordinator Demo Login", type="primary", use_container_width=True):
             set_user_role("coordinator")
-            navigate_to("coordinator")
+            navigate_to("dashboard", role="coordinator", demo=True)
 
     with col3:
         st.button("Volunteer (Coming Soon)", disabled=True, use_container_width=True)

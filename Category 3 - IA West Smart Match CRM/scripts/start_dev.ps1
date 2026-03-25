@@ -58,6 +58,20 @@ if ($PythonExe -ne "python" -and -not (Test-Path $PythonExe)) {
     Write-Error "Resolved python executable does not exist: '$PythonExe'"
 }
 
+$reqFile = Join-Path $RootDir "requirements.txt"
+if (Test-Path $reqFile) {
+    if ($PythonExe -eq "python") {
+        Write-Warning "Skipping automatic pip sync: resolved interpreter is bare 'python'. Use project .venv for reproducible deps."
+    }
+    else {
+        Write-Host "Syncing Python dependencies (requirements.txt)..."
+        & $PythonExe -m pip install -q -r $reqFile
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "pip install -r requirements.txt failed for '$PythonExe'."
+        }
+    }
+}
+
 Write-Host "Starting CAT3 dev backend on http://127.0.0.1:$BackendPort"
 Start-Process powershell -ArgumentList @(
     "-NoExit",

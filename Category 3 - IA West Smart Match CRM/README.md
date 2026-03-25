@@ -1,225 +1,251 @@
 # IA West Smart Match CRM
 
-AI-orchestrated speaker-event matching platform for the **Insights Association West Chapter**. Discovers university engagement opportunities, matches them with board member volunteers using an 8-factor scoring algorithm, and coordinates outreach through a voice-enabled command center with human-in-the-loop approval.
+AI-orchestrated speaker-event matching for the **Insights Association West Chapter**. Built for **Hackathon for a Better Future 2026** (Category 3).
 
-Built for the **Hackathon for a Better Future 2026** (Category 3).
+---
 
-## Prerequisites
+## Run the full application
 
-- Python 3.11+
-- A virtual environment at `.venv`
-- `GEMINI_API_KEY` in `.env` (optional for demo mode)
+The “full” dev stack is **two processes**:
 
-## Setup
+| Service | Purpose | Default URL |
+|--------|---------|-------------|
+| **Streamlit** | Main UI (`src/app.py`) | [http://127.0.0.1:8501](http://127.0.0.1:8501) |
+| **Dev backend** | Small health API used by demos/ops | [http://127.0.0.1:8000/health](http://127.0.0.1:8000/health) |
 
-From the `Category 3 - IA West Smart Match CRM/` directory:
+Use the **start scripts** below (they `pip install -r requirements.txt`, then launch both). Or run **manually** in two terminals if you prefer.
 
-```bash
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
-cp .env.example .env
+**First-time setup** (once): create a virtualenv, install deps, copy env — see [Environment setup](#environment-setup). All commands assume your **current working directory** is this folder:
+
+`Category 3 - IA West Smart Match CRM/`
+
+---
+
+### Option 1 — Start scripts (recommended)
+
+#### Windows (PowerShell)
+
+```powershell
+cd "C:\path\to\HackathonForBetterFuture2026\Category 3 - IA West Smart Match CRM"
+powershell -ExecutionPolicy Bypass -File .\scripts\start_dev.ps1
 ```
 
-Set your Gemini API key in `.env`:
+Optional: custom Python or ports:
 
-```env
-GEMINI_API_KEY=your_real_key_here
+```powershell
+.\scripts\start_dev.ps1 -PythonExe "C:\Python312\python.exe" -BackendPort 8000 -FrontendPort 8501
 ```
 
-For voice features (optional):
+The script opens **two** windows (backend + Streamlit). Close both to stop.
 
-```bash
-# KittenTTS — install from GitHub release
-.venv/bin/pip install https://github.com/KittenML/KittenTTS/releases/download/0.8.1/kittentts-0.8.1-py3-none-any.whl
+#### Windows (Command Prompt)
+
+```cmd
+cd /d "C:\path\to\HackathonForBetterFuture2026\Category 3 - IA West Smart Match CRM"
+scripts\start_dev.cmd
 ```
 
-## Run the App
+Uses `.venv\Scripts\python.exe` by default. Override with `set PYTHON_EXE=C:\path\to\python.exe` before running if needed.
 
-### WSL / Linux
+#### WSL2 or Linux (Bash)
+
+From a clone on a Linux filesystem (recommended under WSL: `~/projects/...` rather than `/mnt/c/...` for faster I/O):
 
 ```bash
+cd "/path/to/HackathonForBetterFuture2026/Category 3 - IA West Smart Match CRM"
 chmod +x scripts/start_dev.sh
 ./scripts/start_dev.sh
 ```
 
-### Windows (CMD)
+If the repo lives under `/mnt/c/...`, the same commands work; just ensure `.venv` was created **inside WSL** with Linux Python (`python3 -m venv .venv`).
 
-```cmd
-scripts\start_dev.cmd
+Environment overrides:
+
+```bash
+export BACKEND_PORT=8000
+export FRONTEND_PORT=8501
+# Optional: use a specific interpreter
+export PYTHON_BIN="$PWD/.venv/bin/python"
+./scripts/start_dev.sh
 ```
 
-### Windows (PowerShell)
+Stop: `Ctrl+C` in the terminal (the script runs Streamlit in the foreground and kills the backend on exit).
+
+---
+
+### Option 2 — Manual (two terminals)
+
+Same result as the scripts; useful for debugging.
+
+**Terminal A — backend**
+
+```bash
+# Windows (venv activated or full path to python)
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+.venv\Scripts\python.exe scripts\dev_backend.py --host 127.0.0.1 --port 8000
+```
+
+```bash
+# WSL2 / Linux
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python scripts/dev_backend.py --host 127.0.0.1 --port 8000
+```
+
+**Terminal B — Streamlit**
+
+```bash
+# Windows
+.venv\Scripts\python.exe -m streamlit run src\app.py --server.port 8501 --server.address 127.0.0.1
+```
+
+```bash
+# WSL2 / Linux
+.venv/bin/python -m streamlit run src/app.py --server.port 8501 --server.address 127.0.0.1
+```
+
+**Streamlit** is pinned in `requirements.txt` (e.g. **1.42.2**) for reproducible behavior.
+
+---
+
+### Open the app in your browser
+
+- UI: **http://127.0.0.1:8501** (or **http://localhost:8501**)
+- Health check: **http://127.0.0.1:8000/health**
+
+**WSL2:** On current Windows + WSL, `localhost` from Windows usually forwards to WSL. If the page does not load from Edge/Chrome on Windows, try from a browser inside WSL, or run `ip addr show eth0` in WSL and use that address (less common).
+
+---
+
+### Troubleshooting (run)
+
+| Issue | What to try |
+|--------|-------------|
+| `ModuleNotFoundError: No module named 'src'` | Run Streamlit from **this** directory (the Category 3 root), not from `src/`. Use `python -m streamlit run src/app.py`. |
+| Port already in use | Change ports: PowerShell `-FrontendPort 8502 -BackendPort 8001`, or set `FRONTEND_PORT` / `BACKEND_PORT` before `start_dev.sh`. |
+| No `.venv` | Follow [Environment setup](#environment-setup). |
+| Voice / WebRTC warnings | See [docs/handoffs/jarvis-voice-webrtc-enablement.md](docs/handoffs/jarvis-voice-webrtc-enablement.md). |
+
+---
+
+## Environment setup
+
+### Prerequisites
+
+- **Python 3.11+** (3.11 or 3.12 recommended if you want full **KittenTTS**; on 3.13+, `requirements.txt` may skip the KittenTTS wheel — Jarvis **TTS** can be off until you use a 3.11/3.12 venv).
+- **Git** and a terminal (PowerShell, CMD, or WSL Ubuntu, etc.).
+
+### Create the virtualenv and install dependencies
+
+**WSL2 / Linux / macOS**
+
+```bash
+cd "/path/to/.../Category 3 - IA West Smart Match CRM"
+python3 -m venv .venv
+.venv/bin/pip install -U pip
+.venv/bin/pip install -r requirements.txt
+cp .env.example .env
+```
+
+**Windows (PowerShell)**
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\start_dev.ps1
+cd "C:\path\to\...\Category 3 - IA West Smart Match CRM"
+py -3 -m venv .venv
+.\.venv\Scripts\pip.exe install -U pip
+.\.venv\Scripts\pip.exe install -r requirements.txt
+copy .env.example .env
 ```
 
-The app starts at **http://127.0.0.1:8501** with a health check backend at **http://127.0.0.1:8000/health**.
+Edit `.env` and set secrets as needed (never commit real keys). **`GEMINI_API_KEY`** is optional if you use **Demo Mode** in the UI.
 
-To stop: `Ctrl+C` in the terminal (WSL/Linux) or close both terminal windows (Windows).
+### New venv on Python 3.12 (Jarvis TTS on a 3.13 machine)
+
+Step-by-step: **section 3** in [docs/handoffs/jarvis-voice-webrtc-enablement.md](docs/handoffs/jarvis-voice-webrtc-enablement.md).
+
+---
 
 ## Demo Mode
 
-Toggle **Demo Mode** in the sidebar to run the app entirely offline using cached fixture data. No API key required.
+In the app sidebar, enable **Demo Mode (offline fixtures)** to run without live Gemini calls. No API key required for basic exploration.
 
-## Features
+---
+
+## Features (overview)
 
 ### Landing Page
 
-Branded "Academic Curator" design with IA West mission statement, visual "How It Works" guide, feature highlights, and toggleable campaign/curator view modes.
+Branded experience with mission, “How It Works,” and campaign/curator views.
 
 ### Command Center (v2.0)
 
-Voice-enabled AI coordinator with natural language intent parsing:
+Voice-capable coordinator: text/voice input, STT/TTS (when installed), Gemini intents, HITL approval cards, swimlane status, optional **NemoClaw** hook (dormant by default — see `src/coordinator/nemoclaw_adapter.py` and README note below).
 
-- **Text & voice input** — type commands or use push-to-talk with faster-whisper STT
-- **TTS voice output** — KittenTTS reads results aloud with the "Bella" voice
-- **Intent parsing** — Gemini extracts structured intents from natural language
-- **Action proposal cards** — every action requires explicit approve/reject before execution
-- **Proactive suggestions** — data staleness detection and overdue contact reminders
-- **Background dispatch** — tool execution runs in daemon threads via a result bus
-- **Swimlane dashboard** — live per-agent status with colored badges and elapsed time
-- **Multi-step orchestration** — compound intents like "prepare for event" chain discover + rank + outreach
-- **NemoClaw adapter** — optional NVIDIA NemoClaw orchestration with graceful direct-dispatch fallback
+### Matches, Discovery, Pipeline
 
-### Matches Tab
+8-factor matching, scraper + LLM extraction, funnel visualization; see codebase under `src/ui/` and `src/matching/`.
 
-AI-powered speaker-to-event matching with an **8-factor scoring algorithm**:
+### Volunteer Dashboard & Expansion Map
 
-| Factor | Default Weight |
-|--------|---------------|
-| Topic Relevance | 25% |
-| Role Fit | 20% |
-| Geographic Proximity | 20% |
-| Calendar Fit | 15% |
-| Historical Conversion | 5% |
-| Student Interest | 5% |
-| Event Urgency | 5% |
-| Coverage Diversity | 5% |
+Utilization analytics and geographic views.
 
-- Interactive weight adjustment sliders with real-time recomputation
-- Match explanation cards with factor breakdowns
-- Radar chart visualization of factor scores
-- Personalized outreach email generation
-- Calendar invite (.ics) download
+---
 
-### Discovery Tab
-
-University event scraper with LLM extraction supporting 5+ California universities (UCLA, Berkeley, UCSD, etc.). Manual URL input for custom sources. Caching for offline demo mode.
-
-### Pipeline Tab
-
-6-stage engagement funnel visualization with real data labels, stage transitions, tooltips, and count tracking.
-
-### Volunteer Dashboard
-
-Speaker-centric view with utilization bar charts, top-5 matched events per volunteer, and load balancing analytics.
-
-### Expansion Map
-
-Board-to-campus geographic visualization with speaker and university clustering, connection lines, and multi-state support (CA, HI, NV, AZ, UT).
-
-## Architecture
+## Architecture (high level)
 
 ```
 src/
-  app.py                          # Streamlit entry point
-  config.py                       # Centralized configuration and factor registry
-  runtime_state.py                # Session state initialization
-  data_loader.py                  # CSV data loading pipeline
-  embeddings.py                   # Gemini embedding generation and caching
-  similarity.py                   # Cosine similarity scoring
-  demo_mode.py                    # Offline demo with cached fixtures
-  gemini_client.py                # Gemini API REST client
-  utils.py                        # Shared utilities
-
-  matching/
-    engine.py                     # 8-factor matching engine
-    factors.py                    # Factor scoring functions
-    explanations.py               # LLM-generated match explanations
-
-  scraping/
-    scraper.py                    # University event web scraper
-
-  outreach/
-    email_gen.py                  # Personalized email generation
-    ics_generator.py              # Calendar invite (.ics) generation
-
-  voice/
-    tts.py                        # KittenTTS text-to-speech wrapper
-    stt.py                        # faster-whisper speech-to-text wrapper
-
-  coordinator/
-    intent_parser.py              # Gemini-powered intent extraction
-    approval.py                   # HITL approval state machine
-    suggestions.py                # Proactive suggestion engine
-    result_bus.py                 # Background thread dispatch and polling
-    nemoclaw_adapter.py           # NemoClaw orchestration adapter
-    tools/
-      discovery_tool.py           # Wraps scrape_university()
-      matching_tool.py            # Wraps rank_speakers_for_event()
-      outreach_tool.py            # Wraps generate_outreach_email()
-      contacts_tool.py            # POC contact CRUD and follow-up tracking
-
-  ui/
-    command_center.py             # Voice panel, approval cards, swimlane, chat history
-    swimlane_dashboard.py         # Per-agent status dashboard
-    matches_tab.py                # Matching results with radar charts
-    discovery_tab.py              # Event discovery interface
-    pipeline_tab.py               # Engagement funnel visualization
-    expansion_map.py              # Geographic map visualization
-    volunteer_dashboard.py        # Volunteer analytics
-    landing_page.py               # Landing page
-    email_panel.py                # Email composition panel
-    styles.py                     # Custom CSS injection
-
-  feedback/
-    acceptance.py                 # Feedback collection and sidebar
-
-  extraction/                     # Event data extraction from scraped HTML
+  app.py                 # Streamlit entry
+  config.py              # Configuration
+  data_loader.py         # CSV pipeline
+  matching/              # Engine + factors
+  scraping/              # University scraper
+  coordinator/           # Intent, approval, tools, optional NemoClaw adapter
+  ui/                    # Pages, command center, tabs
+  voice/                 # TTS / STT wrappers
 ```
+
+---
 
 ## Testing
 
-Run the full test suite:
+From this directory, with venv activated:
 
 ```bash
-.venv/bin/python -m pytest -v
+# Linux / WSL / macOS
+.venv/bin/python -m pytest -q
+
+# Windows
+.venv\Scripts\python.exe -m pytest -q
 ```
 
-**580 tests** covering:
-
-- **Unit tests** — factors, config, utilities, voice wrappers, tool wrappers
-- **Integration tests** — matching engine, email generation, intent parsing, approval state machine, result bus
-- **UI tests** — landing page, command center, swimlane dashboard, all tabs
-- **E2E flows** — discovery-to-matching handoff, feedback collection
-
-Run with coverage:
+With coverage:
 
 ```bash
 .venv/bin/python -m pytest --cov=src --cov-report=term-missing
 ```
 
-## Environment Variables
+---
 
-See `.env.example` for all options. Key variables:
+## Environment variables
+
+See `.env.example`. Important:
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `GEMINI_API_KEY` | For live mode | Google Gemini API key |
-| `GEMINI_TEXT_MODEL` | No | Text model (default: `gemini-2.5-flash-lite`) |
-| `GEMINI_EMBEDDING_MODEL` | No | Embedding model (default: `gemini-embedding-001`) |
-| `USE_NEMOCLAW` | No | Enable NemoClaw orchestration (`0` or `1`) |
-| `NVIDIA_NGC_API_KEY` | For NemoClaw | NVIDIA NGC API key |
-| `KITTENTTS_VOICE` | No | TTS voice name (default: `Bella`) |
-| `WHISPER_MODEL_SIZE` | No | STT model size (default: `base`) |
+| `GEMINI_API_KEY` | For live LLM/embeddings | Google Gemini API key |
+| `GEMINI_TEXT_MODEL` | No | Default in `.env.example` |
+| `GEMINI_EMBEDDING_MODEL` | No | Default in `.env.example` |
+| `USE_NEMOCLAW` | No | Optional orchestration (`0` / `1`) |
+| `NVIDIA_NGC_API_KEY` | If NemoClaw enabled | NVIDIA NGC key |
+
+---
+
+## NemoClaw status
+
+`USE_NEMOCLAW` and `openclaw-sdk` are optional. The shipped Command Center uses the direct dispatch path; `nemoclaw_adapter.py` is a future-integration hook, not a required runtime dependency.
+
+---
 
 ## Deliverables
 
-Located in `docs/deliverables/`:
-
-- **Demo Script** — step-by-step walkthrough for judges
-- **Growth Strategy** — IA West chapter engagement roadmap
-- **Measurement Plan** — KPIs and success metrics
-- **Responsible AI Note** — ethical considerations and safeguards
-- **Business Deliverables Guide** — overview of all deliverable documents
+See `docs/deliverables/` (demo script, growth strategy, measurement plan, responsible AI note, etc.).

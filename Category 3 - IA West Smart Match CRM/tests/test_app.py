@@ -109,25 +109,27 @@ class TestMainMatchesAvailability:
         render_matches_mock = MagicMock()
 
         with ExitStack() as stack:
-            stack.enter_context(patch("streamlit.session_state", new={"demo_mode": demo_mode, "current_view": "crm"}))
+            stack.enter_context(
+                patch(
+                    "streamlit.session_state",
+                    new={"demo_mode": demo_mode, "current_page": "matches", "user_role": "coordinator"},
+                )
+            )
             stack.enter_context(patch("src.app.init_runtime_state"))
             stack.enter_context(patch("src.app.validate_config", return_value=[]))
             stack.enter_context(patch("src.app.render_sidebar", return_value=_noop_context()))
+            stack.enter_context(patch("src.ui.page_router.init_page_state"))
+            stack.enter_context(patch("src.ui.page_router.get_current_page", return_value="matches"))
             stack.enter_context(patch("src.app.load_all", return_value=_sample_datasets()))
             stack.enter_context(patch("src.app._resolve_embedding_lookup_dicts", return_value=({}, {}, {}, embedding_issues, None, False)))
             stack.enter_context(patch("src.app.has_gemini_api_key", return_value=has_gemini_key))
-            stack.enter_context(patch("src.app.render_command_center_tab"))
-            stack.enter_context(patch("src.app.render_matches_tab_ui", render_matches_mock))
-            stack.enter_context(patch("src.app.render_discovery_tab"))
-            stack.enter_context(patch("src.app.render_pipeline_tab"))
-            stack.enter_context(patch("src.app.render_expansion_map", return_value=object()))
-            stack.enter_context(patch("src.app.render_volunteer_dashboard"))
+            stack.enter_context(patch("src.app._render_workspace_navigation"))
+            stack.enter_context(patch("src.ui.matches_tab.render_matches_tab", render_matches_mock))
             stack.enter_context(patch("src.feedback.acceptance.init_feedback_state"))
             stack.enter_context(patch("src.app.render_feedback_sidebar"))
             stack.enter_context(patch("src.app.get_match_results_df", return_value=pd.DataFrame()))
-            stack.enter_context(patch.object(app.st, "tabs", return_value=tuple(_noop_context() for _ in range(6))))
             stack.enter_context(patch.object(app.st, "expander", side_effect=lambda *args, **kwargs: _noop_context()))
-            stack.enter_context(patch.object(app.st, "slider", return_value=0.30))
+            stack.enter_context(patch.object(app.st, "header"))
             stack.enter_context(patch.object(app.st, "warning", new=warning_mock))
             stack.enter_context(patch.object(app.st, "error", new=error_mock))
             app.main()
@@ -176,37 +178,43 @@ class TestMainMatchesAvailability:
             captured_events["events_df"] = kwargs["events_df"].copy()
 
         with ExitStack() as stack:
-            stack.enter_context(patch("streamlit.session_state", new={
-                "demo_mode": True,
-                "current_view": "crm",
-                "matching_discovered_events": [
-                    {
-                        "event_id": "disc-1",
-                        "Event / Program": "Fresh Discovery Event",
-                        "Category": "career_fair",
-                        "Host / Unit": "USC",
-                        "Event Region": "Los Angeles",
-                    }
-                ],
-            }))
+            stack.enter_context(
+                patch(
+                    "streamlit.session_state",
+                    new={
+                        "demo_mode": True,
+                        "current_page": "analytics",
+                        "user_role": "coordinator",
+                        "matching_discovered_events": [
+                            {
+                                "event_id": "disc-1",
+                                "Event / Program": "Fresh Discovery Event",
+                                "Category": "career_fair",
+                                "Host / Unit": "USC",
+                                "Event Region": "Los Angeles",
+                            }
+                        ],
+                    },
+                )
+            )
             stack.enter_context(patch("src.app.init_runtime_state"))
             stack.enter_context(patch("src.app.validate_config", return_value=[]))
             stack.enter_context(patch("src.app.render_sidebar", return_value=_noop_context()))
+            stack.enter_context(patch("src.ui.page_router.init_page_state"))
+            stack.enter_context(patch("src.ui.page_router.get_current_page", return_value="analytics"))
             stack.enter_context(patch("src.app.load_all", return_value=_sample_datasets()))
             stack.enter_context(patch("src.app._resolve_embedding_lookup_dicts", return_value=({}, {}, {}, [], None, False)))
             stack.enter_context(patch("src.app.has_gemini_api_key", return_value=False))
-            stack.enter_context(patch("src.app.render_command_center_tab"))
-            stack.enter_context(patch("src.app.render_matches_tab_ui"))
-            stack.enter_context(patch("src.app.render_discovery_tab"))
-            stack.enter_context(patch("src.app.render_pipeline_tab"))
-            stack.enter_context(patch("src.app.render_expansion_map", return_value=object()))
-            stack.enter_context(patch("src.app.render_volunteer_dashboard", side_effect=capture_dashboard))
+            stack.enter_context(patch("src.app._render_workspace_navigation"))
+            stack.enter_context(patch("src.ui.expansion_map.render_expansion_map", return_value=object()))
+            stack.enter_context(patch("src.ui.volunteer_dashboard.render_volunteer_dashboard", side_effect=capture_dashboard))
             stack.enter_context(patch("src.feedback.acceptance.init_feedback_state"))
             stack.enter_context(patch("src.app.render_feedback_sidebar"))
             stack.enter_context(patch("src.app.get_match_results_df", return_value=pd.DataFrame()))
-            stack.enter_context(patch.object(app.st, "tabs", return_value=tuple(_noop_context() for _ in range(6))))
-            stack.enter_context(patch.object(app.st, "expander", side_effect=lambda *args, **kwargs: _noop_context()))
             stack.enter_context(patch.object(app.st, "slider", return_value=0.30))
+            stack.enter_context(patch.object(app.st, "header"))
+            stack.enter_context(patch.object(app.st, "caption"))
+            stack.enter_context(patch.object(app.st, "plotly_chart"))
             stack.enter_context(patch.object(app.st, "warning"))
             stack.enter_context(patch.object(app.st, "error"))
             app.main()
