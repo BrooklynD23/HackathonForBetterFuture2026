@@ -10,6 +10,9 @@ from __future__ import annotations
 import plotly.graph_objects as go
 import streamlit as st
 
+from src.demo_mode import demo_or_live
+from src.outreach.email_gen import generate_outreach_email
+from src.outreach.ics_generator import ICS_CONTENT_TYPE, generate_ics
 from src.ui.data_helpers import (
     get_initials,
     get_top_specialists_for_event,
@@ -17,6 +20,8 @@ from src.ui.data_helpers import (
     load_poc_contacts,
     load_specialists,
 )
+from src.ui.email_panel import _normalize_email_payload, _record_email_generation
+from src.ui.outreach_bridge import build_outreach_params
 from src.ui.page_router import navigate_to, set_user_role
 
 
@@ -109,7 +114,20 @@ def render_match_engine_page() -> None:
             with bc1:
                 st.button("Select", key=f"select_spec_{idx}", type="primary")
             with bc2:
-                st.button("Initiate Outreach", key=f"outreach_spec_{idx}")
+                st.button(
+                    "Initiate Outreach",
+                    key=f"outreach_spec_{idx}",
+                    on_click=lambda s=spec, f=factor_scores, e=featured_event: (
+                        st.session_state.update(
+                            {"pending_outreach": {"spec": s, "factor_scores": f, "event_name": e}}
+                        )
+                    ),
+                )
+
+            # --- Outreach workflow panel ---
+            pending = st.session_state.get("pending_outreach")
+            if pending and pending["spec"].get("name") == spec.get("name"):
+                _render_outreach_workflow(pending, specialists)
 
     # ── POC & Event Intelligence sidebar info ──────────────────────────────
     st.markdown("---")
@@ -143,6 +161,86 @@ def render_match_engine_page() -> None:
 
 
 # ── Helpers ─────────────────────────────────────────────────────────────────
+
+
+def _render_outreach_workflow(
+    pending: dict,
+    specialists: list[dict[str, str]],
+) -> None:
+    """Render the outreach workflow panel for a selected specialist."""
+    spec = pending["spec"]
+    factor_scores = pending["factor_scores"]
+    event_name = pending["event_name"]
+
+    params = build_outreach_params(
+        spec=spec,
+        event_name=event_name,
+        factor_scores=factor_scores,
+        specialists=specialists,
+    )
+
+    with st.expander("Outreach Email Preview", expanded=True):
+        with st.spinner("Generating personalized email..."):
+            payload = demo_or_live(
+                generate_outreach_email,
+                params["speaker"],
+                params["event"],
+                params["match_scores"],
+                fixture_key="email_generation",
+            )
+            email = _normalize_email_payload(payload)
+        _record_email_generation(params["speaker"], params["event"])
+
+        st.markdown(f"**Subject:** {email['subject_line']}")
+        st.divider()
+        st.markdown(email["full_email"])
+        st.divider()
+
+        st.caption("Click inside the box below and use Ctrl+A, Ctrl+C to copy:")
+        st.code(email["full_email"], language=None)
+
+        speaker_name = params["speaker"].get("Name", "speaker")
+        st.download_button(
+            label="Download Email as .txt",
+            data=email["full_email"],
+            file_name=f"outreach_{speaker_name}_{event_name}.txt",
+            mime="text/plain",
+            key="me_download_email",
+        )
+
+    # ICS calendar download
+    event_dict = params["event"]
+    event_date = (
+        event_dict.get("Date")
+        or event_dict.get("IA Event Date")
+        or event_dict.get("Recurrence (typical)")
+    )
+    event_location = event_dict.get("Host / Unit")
+    ics_content = generate_ics(
+        event_name=event_name,
+        date_str=str(event_date) if event_date else None,
+        location=str(event_location) if event_location else None,
+        description=f"{event_name} — Speaker: {spec.get('name', '')}",
+    )
+    safe_name = event_name.replace(" ", "_")
+    st.download_button(
+        label="Download Calendar Invite (.ics)",
+        data=ics_content,
+        file_name=f"{safe_name}.ics",
+        mime=ICS_CONTENT_TYPE,
+        key="me_download_ics",
+    )
+
+    # Pipeline stage update toast
+    st.toast(
+        f"Pipeline stage updated to **Contacted** for {spec.get('name', 'specialist')}",
+        icon="\u2705",
+    )
+
+    # Close button
+    if st.button("Close Outreach Panel", key="close_outreach_panel"):
+        st.session_state.pop("pending_outreach", None)
+        st.rerun()
 
 
 def _create_factor_radar(factor_scores: dict[str, int]) -> go.Figure:
