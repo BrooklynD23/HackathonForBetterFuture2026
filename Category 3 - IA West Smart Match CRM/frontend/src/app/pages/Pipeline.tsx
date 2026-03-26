@@ -84,8 +84,10 @@ function buildUniversityBreakdown(records: PipelineRecord[], events: CppEvent[])
         Attended: 0,
         "Member Inquiry": 0,
       };
-    if (record.stage in row) {
-      row[record.stage as keyof UniversityRow] += 1;
+    const numericKeys = ["Matched", "Contacted", "Confirmed", "Attended", "Member Inquiry"] as const;
+    type NumericKey = (typeof numericKeys)[number];
+    if (numericKeys.includes(record.stage as NumericKey)) {
+      row[record.stage as NumericKey] += 1;
     }
     grouped.set(host, row);
   }
