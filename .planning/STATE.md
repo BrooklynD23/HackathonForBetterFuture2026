@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Phases
-status: executing
-stopped_at: Phase 8.5 complete (verified). Moving to Phase 9.
-last_updated: "2026-03-25T21:00:00Z"
+status: unknown
+stopped_at: Completed 09-01-PLAN.md - workflow endpoint + pipeline updater
+last_updated: "2026-03-26T07:51:05.888Z"
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 8
-  completed_plans: 8
+  total_plans: 10
+  completed_plans: 9
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** A coordinator can use voice or text to command an AI assistant that orchestrates parallel agents for event discovery, speaker matching, and outreach, with human approval gating every action.
-**Current focus:** Phase 9 — Outreach Button + NemoClaw Workflow
+**Current focus:** Phase 09 — outreach-button-nemoclaw-workflow
 
 ## Current Position
 
-Phase: 9 (Outreach Button + NemoClaw Workflow) — STARTING
-Plan: 0 of 0 (needs planning)
+Phase: 09 (outreach-button-nemoclaw-workflow) — EXECUTING
+Plan: 2 of 2
 
 ## Accumulated Context
 
@@ -41,6 +41,9 @@ Plan: 0 of 0 (needs planning)
 - [Phase 08.5]: FastAPI wraps all Python business logic as REST endpoints; React frontend calls API over HTTP instead of Streamlit
 - [Phase 08.5]: React 18.3.1 pinned as production dependency; all API calls use relative URLs via Vite proxy to FastAPI on :8000
 - [Phase 08.5]: All 3 plans executed and verified — FastAPI backend + React promotion complete
+- [Phase 09]: Immutable row update pattern (dict copy) in pipeline_updater to avoid mutation
+- [Phase 09]: Per-step try/except in /workflow endpoint for partial failure tolerance
+- [Phase 09]: LRU cache cleared immediately after CSV write to ensure GET /api/data/pipeline freshness
 
 ### Pending Todos
 
@@ -54,6 +57,6 @@ Plan: 0 of 0 (needs planning)
 
 ## Session Continuity
 
-Last session: 2026-03-26T03:33:28.475Z
-Stopped at: Completed 08.5-02-PLAN.md - React promotion + API client
+Last session: 2026-03-26T07:51:05.860Z
+Stopped at: Completed 09-01-PLAN.md - workflow endpoint + pipeline updater
 Resume file: None

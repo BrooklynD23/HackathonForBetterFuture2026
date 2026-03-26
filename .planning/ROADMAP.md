@@ -76,10 +76,10 @@ Plans:
 - NemoClaw parallel dispatch works (or falls back to serial)
 - Pipeline status updates from "Matched" to "Contacted"
 
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
-- [ ] 09-01-PLAN.md — Backend workflow endpoint + pipeline updater with tests
+- [x] 09-01-PLAN.md — Backend workflow endpoint + pipeline updater with tests
 - [ ] 09-02-PLAN.md — Frontend OutreachWorkflowModal + AIMatching upgrade
 
 ### Phase 10: Master Calendar + Volunteer Recovery Period
