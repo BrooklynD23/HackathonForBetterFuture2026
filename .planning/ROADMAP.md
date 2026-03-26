@@ -82,6 +82,16 @@ Plans:
 - [x] 09-01-PLAN.md — Backend workflow endpoint + pipeline updater with tests
 - [x] 09-02-PLAN.md — Frontend OutreachWorkflowModal + AIMatching upgrade
 
+### Phase 09.1: V1.2 UI Rebrand — Blue/White Professional Theme (INSERTED)
+
+**Goal:** [Urgent work - to be planned]
+**Requirements**: TBD
+**Depends on:** Phase 9
+**Plans:** 2/2 plans complete
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 09.1 to break down)
+
 ### Phase 10: Master Calendar + Volunteer Recovery Period
 **Goal:** Add a master calendar showing all events and volunteer assignments, plus a "recovery period" algorithm factor that prevents over-scheduling volunteers.
 
@@ -135,6 +145,10 @@ Plans:
 - Dashboard shows algorithm improvement over time
 - Pain score metrics tracked and visualized
 
+## Backlog / Parking Lot
+
+- **Gmail Send Integration** — Wire generated outreach email to Gmail API (OAuth2) so coordinators can send directly from the modal instead of copy-pasting. Potential Phase 13 or post-hackathon.
+
 ## Current Status
 
-v3.0 milestone active. Phases 8 and 8.5 complete. Phase 9 planned (2 plans, 2 waves). Next: execute Phase 9.
+v3.0 milestone active. Phases 8 and 8.5 complete. Phase 9 executing. Phase 09.1 inserted (V1.2 UI Rebrand). Next: complete Phase 9, then Phase 09.1.
