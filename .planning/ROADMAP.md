@@ -67,12 +67,20 @@ Plans:
 - Pipeline status transitions ("Matched" → "Contacted")
 - NemoClaw parallel dispatch with serial fallback
 
+**Requirements:** WF-01, WF-02, WF-03, WF-04, WF-05, WF-06, WF-07, WF-08
+
 **Success Criteria:**
 - "Initiate Outreach" button triggers API call
 - Email generated and displayed in modal
 - Calendar invite downloadable as .ics
 - NemoClaw parallel dispatch works (or falls back to serial)
 - Pipeline status updates from "Matched" to "Contacted"
+
+**Plans:** 2 plans
+
+Plans:
+- [ ] 09-01-PLAN.md — Backend workflow endpoint + pipeline updater with tests
+- [ ] 09-02-PLAN.md — Frontend OutreachWorkflowModal + AIMatching upgrade
 
 ### Phase 10: Master Calendar + Volunteer Recovery Period
 **Goal:** Add a master calendar showing all events and volunteer assignments, plus a "recovery period" algorithm factor that prevents over-scheduling volunteers.
@@ -129,4 +137,4 @@ Plans:
 
 ## Current Status
 
-v3.0 milestone active. Phases 8 and 8.5 complete. Next: Phase 9 (Outreach Button + NemoClaw Workflow).
+v3.0 milestone active. Phases 8 and 8.5 complete. Phase 9 planned (2 plans, 2 waves). Next: execute Phase 9.
