@@ -3,13 +3,14 @@ import { Calendar, Mail, MapPin, Sparkles, Target } from "lucide-react";
 
 import {
   fetchEvents,
-  generateEmail,
+  initiateWorkflow,
   rankSpeakers,
   splitTags,
   type CppEvent,
-  type OutreachEmailResponse,
   type RankedMatch,
+  type WorkflowResponse,
 } from "@/lib/api";
+import { OutreachWorkflowModal } from "@/components/OutreachWorkflowModal";
 
 const factorLabels: Record<string, string> = {
   topic_relevance: "Topic Relevance",
@@ -46,11 +47,11 @@ export function AIMatching() {
   const [loading, setLoading] = useState(true);
   const [ranking, setRanking] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [showWorkflowModal, setShowWorkflowModal] = useState(false);
   const [selectedVolunteer, setSelectedVolunteer] = useState<RankedMatch | null>(null);
-  const [emailResult, setEmailResult] = useState<OutreachEmailResponse | null>(null);
-  const [emailLoading, setEmailLoading] = useState(false);
-  const [emailError, setEmailError] = useState<string | null>(null);
+  const [workflowResult, setWorkflowResult] = useState<WorkflowResponse | null>(null);
+  const [workflowLoading, setWorkflowLoading] = useState(false);
+  const [workflowError, setWorkflowError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -114,23 +115,23 @@ export function AIMatching() {
   const selectedEvent =
     events.find((event) => event["Event / Program"] === selectedEventName) ?? null;
 
-  const openEmailModal = async (match: RankedMatch) => {
+  const openWorkflowModal = async (match: RankedMatch) => {
     if (!selectedEventName) {
       return;
     }
     setSelectedVolunteer(match);
-    setShowEmailModal(true);
-    setEmailLoading(true);
-    setEmailError(null);
-    setEmailResult(null);
+    setShowWorkflowModal(true);
+    setWorkflowLoading(true);
+    setWorkflowError(null);
+    setWorkflowResult(null);
 
     try {
-      const result = await generateEmail(match.name, selectedEventName);
-      setEmailResult(result);
+      const result = await initiateWorkflow(match.name, selectedEventName);
+      setWorkflowResult(result);
     } catch (err: unknown) {
-      setEmailError(err instanceof Error ? err.message : "Failed to generate email.");
+      setWorkflowError(err instanceof Error ? err.message : "Workflow failed.");
     } finally {
-      setEmailLoading(false);
+      setWorkflowLoading(false);
     }
   };
 
@@ -321,11 +322,12 @@ export function AIMatching() {
                     </div>
 
                     <button
-                      onClick={() => void openEmailModal(volunteer)}
-                      className="mt-6 w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center gap-2"
+                      onClick={() => void openWorkflowModal(volunteer)}
+                      disabled={workflowLoading}
+                      className={`mt-6 w-full px-4 py-3 bg-blue-600 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2 ${workflowLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"}`}
                     >
                       <Mail className="w-5 h-5" />
-                      Generate Outreach Email
+                      Initiate Outreach
                     </button>
                   </div>
                 </div>
@@ -335,64 +337,14 @@ export function AIMatching() {
         </div>
       </div>
 
-      {showEmailModal && selectedVolunteer ? (
-        <div
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-          onClick={() => setShowEmailModal(false)}
-          onKeyDown={(event) => { if (event.key === "Escape") setShowEmailModal(false); }}
-          role="presentation"
-        >
-          <div
-            className="bg-white rounded-xl p-8 max-w-3xl w-full max-h-[90vh] overflow-y-auto"
-            onClick={(event) => event.stopPropagation()}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="email-modal-title"
-          >
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Mail className="w-5 h-5 text-blue-600" />
-                </div>
-                <h2 id="email-modal-title" className="text-2xl font-semibold text-gray-900">
-                  AI-Generated Outreach Email
-                </h2>
-              </div>
-              <button
-                onClick={() => setShowEmailModal(false)}
-                className="text-gray-400 hover:text-gray-600"
-                aria-label="Close email modal"
-              >
-                Close
-              </button>
-            </div>
-
-            {emailLoading ? (
-              <div className="rounded-lg border border-gray-200 p-8 text-center text-gray-600">
-                Generating outreach for {selectedVolunteer.name}...
-              </div>
-            ) : emailError ? (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-red-700">
-                {emailError}
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm font-medium text-gray-700 mb-2">Subject</p>
-                  <div className="rounded-lg bg-gray-50 px-4 py-3 text-gray-900">
-                    {emailResult?.email_data.subject_line || "No subject returned"}
-                  </div>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-700 mb-2">Message</p>
-                  <div className="rounded-lg bg-gray-50 px-4 py-3 text-gray-900 whitespace-pre-wrap min-h-[320px]">
-                    {emailResult?.email || "No email returned"}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+      {showWorkflowModal && selectedVolunteer ? (
+        <OutreachWorkflowModal
+          volunteer={selectedVolunteer}
+          result={workflowResult}
+          loading={workflowLoading}
+          error={workflowError}
+          onClose={() => setShowWorkflowModal(false)}
+        />
       ) : null}
     </div>
   );
