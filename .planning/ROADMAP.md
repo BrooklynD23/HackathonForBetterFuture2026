@@ -50,11 +50,11 @@ Plans:
 - Volunteer Profiles grid renders with real data
 - Pipeline funnel renders with real data
 
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 
 Plans:
 - [x] 08.5-01-PLAN.md — FastAPI app with data, matching, and outreach routers
-- [ ] 08.5-02-PLAN.md — React promotion from V1.1 mockup to frontend/ with API client
+- [x] 08.5-02-PLAN.md — React promotion from V1.1 mockup to frontend/ with API client
 - [ ] 08.5-03-PLAN.md — Wire all React pages to fetch real data from FastAPI
 
 **Execution Handoff (2026-03-25 / 2026-03-26 UTC):**

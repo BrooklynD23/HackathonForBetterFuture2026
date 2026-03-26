@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Phases
 status: unknown
-stopped_at: Completed 08.5-01-PLAN.md — FastAPI backend with 9 endpoints, 10 tests passing
-last_updated: "2026-03-26T03:31:19.457Z"
+stopped_at: Completed 08.5-02-PLAN.md - React promotion + API client
+last_updated: "2026-03-26T03:33:28.507Z"
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 8
-  completed_plans: 6
+  completed_plans: 7
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-25)
 ## Current Position
 
 Phase: 8.5 (FastAPI Backend + React Promotion) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ## Accumulated Context
 
@@ -39,6 +39,7 @@ Plan: 2 of 3
 - [v3.0 Extension]: ALL phases 8.5-12 must ship (12 is stretch-but-desired)
 - [v3.0 Extension]: V1.1 React mockup promoted to `frontend/` — reuse existing shadcn/ui components
 - [Phase 08.5]: FastAPI wraps all Python business logic as REST endpoints; React frontend calls API over HTTP instead of Streamlit
+- [Phase 08.5]: React 18.3.1 pinned as production dependency; all API calls use relative URLs via Vite proxy to FastAPI on :8000
 
 ### Pending Todos
 
@@ -56,6 +57,6 @@ Plan: 2 of 3
 
 ## Session Continuity
 
-Last session: 2026-03-26T03:31:19.409Z
-Stopped at: Completed 08.5-01-PLAN.md — FastAPI backend with 9 endpoints, 10 tests passing
+Last session: 2026-03-26T03:33:28.475Z
+Stopped at: Completed 08.5-02-PLAN.md - React promotion + API client
 Resume file: None
