@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from src.api.routers.matching import RankRequest, _rank_matches
 from src.outreach.email_gen import generate_outreach_email
 from src.outreach.ics_generator import generate_ics
+from src.outreach.pipeline_updater import update_pipeline_status
 from src.ui.outreach_bridge import build_outreach_params
 
 router = APIRouter()
@@ -109,3 +110,93 @@ def ics(body: IcsRequest) -> dict[str, str]:
         }
     except Exception as exc:  # pragma: no cover - defensive API boundary
         raise _server_error(exc) from exc
+
+
+# ---------------------------------------------------------------------------
+# Workflow endpoint — orchestrates email + ICS + pipeline in one call
+# ---------------------------------------------------------------------------
+
+
+class WorkflowRequest(BaseModel):
+    speaker_name: str
+    event_name: str
+
+
+class StepResult(BaseModel):
+    status: Literal["ok", "error"]
+    error: str | None = None
+
+
+@router.post("/workflow")
+def workflow(body: WorkflowRequest) -> dict[str, Any]:
+    """Orchestrate outreach email, ICS generation, and pipeline update in one call.
+
+    Returns all three results alongside per-step statuses so callers can
+    distinguish partial failures (e.g. email step errored but ICS succeeded).
+
+    Raises:
+        HTTPException 404: If the speaker is not found for the event.
+    """
+    steps: dict[str, dict] = {}
+    email_text = ""
+    email_data_result: dict = {}
+    ics_content = ""
+    pipeline_updated = False
+
+    # 404 propagates naturally — do not catch
+    match = _find_ranked_match(body.event_name, body.speaker_name)
+
+    # Step 1: email generation
+    try:
+        bridge_spec = {
+            "name": str(match.get("name", "")),
+            "match_score": str(match.get("score", 0.0)),
+            "rank": str(match.get("rank", "")),
+            "company": str(match.get("company", "")),
+            "title": str(match.get("title", "")),
+            "expertise_tags": str(match.get("expertise_tags", "")),
+            "initials": "".join(
+                part[:1].upper()
+                for part in str(match.get("name", "")).split()
+                if part
+            ),
+        }
+        params = build_outreach_params(
+            bridge_spec,
+            body.event_name,
+            _factor_scores_for_bridge(dict(match.get("factor_scores", {}))),
+        )
+        generated = generate_outreach_email(
+            params["speaker"],
+            params["event"],
+            params["match_scores"],
+        )
+        email_text = generated.get("full_email", "")
+        email_data_result = generated
+        steps["email"] = {"status": "ok"}
+    except Exception as exc:
+        steps["email"] = {"status": "error", "error": str(exc)}
+
+    # Step 2: ICS generation
+    try:
+        ics_content = generate_ics(event_name=body.event_name)
+        steps["ics"] = {"status": "ok"}
+    except Exception as exc:
+        steps["ics"] = {"status": "error", "error": str(exc)}
+
+    # Step 3: pipeline status update
+    try:
+        update_pipeline_status(body.event_name, body.speaker_name, "Contacted")
+        pipeline_updated = True
+        steps["pipeline"] = {"status": "ok"}
+    except Exception as exc:
+        steps["pipeline"] = {"status": "error", "error": str(exc)}
+
+    return {
+        "email": email_text,
+        "email_data": email_data_result,
+        "ics_content": ics_content,
+        "pipeline_updated": pipeline_updated,
+        "steps": steps,
+        "dispatch_mode": "serial",
+    }
