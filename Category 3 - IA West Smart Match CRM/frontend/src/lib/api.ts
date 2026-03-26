@@ -209,3 +209,34 @@ export async function generateIcs(
     }),
   });
 }
+
+export interface WorkflowStepResult {
+  status: "ok" | "error";
+  error?: string;
+}
+
+export interface WorkflowResponse {
+  email: string;
+  email_data: OutreachEmailPayload;
+  ics_content: string;
+  pipeline_updated: boolean;
+  steps: {
+    email: WorkflowStepResult;
+    ics: WorkflowStepResult;
+    pipeline: WorkflowStepResult;
+  };
+  dispatch_mode: string;
+}
+
+export async function initiateWorkflow(
+  speakerName: string,
+  eventName: string,
+): Promise<WorkflowResponse> {
+  return requestJson<WorkflowResponse>("/api/outreach/workflow", {
+    method: "POST",
+    body: JSON.stringify({
+      speaker_name: speakerName,
+      event_name: eventName,
+    }),
+  });
+}
