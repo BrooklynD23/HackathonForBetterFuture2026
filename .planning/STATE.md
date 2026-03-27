@@ -1,13 +1,13 @@
 ---
 gsd_state_version: 1.0
-milestone: v3.0
-milestone_name: Phases
-status: completed
-stopped_at: "Milestone v3.0 shipped after Phase 12 verification"
-last_updated: "2026-03-26T16:52:20Z"
+milestone: v3.1
+milestone_name: Demo Readiness
+status: planning
+stopped_at: ""
+last_updated: "2026-03-26T00:00:00Z"
 progress:
-  total_phases: 7
-  completed_phases: 7
+  total_phases: 0
+  completed_phases: 0
   total_plans: 19
   completed_plans: 19
 ---
@@ -19,12 +19,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** A coordinator can use voice or text to command an AI assistant that orchestrates parallel agents for event discovery, speaker matching, and outreach, with human approval gating every action.
-**Current focus:** v3.0 shipped — awaiting the next milestone
+**Current focus:** v3.1 Demo Readiness — defining requirements
 
 ## Current Position
 
-Phase: 12
-Plan: shipped
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-26 — Milestone v3.1 started
 
 ## Accumulated Context
 
