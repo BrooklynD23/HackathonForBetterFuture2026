@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v3.1
 milestone_name: Demo Readiness
-status: planning
+status: active
 stopped_at: ""
 last_updated: "2026-03-26T00:00:00Z"
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
-  total_plans: 19
-  completed_plans: 19
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # Project State
@@ -19,14 +19,18 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** A coordinator can use voice or text to command an AI assistant that orchestrates parallel agents for event discovery, speaker matching, and outreach, with human approval gating every action.
-**Current focus:** v3.1 Demo Readiness — defining requirements
+**Current focus:** v3.1 Demo Readiness — Phase 13: Demo Polish
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 13 — Demo Polish
 Plan: —
-Status: Defining requirements
-Last activity: 2026-03-26 — Milestone v3.1 started
+Status: Not started
+Last activity: 2026-03-26 — Roadmap created for v3.1
+
+```
+Progress: [░░░░░░░░░░░░░░░░░░░░] 0/4 phases
+```
 
 ## Accumulated Context
 
@@ -57,26 +61,28 @@ Last activity: 2026-03-26 — Milestone v3.1 started
 - [Phase 11]: React QR helpers normalize backend `referral_codes`, `membership_interest_count`, and `qr_data_url` fields so coordinator UI reflects live QR history and ROI counts
 - [Phase 12]: Effective matching weights now come from feedback-driven optimizer snapshots exposed by `/api/feedback/stats`, while the `/api/matching/*` request contract stays backward-compatible
 - [Phase 12]: React now captures coordinator outcome feedback in AI Matching and surfaces pain-score plus weight-shift analytics in both Dashboard and Pipeline
+- [v3.1 Roadmap]: Phase 15 bundles BUILD-01 with VERIFY-01/02 because the clean build is a prerequisite for reliable Playwright evidence
 
 ### Pending Todos
 
-- Run human UAT for live voice/mic and full rehearsal flow
-- Add a browser-backed smoke pass for the QR and feedback React workflows once a Playwright browser runtime is available
-- Revisit bundle splitting if the React coordinator app expands beyond the current shipped scope
+- Phase 13: Remove all "Phase #N" labels from user-facing UI; finalize all copy; apply smooth scrolling
+- Phase 14: Implement graceful fallback for all charts/visualizations; add "Demo Mode" indicator
+- Phase 15: Fix React production build chunk-size warning; write and run Playwright tests for QR and feedback flows
+- Phase 16: Write structured human UAT guide for live voice/mic coordinator path
 
 ### Roadmap Evolution
 
 - Phase 09.1 inserted after Phase 9: V1.2 UI Rebrand — Blue/White Professional Theme (URGENT)
 - Gmail integration for generated outreach emails — captured as future phase/backlog
+- v3.1 phases 13-16 derived from demo-readiness tech debt accepted at v3.0 closeout
 
 ### Blockers/Concerns
 
-- Playwright browser runtime is not available in-session; browser-backed UI evidence is still pending.
+- Playwright browser runtime availability needs to be confirmed before Phase 15 begins.
 - `TestClient` can hang in the current Python environment on the focused calendar/matching tests; direct route/helper verification is the reliable path for now.
-- The frontend production build still emits a non-blocking chunk-size warning as the React analytics surfaces grow.
 
 ## Session Continuity
 
-Last session: 2026-03-26T16:52:20Z
-Stopped at: Milestone v3.0 shipped after Phase 12 verification
+Last session: 2026-03-26T00:00:00Z
+Stopped at: v3.1 roadmap creation complete — ready to start Phase 13
 Resume file: None

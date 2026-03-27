@@ -52,21 +52,21 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| VERIFY-01 | — | Pending |
-| VERIFY-02 | — | Pending |
-| VERIFY-03 | — | Pending |
-| BUILD-01 | — | Pending |
-| POLISH-01 | — | Pending |
-| POLISH-02 | — | Pending |
-| POLISH-03 | — | Pending |
-| POLISH-04 | — | Pending |
-| POLISH-05 | — | Pending |
+| POLISH-01 | Phase 13 | Pending |
+| POLISH-02 | Phase 13 | Pending |
+| POLISH-03 | Phase 13 | Pending |
+| POLISH-04 | Phase 14 | Pending |
+| POLISH-05 | Phase 14 | Pending |
+| BUILD-01 | Phase 15 | Pending |
+| VERIFY-01 | Phase 15 | Pending |
+| VERIFY-02 | Phase 15 | Pending |
+| VERIFY-03 | Phase 16 | Pending |
 
 **Coverage:**
 - v3.1 requirements: 9 total
-- Mapped to phases: 0
-- Unmapped: 9 ⚠️
+- Mapped to phases: 9
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-26*
-*Last updated: 2026-03-26 after v3.1 milestone initialization*
+*Last updated: 2026-03-26 after v3.1 roadmap creation*
