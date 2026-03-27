@@ -53,7 +53,7 @@ export function LandingPage() {
             </span>
             <div className="leading-tight">
               <p className="font-semibold text-foreground">IA West Smart Match</p>
-              <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">V1.2 public brand</p>
+              <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">Coordinator Platform</p>
             </div>
           </Link>
 
@@ -69,7 +69,7 @@ export function LandingPage() {
           className="mx-auto grid max-w-7xl gap-12 px-6 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-8 lg:py-24"
         >
           <motion.div {...introReveal} className="space-y-8">
-            <span className="public-pill">IA West V1.2 blue / white brand</span>
+            <span className="public-pill">IA West Chapter</span>
             <div className="space-y-6">
               <h1 className="max-w-3xl font-[Inter_Tight] text-5xl font-semibold tracking-tight text-foreground md:text-7xl">
                 Turn West Coast opportunities into coordinated specialist action.
