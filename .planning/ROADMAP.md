@@ -5,7 +5,10 @@
 - ✅ **v1.0 Sprint 5 Closeout** — Phases 1-3 (shipped 2026-03-21) | [Archive](milestones/v1.0-ROADMAP.md)
 - ✅ **v2.0 Jarvis Agent Coordinator** — Phases 4-7 (shipped 2026-03-24) | [Archive](milestones/v2.0-ROADMAP.md)
 - ✅ **v3.0 Production UI & Demo Polish** — Phases 8-12 (shipped 2026-03-26) | [Archive](milestones/v3.0-ROADMAP.md)
-- 🔄 **v3.1 Demo Readiness** — Phases 13-16 (in progress)
+- 🚧 **v3.1 Demo Readiness** — Phases 13-16 (in progress)
+
+<details>
+<summary>✅ v3.0 Production UI & Demo Polish (Phases 8-12) - SHIPPED 2026-03-26</summary>
 
 ## v3.0 Phases
 
@@ -179,11 +182,13 @@ Plans:
 
 ---
 
+</details>
+
 ## v3.1 Demo Readiness
 
 ### Phases
 
-- [ ] **Phase 13: Demo Polish** — Remove internal labels, finalize all copy, and enable smooth scrolling
+- [x] **Phase 13: Demo Polish** — Remove internal labels, finalize all copy, and enable smooth scrolling (completed 2026-03-27)
 - [ ] **Phase 14: Visual Resilience** — Graceful fallback graphics with Demo Mode indicator
 - [ ] **Phase 15: Build Quality + Playwright Evidence** — Fix chunk-size warning and capture browser test evidence for QR and feedback flows
 - [ ] **Phase 16: Voice/Mic UAT Guide** — Structured human walkthrough document for live voice path
@@ -198,10 +203,10 @@ Plans:
   1. No "Phase #N" or similar internal label appears anywhere in the rendered app across all pages
   2. Every page heading, button label, and body copy reads as concrete, professional product text with no dev-flavored placeholders
   3. Navigating between pages and scrolling within any page produces smooth animated transitions with no abrupt jumps
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 Plans:
-- [ ] 13-01-PLAN.md — Remove Phase labels, replace dev copy, add scroll-to-top
+- [x] 13-01-PLAN.md — Remove Phase labels, replace dev copy, add scroll-to-top
 
 ### Phase 14: Visual Resilience
 **Goal:** Charts, images, and data visualizations never show broken states — they render real data or silently fall back to hardcoded mock data, and the coordinator always knows when mock data is active.
@@ -211,10 +216,10 @@ Plans:
   1. Every chart and visualization in the app renders without error regardless of whether the backend returns data or not
   2. When a visualization uses fallback mock data, a discrete "Demo Mode" badge or indicator is visible on that view without disrupting the layout
   3. The "Demo Mode" indicator is absent on any view that has successfully loaded real data
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
-- [ ] 14-01-PLAN.md — Backend demo.db seed, helper module, and router fallback wiring
+- [x] 14-01-PLAN.md — Backend demo.db seed, helper module, and router fallback wiring
 - [ ] 14-02-PLAN.md — Frontend mockData constants, DemoModeBadge, and page-level isMockData wiring
 
 ### Phase 15: Build Quality + Playwright Evidence
@@ -244,8 +249,8 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 13. Demo Polish | 0/? | Not started | - |
-| 14. Visual Resilience | 0/2 | Not started | - |
+| 13. Demo Polish | 1/1 | Complete    | 2026-03-27 |
+| 14. Visual Resilience | 1/2 | In Progress|  |
 | 15. Build Quality + Playwright Evidence | 0/? | Not started | - |
 | 16. Voice/Mic UAT Guide | 0/? | Not started | - |
 
@@ -257,4 +262,4 @@ Plans:
 
 ## Current Status
 
-v3.1 Demo Readiness is in progress. Phases 13-16 are planned, not yet started.
+v3.1 Demo Readiness is in progress. Phase 13 implementation is landed and pending formal verification, Phase 14 is planned and ready for execution, and Phases 15-16 remain planned.

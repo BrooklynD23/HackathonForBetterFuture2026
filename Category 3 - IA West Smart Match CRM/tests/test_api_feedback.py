@@ -7,6 +7,7 @@ import asyncio
 import pytest
 
 from src.api.main import app
+from src.api.routers import feedback as feedback_router
 from src.api.routers.feedback import FeedbackSubmitRequest, stats as feedback_stats, submit as submit_feedback
 from src.config import DEFAULT_WEIGHTS
 from src.feedback import service as feedback_service
@@ -181,3 +182,48 @@ def test_feedback_stats_http_returns_serialized_optimizer_state(feedback_storage
     assert payload["total_feedback"] == 1
     assert payload["current_weights"]
     assert payload["weight_history"]
+
+
+def test_feedback_stats_fall_back_to_demo_payload_when_live_history_is_empty(monkeypatch) -> None:
+    monkeypatch.setattr(
+        feedback_router,
+        "build_feedback_stats",
+        lambda: {
+            "total_feedback": 0,
+            "accepted": 0,
+            "declined": 0,
+            "current_weights": {},
+            "weight_history": [],
+        },
+    )
+    monkeypatch.setattr(
+        feedback_router,
+        "load_demo_feedback_stats",
+        lambda: {
+            "total_feedback": 8,
+            "accepted": 5,
+            "declined": 3,
+            "acceptance_rate": 0.625,
+            "attended_count": 4,
+            "membership_interest_count": 3,
+            "membership_interest_rate": 0.6,
+            "average_coordinator_rating": 4.2,
+            "average_match_score_accepted": 0.86,
+            "average_match_score_declined": 0.68,
+            "pain_score": 18.4,
+            "decline_reasons": [{"reason": "Schedule conflict", "count": 2}],
+            "event_outcomes": [{"outcome": "attended", "count": 4}],
+            "trend": [{"date": "2026-03-24", "feedback_count": 2, "accepted": 1, "declined": 1, "acceptance_rate": 0.5}],
+            "default_weights": {"topic_relevance": 0.22},
+            "current_weights": {"topic_relevance": 0.24},
+            "suggested_weights": {"topic_relevance": 0.24},
+            "recommended_adjustments": [],
+            "weight_history": [],
+        },
+    )
+
+    payload = asyncio.run(feedback_router.stats())
+
+    assert payload["total_feedback"] == 8
+    assert payload["current_weights"]["topic_relevance"] == 0.24
+    assert payload["source"] == "demo"

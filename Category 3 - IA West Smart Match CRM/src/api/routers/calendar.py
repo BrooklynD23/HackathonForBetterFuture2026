@@ -8,6 +8,7 @@ from typing import Any
 import pandas as pd
 from fastapi import APIRouter, HTTPException
 
+from src.api.demo_db import load_demo_calendar_assignments, load_demo_calendar_events
 from src.data_loader import load_calendar, load_events, load_speakers
 from src.matching.factors import resolve_event_region, volunteer_recovery_details
 from src.ui.data_helpers import load_pipeline_data
@@ -35,6 +36,10 @@ _STATUS_META: dict[str, dict[str, str]] = {
 
 def _server_error(exc: Exception) -> HTTPException:
     return HTTPException(status_code=500, detail=str(exc))
+
+
+def _demo_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [{**row, "source": "demo"} for row in rows]
 
 
 def _as_date_string(value: object) -> str:
@@ -214,54 +219,64 @@ def _assignment_rows() -> list[dict[str, Any]]:
     return overlays
 
 
+def _live_event_rows() -> list[dict[str, Any]]:
+    slots, _ = _calendar_slots()
+    assignments = _assignment_rows()
+    assignments_by_event: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for assignment in assignments:
+        assignments_by_event[str(assignment["event_id"])].append(assignment)
+
+    rows: list[dict[str, Any]] = []
+    for slot in slots:
+        related = assignments_by_event.get(str(slot["event_id"]), [])
+        stage_orders = [int(item.get("stage_order", 0) or 0) for item in related]
+        coverage_ratio = round(sum(stage_orders) / max(len(stage_orders) * 4.0, 1.0), 4) if related else 0.0
+        coverage_status = _coverage_status(coverage_ratio)
+        status_meta = _STATUS_META[coverage_status]
+        assigned_volunteers = sorted(
+            {
+                str(item.get("volunteer_name", ""))
+                for item in related
+                if str(item.get("volunteer_name", "")).strip()
+            }
+        )
+        assignment_count = len(related)
+
+        rows.append(
+            {
+                **slot,
+                "coverage_status": coverage_status,
+                "coverage_label": status_meta["label"],
+                "coverage_ratio": coverage_ratio,
+                "assigned_volunteers": assigned_volunteers,
+                "assignment_count": assignment_count,
+                "open_slots": max(0, 3 - assignment_count),
+                "status_color": status_meta["color"],
+            }
+        )
+
+    return rows
+
+
 @router.get("/events")
 async def events() -> list[dict[str, Any]]:
     """Return normalized calendar event rows with coverage metadata."""
     try:
-        slots, _ = _calendar_slots()
-        assignments = _assignment_rows()
-        assignments_by_event: dict[str, list[dict[str, Any]]] = defaultdict(list)
-        for assignment in assignments:
-            assignments_by_event[str(assignment["event_id"])].append(assignment)
-
-        rows: list[dict[str, Any]] = []
-        for slot in slots:
-            related = assignments_by_event.get(str(slot["event_id"]), [])
-            stage_orders = [int(item.get("stage_order", 0) or 0) for item in related]
-            coverage_ratio = round(sum(stage_orders) / max(len(stage_orders) * 4.0, 1.0), 4) if related else 0.0
-            coverage_status = _coverage_status(coverage_ratio)
-            status_meta = _STATUS_META[coverage_status]
-            assigned_volunteers = sorted(
-                {
-                    str(item.get("volunteer_name", ""))
-                    for item in related
-                    if str(item.get("volunteer_name", "")).strip()
-                }
-            )
-            assignment_count = len(related)
-
-            rows.append(
-                {
-                    **slot,
-                    "coverage_status": coverage_status,
-                    "coverage_label": status_meta["label"],
-                    "coverage_ratio": coverage_ratio,
-                    "assigned_volunteers": assigned_volunteers,
-                    "assignment_count": assignment_count,
-                    "open_slots": max(0, 3 - assignment_count),
-                    "status_color": status_meta["color"],
-                }
-            )
-
-        return rows
-    except Exception as exc:  # pragma: no cover - defensive API boundary
-        raise _server_error(exc) from exc
+        rows = _live_event_rows()
+        if rows:
+            return rows
+    except Exception:
+        pass
+    return _demo_rows(load_demo_calendar_events())
 
 
 @router.get("/assignments")
 async def assignments() -> list[dict[str, Any]]:
     """Return assignment overlays derived from the pipeline sample rows."""
     try:
-        return _assignment_rows()
-    except Exception as exc:  # pragma: no cover - defensive API boundary
-        raise _server_error(exc) from exc
+        rows = _assignment_rows()
+        if rows:
+            return rows
+    except Exception:
+        pass
+    return _demo_rows(load_demo_calendar_assignments())
