@@ -36,6 +36,13 @@ import {
   type PipelineRecord,
   type QrStatsSummary,
 } from "@/lib/api";
+import {
+  MOCK_EVENTS,
+  MOCK_FEEDBACK_STATS,
+  MOCK_PIPELINE,
+  MOCK_QR_STATS,
+} from "@/lib/mockData";
+import { DemoModeBadge } from "@/app/components/ui/DemoModeBadge";
 
 const stagePalette = ["#a78bfa", "#8b5cf6", "#7c3aed", "#6d28d9", "#5b21b6"];
 
@@ -126,6 +133,7 @@ export function Pipeline() {
   const [feedbackStats, setFeedbackStats] = useState<FeedbackStatsSummary>(
     emptyFeedbackStatsSummary(),
   );
+  const [isMockData, setIsMockData] = useState(false);
   const [selectedUniversity, setSelectedUniversity] = useState("All Hosts");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -147,18 +155,35 @@ export function Pipeline() {
           throw (
             pipelineResult.status === "rejected"
               ? pipelineResult.reason
-              : eventResult.reason
+              : (eventResult as PromiseRejectedResult).reason
           );
         }
 
-        setPipelineRecords(pipelineResult.value);
-        setEvents(eventResult.value);
-        setQrStats(qrResult.status === "fulfilled" ? qrResult.value : emptyQrStatsSummary());
-        setFeedbackStats(
-          feedbackResult.status === "fulfilled"
-            ? feedbackResult.value
-            : emptyFeedbackStatsSummary(),
-        );
+        let anyMock = false;
+
+        setPipelineRecords(pipelineResult.value.data);
+        if (pipelineResult.value.source === "demo") anyMock = true;
+
+        setEvents(eventResult.value.data);
+        if (eventResult.value.source === "demo") anyMock = true;
+
+        if (qrResult.status === "fulfilled") {
+          setQrStats(qrResult.value.data);
+          if (qrResult.value.source === "demo") anyMock = true;
+        } else {
+          setQrStats(MOCK_QR_STATS);
+          anyMock = true;
+        }
+
+        if (feedbackResult.status === "fulfilled") {
+          setFeedbackStats(feedbackResult.value.data);
+          if (feedbackResult.value.source === "demo") anyMock = true;
+        } else {
+          setFeedbackStats(MOCK_FEEDBACK_STATS);
+          anyMock = true;
+        }
+
+        setIsMockData(anyMock);
 
         const warnings = [];
         if (qrResult.status === "rejected") {
@@ -179,6 +204,12 @@ export function Pipeline() {
       })
       .catch((err: unknown) => {
         if (active) {
+          // Backend unreachable — use Layer-3 mock constants
+          setPipelineRecords(MOCK_PIPELINE);
+          setEvents(MOCK_EVENTS);
+          setQrStats(MOCK_QR_STATS);
+          setFeedbackStats(MOCK_FEEDBACK_STATS);
+          setIsMockData(true);
           setError(err instanceof Error ? err.message : "Failed to load pipeline data.");
         }
       })
@@ -234,7 +265,9 @@ export function Pipeline() {
           <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
             <TrendingUp className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-3xl font-semibold text-gray-900">Pipeline Tracking</h1>
+          <h1 className="text-3xl font-semibold text-gray-900">
+            Pipeline Tracking{isMockData && <DemoModeBadge />}
+          </h1>
         </div>
         <p className="text-gray-600">
           Monitor how ranked matches move through the live sample pipeline.

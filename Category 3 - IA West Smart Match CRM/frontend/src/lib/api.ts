@@ -526,10 +526,10 @@ function normalizeCalendarEvent(record: Record<string, unknown>, index: number):
     ),
     coverage_status: coverageStatus,
     coverage_label: parseString(record.coverage_label ?? record.status_label, coverageLabel(coverageStatus)),
-    coverage_ratio,
-    assigned_volunteers,
-    assignment_count,
-    open_slots,
+    coverage_ratio: coverageRatio,
+    assigned_volunteers: assignedVolunteers,
+    assignment_count: assignmentCount,
+    open_slots: openSlots,
     status_color: parseString(record.status_color ?? record.color ?? coverageTone(coverageStatus)),
   };
 }
@@ -594,7 +594,7 @@ function normalizeVolunteerRecovery(record: Record<string, unknown>, assignments
     event_names: [...new Set(volunteerAssignments.map((assignment) => assignment.event_name).filter(Boolean))],
     event_count: volunteerAssignments.length,
     latest_event_date: lastEventDate,
-    volunteer_fatigue,
+    volunteer_fatigue: volunteerFatigue,
     recovery_status: recoveryStatus,
     recovery_label: parseString(record.recovery_label ?? record.recoveryLabel, recoveryLabel(recoveryStatus)),
     recent_assignment_count: parseNumber(record.recent_assignment_count ?? record.recentAssignments ?? volunteerAssignments.length, volunteerAssignments.length),
@@ -856,22 +856,22 @@ export interface WithSource<T> {
 export async function fetchSpecialists(): Promise<WithSource<Specialist[]>> {
   const raw = await requestJson<unknown>("/api/data/specialists");
   const payload = toRecordArray(raw);
-  const source: "live" | "demo" = (payload[0] as Record<string, unknown>)?.source === "demo" ? "demo" : "live";
-  return { data: payload as Specialist[], source };
+  const source: "live" | "demo" = payload[0]?.source === "demo" ? "demo" : "live";
+  return { data: payload as unknown as Specialist[], source };
 }
 
 export async function fetchEvents(): Promise<WithSource<CppEvent[]>> {
   const raw = await requestJson<unknown>("/api/data/events");
   const payload = toRecordArray(raw);
-  const source: "live" | "demo" = (payload[0] as Record<string, unknown>)?.source === "demo" ? "demo" : "live";
-  return { data: payload as CppEvent[], source };
+  const source: "live" | "demo" = payload[0]?.source === "demo" ? "demo" : "live";
+  return { data: payload as unknown as CppEvent[], source };
 }
 
 export async function fetchPipeline(): Promise<WithSource<PipelineRecord[]>> {
   const raw = await requestJson<unknown>("/api/data/pipeline");
   const payload = toRecordArray(raw);
-  const source: "live" | "demo" = (payload[0] as Record<string, unknown>)?.source === "demo" ? "demo" : "live";
-  return { data: payload as PipelineRecord[], source };
+  const source: "live" | "demo" = payload[0]?.source === "demo" ? "demo" : "live";
+  return { data: payload as unknown as PipelineRecord[], source };
 }
 
 export async function fetchCalendar(): Promise<CalendarRecord[]> {

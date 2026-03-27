@@ -96,10 +96,12 @@ export function Outreach() {
     let active = true;
 
     Promise.all([fetchSpecialists(), fetchEvents()])
-      .then(([specialistRows, eventRows]) => {
+      .then(([specialistResult, eventResult]) => {
         if (!active) {
           return;
         }
+        const specialistRows = specialistResult.data;
+        const eventRows = eventResult.data;
         setSpecialists(specialistRows);
         setEvents(eventRows);
         setSelectedSpeaker(specialistRows[0]?.name ?? "");

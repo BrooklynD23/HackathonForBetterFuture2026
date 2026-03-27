@@ -27,6 +27,8 @@ import {
   type RankedMatch,
   type WorkflowResponse,
 } from "@/lib/api";
+import { MOCK_EVENTS, MOCK_RANKED_MATCHES } from "@/lib/mockData";
+import { DemoModeBadge } from "@/app/components/ui/DemoModeBadge";
 import { FeedbackForm } from "@/components/FeedbackForm";
 import { OutreachWorkflowModal } from "@/components/OutreachWorkflowModal";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/app/components/ui/dialog";
@@ -317,21 +319,31 @@ export function AIMatching() {
   const [feedbackStats, setFeedbackStats] = useState<FeedbackStatsSummary>(
     emptyFeedbackStatsSummary(),
   );
+  const [isMockData, setIsMockData] = useState(false);
   const [feedbackTarget, setFeedbackTarget] = useState<RankedMatch | null>(null);
 
   useEffect(() => {
     let active = true;
 
     fetchEvents()
-      .then((data) => {
+      .then((result) => {
         if (!active) {
           return;
         }
+        const data = result.data;
         setEvents(data);
         setSelectedEventName(data[0]?.["Event / Program"] ?? "");
+        if (result.source === "demo") {
+          setIsMockData(true);
+        }
       })
       .catch((err: unknown) => {
         if (active) {
+          // Backend unreachable — use Layer-3 mock constants
+          setEvents(MOCK_EVENTS);
+          setSelectedEventName(MOCK_EVENTS[0]?.["Event / Program"] ?? "");
+          setMatches(MOCK_RANKED_MATCHES);
+          setIsMockData(true);
           setError(err instanceof Error ? err.message : "Failed to load events.");
         }
       })
@@ -350,9 +362,12 @@ export function AIMatching() {
     let active = true;
 
     fetchFeedbackStats()
-      .then((stats) => {
+      .then((result) => {
         if (active) {
-          setFeedbackStats(stats);
+          setFeedbackStats(result.data);
+          if (result.source === "demo") {
+            setIsMockData(true);
+          }
         }
       })
       .catch((err: unknown) => {
@@ -380,7 +395,10 @@ export function AIMatching() {
 
       const [pipelineResult, assignmentResult] = results;
       if (pipelineResult.status === "fulfilled") {
-        setPipeline(pipelineResult.value);
+        setPipeline(pipelineResult.value.data);
+        if (pipelineResult.value.source === "demo") {
+          setIsMockData(true);
+        }
       } else {
         setContextWarning((current) =>
           current
@@ -390,7 +408,10 @@ export function AIMatching() {
       }
 
       if (assignmentResult.status === "fulfilled") {
-        setAssignments(assignmentResult.value);
+        setAssignments(assignmentResult.value.data);
+        if (assignmentResult.value.source === "demo") {
+          setIsMockData(true);
+        }
       } else {
         setContextWarning((current) =>
           current
@@ -429,7 +450,8 @@ export function AIMatching() {
       .catch((err: unknown) => {
         if (active) {
           setError(err instanceof Error ? err.message : "Failed to rank speakers.");
-          setMatches([]);
+          // If already in mock mode (events were demo), use mock matches as safety net
+          setMatches(isMockData ? MOCK_RANKED_MATCHES : []);
         }
       })
       .finally(() => {
@@ -486,7 +508,9 @@ export function AIMatching() {
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600">
             <Sparkles className="h-6 w-6 text-white" />
           </div>
-          <h1 className="text-3xl font-semibold text-slate-900">AI Matching Engine</h1>
+          <h1 className="text-3xl font-semibold text-slate-900">
+            AI Matching Engine{isMockData && <DemoModeBadge />}
+          </h1>
         </div>
         <p className="text-slate-600">
           Rank specialists against live CPP opportunities and review the top-five picture with

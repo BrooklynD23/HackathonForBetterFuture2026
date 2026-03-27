@@ -61,11 +61,11 @@ export function Opportunities() {
     let active = true;
 
     fetchEvents()
-      .then((events) => {
+      .then((result) => {
         if (!active) {
           return;
         }
-        setOpportunities(events.map(mapEventToOpportunity));
+        setOpportunities(result.data.map(mapEventToOpportunity));
       })
       .catch((err: unknown) => {
         if (!active) {

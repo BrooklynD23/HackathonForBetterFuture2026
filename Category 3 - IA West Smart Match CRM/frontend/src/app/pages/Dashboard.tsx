@@ -45,6 +45,14 @@ import {
   type RankedMatch,
   type Specialist,
 } from "@/lib/api";
+import {
+  MOCK_CALENDAR_ASSIGNMENTS,
+  MOCK_CALENDAR_EVENTS,
+  MOCK_FEEDBACK_STATS,
+  MOCK_PIPELINE,
+  MOCK_SPECIALISTS,
+} from "@/lib/mockData";
+import { DemoModeBadge } from "../components/ui/DemoModeBadge";
 
 import { MetricCard } from "../components/MetricCard";
 
@@ -219,6 +227,7 @@ export function Dashboard() {
   const [feedbackStats, setFeedbackStats] = useState<FeedbackStatsSummary>(
     emptyFeedbackStatsSummary(),
   );
+  const [isMockData, setIsMockData] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -257,7 +266,7 @@ export function Dashboard() {
                 ? eventResult.reason
                 : pipelineResult.status === "rejected"
                   ? pipelineResult.reason
-                  : calendarResult.reason
+                  : (calendarResult as PromiseRejectedResult).reason
           );
         }
 
@@ -265,23 +274,42 @@ export function Dashboard() {
           return;
         }
 
-        const specialistRows = specialistResult.value;
-        const eventRows = eventResult.value;
-        const pipelineRows = pipelineResult.value;
-        const calendarRows = calendarResult.value;
+        let anyMock = false;
+
+        const specialistRows = specialistResult.value.data;
+        const eventRows = eventResult.value.data;
+        if (specialistResult.value.source === "demo") anyMock = true;
+        if (eventResult.value.source === "demo") anyMock = true;
+
+        const pipelineRows =
+          pipelineResult.value.source === "demo" ? pipelineResult.value.data : pipelineResult.value.data;
+        if (pipelineResult.value.source === "demo") anyMock = true;
+
+        const calendarRows = calendarResult.value.data;
+        if (calendarResult.value.source === "demo") anyMock = true;
 
         setSpecialists(specialistRows);
         setEventCount(eventRows.length);
         setPipeline(pipelineRows);
         setCalendarEvents(calendarRows);
-        setCalendarAssignments(
-          assignmentResult.status === "fulfilled" ? assignmentResult.value : [],
-        );
-        setFeedbackStats(
-          feedbackResult.status === "fulfilled"
-            ? feedbackResult.value
-            : emptyFeedbackStatsSummary(),
-        );
+
+        if (assignmentResult.status === "fulfilled") {
+          setCalendarAssignments(assignmentResult.value.data);
+          if (assignmentResult.value.source === "demo") anyMock = true;
+        } else {
+          setCalendarAssignments(MOCK_CALENDAR_ASSIGNMENTS);
+          anyMock = true;
+        }
+
+        if (feedbackResult.status === "fulfilled") {
+          setFeedbackStats(feedbackResult.value.data);
+          if (feedbackResult.value.source === "demo") anyMock = true;
+        } else {
+          setFeedbackStats(MOCK_FEEDBACK_STATS);
+          anyMock = true;
+        }
+
+        setIsMockData(anyMock);
 
         const warnings = [];
         if (assignmentResult.status === "rejected") {
@@ -303,14 +331,12 @@ export function Dashboard() {
         const firstEventName = eventRows[0]?.["Event / Program"];
         if (firstEventName) {
           try {
-            const ranked = await rankSpeakers(
-              firstEventName,
-              4,
+            const feedbackWeights =
               feedbackResult.status === "fulfilled" &&
-                Object.keys(feedbackResult.value.current_weights).length > 0
-                ? feedbackResult.value.current_weights
-                : undefined,
-            );
+              Object.keys(feedbackResult.value.data.current_weights).length > 0
+                ? feedbackResult.value.data.current_weights
+                : undefined;
+            const ranked = await rankSpeakers(firstEventName, 4, feedbackWeights);
             if (active) {
               setTopMatches(ranked);
             }
@@ -322,6 +348,13 @@ export function Dashboard() {
         }
       } catch (err: unknown) {
         if (active) {
+          // Backend unreachable — use Layer-3 mock constants
+          setSpecialists(MOCK_SPECIALISTS);
+          setPipeline(MOCK_PIPELINE);
+          setCalendarEvents(MOCK_CALENDAR_EVENTS);
+          setCalendarAssignments(MOCK_CALENDAR_ASSIGNMENTS);
+          setFeedbackStats(MOCK_FEEDBACK_STATS);
+          setIsMockData(true);
           setError(err instanceof Error ? err.message : "Failed to load dashboard data.");
         }
       } finally {
@@ -451,7 +484,9 @@ export function Dashboard() {
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <div>
-        <h1 className="text-3xl font-semibold text-gray-900">Dashboard</h1>
+        <h1 className="text-3xl font-semibold text-gray-900">
+          Dashboard{isMockData && <DemoModeBadge />}
+        </h1>
         <p className="mt-1 text-gray-600">
           Live summary of the specialist roster, active opportunities, and pipeline movement.
         </p>
@@ -673,9 +708,6 @@ export function Dashboard() {
               <p className="mt-1 text-sm text-gray-600">
                 Live rollup built from calendar coverage, assignment overlays, and pipeline follow-through.
               </p>
-            </div>
-            <div className="rounded-full border border-[#d5e0f7] bg-[#f7f9fc] px-3 py-1 text-xs font-medium text-[#005394]">
-              V1.2
             </div>
           </div>
 

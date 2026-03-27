@@ -111,7 +111,8 @@ export function FeedbackForm({
       let stats = mergeSnapshotIntoStats(currentStats, submission.optimizer_snapshot);
 
       try {
-        stats = await fetchFeedbackStats();
+        const refreshResult = await fetchFeedbackStats();
+        stats = refreshResult.data;
         setSuccess("Feedback recorded and optimizer metrics refreshed.");
       } catch {
         setSuccess(
