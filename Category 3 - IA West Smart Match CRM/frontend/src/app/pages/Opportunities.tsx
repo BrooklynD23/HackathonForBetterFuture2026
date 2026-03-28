@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import {
   Building2,
   Calendar,
@@ -48,6 +49,7 @@ function mapEventToOpportunity(event: CppEvent, index: number): OpportunityCard 
 }
 
 export function Opportunities() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("All Locations");
   const [selectedRole, setSelectedRole] = useState("All Roles");
@@ -125,7 +127,10 @@ export function Opportunities() {
             Discover and match university engagement opportunities from the live dataset.
           </p>
         </div>
-        <button className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-white shadow-sm transition-colors hover:bg-[#00477f]">
+        <button
+          onClick={() => navigate("/ai-matching")}
+          className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-white shadow-sm transition-colors hover:bg-[#00477f]"
+        >
           <Sparkles className="w-5 h-5" />
           Find Best Matches
         </button>
@@ -285,7 +290,10 @@ export function Opportunities() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <button className="flex-1 rounded-xl bg-primary px-4 py-2.5 font-medium text-white shadow-sm transition-colors hover:bg-[#00477f]">
+                  <button
+                    onClick={() => navigate("/ai-matching", { state: { eventName: opportunity.name } })}
+                    className="flex-1 rounded-xl bg-primary px-4 py-2.5 font-medium text-white shadow-sm transition-colors hover:bg-[#00477f]"
+                  >
                     Match Volunteers
                   </button>
                   {opportunity.url ? (

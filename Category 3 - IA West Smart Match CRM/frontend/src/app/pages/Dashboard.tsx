@@ -5,6 +5,7 @@ import {
   BellRing,
   Briefcase,
   CalendarDays,
+  Mail,
   MapPinned,
   MessageSquareHeart,
   ShieldCheck,
@@ -36,6 +37,7 @@ import {
   fetchFeedbackStats,
   fetchPipeline,
   fetchSpecialists,
+  initiateWorkflow,
   rankSpeakers,
   splitTags,
   type CalendarAssignmentSummary,
@@ -44,7 +46,9 @@ import {
   type PipelineRecord,
   type RankedMatch,
   type Specialist,
+  type WorkflowResponse,
 } from "@/lib/api";
+import { OutreachWorkflowModal } from "@/components/OutreachWorkflowModal";
 import {
   MOCK_CALENDAR_ASSIGNMENTS,
   MOCK_CALENDAR_EVENTS,
@@ -231,6 +235,11 @@ export function Dashboard() {
   const [isMockData, setIsMockData] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showWorkflowModal, setShowWorkflowModal] = useState(false);
+  const [selectedVolunteer, setSelectedVolunteer] = useState<RankedMatch | null>(null);
+  const [workflowResult, setWorkflowResult] = useState<WorkflowResponse | null>(null);
+  const [workflowLoading, setWorkflowLoading] = useState(false);
+  const [workflowError, setWorkflowError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -421,6 +430,22 @@ export function Dashboard() {
     regionalPulse
       .filter((row) => row.memberInquiryCount > 0)
       .sort((left, right) => right.memberInquiryCount - left.memberInquiryCount)[0] ?? null;
+
+  const handleConnect = async (match: RankedMatch) => {
+    setSelectedVolunteer(match);
+    setShowWorkflowModal(true);
+    setWorkflowLoading(true);
+    setWorkflowError(null);
+    setWorkflowResult(null);
+    try {
+      const result = await initiateWorkflow(match.name, match.event_name);
+      setWorkflowResult(result);
+    } catch (err: unknown) {
+      setWorkflowError(err instanceof Error ? err.message : "Workflow failed.");
+    } finally {
+      setWorkflowLoading(false);
+    }
+  };
 
   const discoveryFeed = [
     {
@@ -917,7 +942,12 @@ export function Dashboard() {
                       {(match.score * 100).toFixed(0)}%
                     </p>
                   </div>
-                  <button className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-[#00477f]">
+                  <button
+                    onClick={() => void handleConnect(match)}
+                    disabled={workflowLoading}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-[#00477f] disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <Mail className="h-3.5 w-3.5" />
                     Connect
                   </button>
                 </div>
@@ -929,6 +959,16 @@ export function Dashboard() {
 
       {/* Web Crawler Live Feed */}
       <CrawlerFeed />
+
+      {showWorkflowModal && selectedVolunteer && (
+        <OutreachWorkflowModal
+          volunteer={selectedVolunteer}
+          result={workflowResult}
+          loading={workflowLoading}
+          error={workflowError}
+          onClose={() => setShowWorkflowModal(false)}
+        />
+      )}
     </div>
   );
 }

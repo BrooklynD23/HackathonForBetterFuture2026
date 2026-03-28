@@ -33,12 +33,31 @@ const proofRows = [
 ];
 
 const marketSignals = [
-  { label: "Los Angeles", tone: "bg-primary/20 text-primary" },
-  { label: "San Diego", tone: "bg-secondary text-foreground" },
-  { label: "Bay Area", tone: "bg-muted text-foreground" },
+  {
+    label: "Los Angeles",
+    tone: "bg-primary/20 text-primary",
+    schools: ["CPP", "UCLA", "USC", "Cal State LA"],
+    opportunities: 1124,
+    matches: 382,
+    strength: "100%",
+  },
+  {
+    label: "San Diego",
+    tone: "bg-secondary text-foreground",
+    schools: ["SDSU", "UCSD", "USD"],
+    opportunities: 847,
+    matches: 291,
+    strength: "75%",
+  },
+  {
+    label: "Bay Area",
+    tone: "bg-muted text-foreground",
+    schools: ["UC Davis", "Stanford", "USF", "Portland State"],
+    opportunities: 510,
+    matches: 169,
+    strength: "45%",
+  },
 ];
-
-const schoolNames = ["CPP", "UCLA", "SDSU", "UC Davis", "USC", "Portland State"];
 
 export function LandingPage() {
   const reduceMotion = useReducedMotion();
@@ -174,8 +193,9 @@ export function LandingPage() {
 
                 <div className="grid gap-3 sm:grid-cols-3">
                   {marketSignals.map((signal) => (
-                    <div key={signal.label} className={`rounded-2xl px-4 py-3 text-sm font-semibold ${signal.tone}`}>
-                      {signal.label}
+                    <div key={signal.label} className={`rounded-2xl px-4 py-3 ${signal.tone}`}>
+                      <p className="text-sm font-semibold">{signal.label}</p>
+                      <p className="mt-0.5 text-xs opacity-75">{signal.opportunities.toLocaleString()} opps</p>
                     </div>
                   ))}
                 </div>
@@ -246,7 +266,7 @@ export function LandingPage() {
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {schoolNames.map((school) => (
+                  {marketSignals.flatMap((s) => s.schools).filter((v, i, arr) => arr.indexOf(v) === i).map((school) => (
                     <span
                       key={school}
                       className="rounded-full border border-border/70 bg-background px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground"
@@ -261,14 +281,35 @@ export function LandingPage() {
                 {marketSignals.map((signal, index) => (
                   <div
                     key={signal.label}
-                    className="rounded-2xl border border-border/70 bg-background p-4"
+                    className="group rounded-2xl border border-border/70 bg-background p-4 transition-shadow hover:shadow-md"
                   >
                     <div className="flex items-center justify-between">
                       <p className="font-semibold text-foreground">{signal.label}</p>
                       <span className="text-xs font-semibold text-primary">#{index + 1}</span>
                     </div>
-                    <div className="mt-4 flex h-24 items-center justify-center rounded-2xl bg-primary/5">
-                      <div className="h-12 w-12 rounded-full bg-primary/25" />
+                    {/* Opportunity strength bar */}
+                    <div className="mt-3">
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                        <div
+                          className="h-full rounded-full bg-primary transition-all duration-700"
+                          style={{ width: signal.strength }}
+                        />
+                      </div>
+                      <div className="mt-2 flex justify-between text-xs text-muted-foreground">
+                        <span>{signal.opportunities.toLocaleString()} opps</span>
+                        <span>{signal.matches} matches</span>
+                      </div>
+                    </div>
+                    {/* School names */}
+                    <div className="mt-3 flex flex-wrap gap-1">
+                      {signal.schools.map((school) => (
+                        <span
+                          key={school}
+                          className="rounded-full bg-primary/8 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary"
+                        >
+                          {school}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 ))}

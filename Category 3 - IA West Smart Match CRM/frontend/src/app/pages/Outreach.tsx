@@ -23,6 +23,7 @@ import {
   type Specialist,
 } from "@/lib/api";
 import { QRCodeCard } from "@/components/QRCodeCard";
+import { CrawlerFeed } from "@/components/CrawlerFeed";
 
 type Template = {
   id: number;
@@ -523,6 +524,20 @@ export function Outreach() {
           </div>
         </div>
       ) : null}
+
+      {/* Web Intelligence — discover new events via web crawler */}
+      <div className="rounded-2xl border border-[#d5e0f7] bg-white p-6 shadow-sm">
+        <div className="mb-4 flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-[#005394]" />
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">Web Intelligence</h3>
+            <p className="text-sm text-gray-600">
+              Run the web crawler to discover new IA West directed school pages and events.
+            </p>
+          </div>
+        </div>
+        <CrawlerFeed />
+      </div>
     </div>
   );
 }
