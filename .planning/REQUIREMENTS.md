@@ -11,7 +11,7 @@ Requirements for the Demo Readiness milestone. Each maps to roadmap phases.
 
 - [x] **VERIFY-01**: Playwright automated test demonstrates QR code generation and scan attribution flowing end-to-end in the browser
 - [x] **VERIFY-02**: Playwright automated test demonstrates coordinator feedback submission and weight-shift analytics rendering in the browser
-- [ ] **VERIFY-03**: UAT guide documents live voice/mic workflow steps with expected outcomes so a human reviewer can run a structured walkthrough
+- [x] **VERIFY-03**: UAT guide documents live voice/mic workflow steps with expected outcomes so a human reviewer can run a structured walkthrough
 
 ### Build Quality
 
@@ -60,7 +60,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BUILD-01 | Phase 15 | Complete |
 | VERIFY-01 | Phase 15 | Complete |
 | VERIFY-02 | Phase 15 | Complete |
-| VERIFY-03 | Phase 16 | Pending |
+| VERIFY-03 | Phase 16 | Complete |
 
 **Coverage:**
 - v3.1 requirements: 9 total

@@ -191,7 +191,7 @@ Plans:
 - [x] **Phase 13: Demo Polish** — Remove internal labels, finalize all copy, and enable smooth scrolling (completed 2026-03-27)
 - [x] **Phase 14: Visual Resilience** — Graceful fallback graphics with Demo Mode indicator (completed 2026-03-27)
 - [x] **Phase 15: Build Quality + Playwright Evidence** — Fix chunk-size warning and capture browser test evidence for QR and feedback flows (completed 2026-03-28)
-- [ ] **Phase 16: Voice/Mic UAT Guide** — Structured human walkthrough document for live voice path
+- [x] **Phase 16: Voice/Mic UAT Guide** — Structured human walkthrough document for live voice path (completed 2026-03-28)
 
 ### Phase Details
 
@@ -245,10 +245,10 @@ Plans:
   1. The UAT guide lists every step in the voice/mic workflow in sequence, with the exact expected outcome for each step
   2. A reviewer following only the guide can trigger voice input, observe intent parsing, see an approval card, and confirm agent action gating without requiring any developer assistance
   3. The guide documents known edge cases (microphone permission prompt, fallback to text input) with explicit handling steps
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 Plans:
-- [ ] 16-01-PLAN.md — Write and validate UAT voice/mic walkthrough guide
+- [x] 16-01-PLAN.md — Write and validate UAT voice/mic walkthrough guide
 
 
 ### Progress
@@ -258,7 +258,7 @@ Plans:
 | 13. Demo Polish | 1/1 | Complete    | 2026-03-27 |
 | 14. Visual Resilience | 2/2 | Complete    | 2026-03-27 |
 | 15. Build Quality + Playwright Evidence | 2/2 | Complete    | 2026-03-28 |
-| 16. Voice/Mic UAT Guide | 0/1 | Planned | - |
+| 16. Voice/Mic UAT Guide | 1/1 | Complete   | 2026-03-28 |
 
 ---
 

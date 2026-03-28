@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v3.1
 milestone_name: Demo Readiness
 status: unknown
-stopped_at: Completed 15-02-PLAN.md
-last_updated: "2026-03-28T03:04:22.025Z"
+stopped_at: Completed 16-01-PLAN.md
+last_updated: "2026-03-28T03:54:17.317Z"
 progress:
   total_phases: 4
-  completed_phases: 3
-  total_plans: 5
-  completed_plans: 5
+  completed_phases: 4
+  total_plans: 6
+  completed_plans: 6
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** A coordinator can use voice or text to command an AI assistant that orchestrates parallel agents for event discovery, speaker matching, and outreach, with human approval gating every action.
-**Current focus:** Phase 15 — build-quality-playwright-evidence
+**Current focus:** Phase 16 — voice-mic-uat-guide
 
 ## Current Position
 
-Phase: 16
-Plan: Not started
+Phase: 16 (voice-mic-uat-guide) — EXECUTING
+Plan: 1 of 1
 
 ## Accumulated Context
 
@@ -60,6 +60,8 @@ Plan: Not started
 - [Phase 15-01]: manualChunks function splits vendor bundle into 4 named chunks under 500 kB; @emotion merged into index (expected, no zero-size chunk error)
 - [Phase 15]: Force-add output/playwright/ screenshots past .gitignore with git add -f; output/ is gitignored but screenshots are required as committed evidence
 - [Phase 15]: Placeholder 1x1 PNG artifacts committed for react-qr-flow.png and react-feedback-flow.png; React dev server was offline; regenerate with 'python scripts/run_react_e2e.py' when Vite is started
+- [Phase 16]: UAT guide is text-only with exact UI strings from command_center.py -- no screenshots needed for judge review
+- [Phase 16]: Both voice and text input paths documented as parallel sections so guide works even without a microphone
 
 ### Pending Todos
 
@@ -82,6 +84,6 @@ Plan: Not started
 
 ## Session Continuity
 
-Last session: 2026-03-28T00:44:30.015Z
-Stopped at: Completed 15-02-PLAN.md
+Last session: 2026-03-28T03:54:17.300Z
+Stopped at: Completed 16-01-PLAN.md
 Resume file: None
