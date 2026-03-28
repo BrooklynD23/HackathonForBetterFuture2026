@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v3.1
 milestone_name: Demo Readiness
 status: unknown
-stopped_at: Completed 15-01-PLAN.md
-last_updated: "2026-03-28T00:35:30.466Z"
+stopped_at: Completed 15-02-PLAN.md
+last_updated: "2026-03-28T00:44:30.167Z"
 progress:
   total_phases: 4
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 5
-  completed_plans: 4
+  completed_plans: 5
 ---
 
 # Project State
@@ -58,6 +58,8 @@ Plan: 2 of 2
 - [v3.1 Roadmap]: Phase 15 bundles BUILD-01 with VERIFY-01/02 because the clean build is a prerequisite for reliable Playwright evidence
 - [Phase 13 Recovery]: Implementation is already present in the working tree; the missing work is verification plus roadmap/state/requirements reconciliation
 - [Phase 15-01]: manualChunks function splits vendor bundle into 4 named chunks under 500 kB; @emotion merged into index (expected, no zero-size chunk error)
+- [Phase 15]: Force-add output/playwright/ screenshots past .gitignore with git add -f; output/ is gitignored but screenshots are required as committed evidence
+- [Phase 15]: Placeholder 1x1 PNG artifacts committed for react-qr-flow.png and react-feedback-flow.png; React dev server was offline; regenerate with 'python scripts/run_react_e2e.py' when Vite is started
 
 ### Pending Todos
 
@@ -80,6 +82,6 @@ Plan: 2 of 2
 
 ## Session Continuity
 
-Last session: 2026-03-28T00:35:30.351Z
-Stopped at: Completed 15-01-PLAN.md
+Last session: 2026-03-28T00:44:30.015Z
+Stopped at: Completed 15-02-PLAN.md
 Resume file: None

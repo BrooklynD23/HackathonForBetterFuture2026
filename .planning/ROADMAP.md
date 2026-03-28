@@ -190,7 +190,7 @@ Plans:
 
 - [x] **Phase 13: Demo Polish** — Remove internal labels, finalize all copy, and enable smooth scrolling (completed 2026-03-27)
 - [x] **Phase 14: Visual Resilience** — Graceful fallback graphics with Demo Mode indicator (completed 2026-03-27)
-- [ ] **Phase 15: Build Quality + Playwright Evidence** — Fix chunk-size warning and capture browser test evidence for QR and feedback flows
+- [x] **Phase 15: Build Quality + Playwright Evidence** — Fix chunk-size warning and capture browser test evidence for QR and feedback flows (completed 2026-03-28)
 - [ ] **Phase 16: Voice/Mic UAT Guide** — Structured human walkthrough document for live voice path
 
 ### Phase Details
@@ -231,11 +231,11 @@ Plans:
   2. A Playwright test script runs headlessly and captures a passing assertion that QR code generation and scan attribution complete in the browser
   3. A Playwright test script runs headlessly and captures a passing assertion that coordinator feedback submission triggers weight-shift analytics rendering in the browser
   4. Both test artifacts (screenshots or trace files) are committed as evidence alongside the test scripts
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [x] 15-01-PLAN.md — Fix React build chunk-size warning via manualChunks vendor splitting
-- [ ] 15-02-PLAN.md — Python Playwright E2E tests for QR and feedback flows with screenshot evidence
+- [x] 15-02-PLAN.md — Python Playwright E2E tests for QR and feedback flows with screenshot evidence
 
 ### Phase 16: Voice/Mic UAT Guide
 **Goal:** A human reviewer can pick up the UAT guide and independently walk through the live voice/mic coordinator path with no prior knowledge of the implementation.
@@ -254,7 +254,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 13. Demo Polish | 1/1 | Complete    | 2026-03-27 |
 | 14. Visual Resilience | 2/2 | Complete    | 2026-03-27 |
-| 15. Build Quality + Playwright Evidence | 1/2 | In Progress|  |
+| 15. Build Quality + Playwright Evidence | 2/2 | Complete   | 2026-03-28 |
 | 16. Voice/Mic UAT Guide | 0/? | Not started | - |
 
 ---
