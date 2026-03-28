@@ -4,9 +4,9 @@ import { motion, useReducedMotion } from "motion/react";
 const introReveal = {
   initial: { opacity: 0, y: 24 },
   whileInView: { opacity: 1, y: 0 },
-  transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
+  transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as const },
   viewport: { once: true, amount: 0.35 },
-};
+} as const;
 
 const cards = [
   {
