@@ -14,7 +14,7 @@ from fastapi.responses import StreamingResponse
 
 from src.api.smartmatch_db import insert_crawler_event, load_crawler_events
 from src.config import GEMINI_API_KEY
-from src.gemini_client import GeminiAPIError, web_search
+from src.gemini_client import web_search
 
 router = APIRouter()
 _log = logging.getLogger(__name__)
@@ -60,7 +60,7 @@ async def _search_gemini(query: str) -> list[dict[str, str]]:
         return await loop.run_in_executor(
             None, lambda: web_search(query, api_key=GEMINI_API_KEY)
         )
-    except GeminiAPIError as exc:
+    except Exception as exc:
         _log.warning("Gemini search failed for %r: %s", query, exc)
         return []
 
@@ -98,7 +98,19 @@ async def _push_event(event: dict[str, Any]) -> None:
 
 async def _run_crawl() -> None:
     """Crawl IA West directed school pages; push events to SSE queue and persist to DB."""
-    now = datetime.now(timezone.utc).isoformat
+    def now() -> str:
+        return datetime.now(timezone.utc).isoformat()
+    try:
+        await _run_crawl_body(now)
+    finally:
+        try:
+            _crawler_queue.put_nowait(None)
+        except asyncio.QueueFull:
+            pass
+
+
+async def _run_crawl_body(now: Any) -> None:
+    """Inner crawl steps (``_run_crawl`` ``finally`` emits the SSE done sentinel)."""
 
     # Phase 1: Emit "crawling" for each seed URL
     for url in SEED_URLS:
@@ -180,12 +192,6 @@ async def _run_crawl() -> None:
                 "status": "error",
                 "timestamp": now(),
             })
-
-    # Done sentinel
-    try:
-        _crawler_queue.put_nowait(None)
-    except asyncio.QueueFull:
-        pass
 
 
 async def _event_stream() -> AsyncIterator[str]:
