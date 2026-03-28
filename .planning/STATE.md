@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v3.1
 milestone_name: Demo Readiness
 status: unknown
-stopped_at: Completed 17-01-PLAN.md
-last_updated: "2026-03-28T05:56:58.492Z"
+stopped_at: Completed 17-02-PLAN.md
+last_updated: "2026-03-28T06:05:44.187Z"
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 9
-  completed_plans: 7
+  completed_plans: 8
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-26)
 ## Current Position
 
 Phase: 17 (persistent-database-layer-web-crawler-live-feed) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ## Accumulated Context
 
@@ -64,6 +64,8 @@ Plan: 2 of 3
 - [Phase 16]: Both voice and text input paths documented as parallel sections so guide works even without a microphone
 - [Phase 17]: Layer 0 smartmatch_db.py mirrors demo_db.py interface for drop-in substitution in 3-layer fallback chain
 - [Phase 17]: seed_smartmatch_db.py imports calendar/qr/feedback constants from seed_demo_db.py to avoid duplication for tables without CSV sources
+- [Phase 17]: SSE stream uses StreamingResponse (not EventSourceResponse) and asyncio.Queue(maxsize=100) for crawler live feed
+- [Phase 17]: Gemini/Tavily search failure degrades gracefully: Gemini -> Tavily -> seed-only, all via run_in_executor to avoid blocking event loop
 
 ### Pending Todos
 
@@ -86,6 +88,6 @@ Plan: 2 of 3
 
 ## Session Continuity
 
-Last session: 2026-03-28T05:56:58.393Z
-Stopped at: Completed 17-01-PLAN.md
+Last session: 2026-03-28T06:05:44.153Z
+Stopped at: Completed 17-02-PLAN.md
 Resume file: None
