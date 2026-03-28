@@ -48,10 +48,10 @@ Requirements for the Tech Debt Cleanup milestone (phases 18-19).
 
 ### Code Debt Fixes
 
-- [ ] **DEBT-01**: `WithSource<T>` in `frontend/src/lib/api.ts` includes `"csv"` source type and `isMockData` is true when source is `"csv"`
-- [ ] **DEBT-02**: Crawler timestamp in `src/api/routers/crawler.py` calls `.isoformat()` so each crawl event gets a distinct timestamp
+- [x] **DEBT-01**: `WithSource<T>` in `frontend/src/lib/api.ts` includes `"csv"` source type and `isMockData` is true when source is `"csv"`
+- [x] **DEBT-02**: Crawler timestamp in `src/api/routers/crawler.py` calls `.isoformat()` so each crawl event gets a distinct timestamp
 - [x] **DEBT-03**: DB-01–CRAWLER-03 added to REQUIREMENTS.md traceability table with Phase 17 mapped
-- [ ] **DEBT-04**: framer-motion TypeScript errors in LandingPage.tsx and LoginPage.tsx resolved
+- [x] **DEBT-04**: framer-motion TypeScript errors in LandingPage.tsx and LoginPage.tsx resolved
 
 ### Human UAT Sign-off
 
@@ -104,10 +104,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CRAWLER-01 | Phase 17 | Complete |
 | CRAWLER-02 | Phase 17 | Complete |
 | CRAWLER-03 | Phase 17 | Complete |
-| DEBT-01 | Phase 18 | Pending |
-| DEBT-02 | Phase 18 | Pending |
+| DEBT-01 | Phase 18 | Complete |
+| DEBT-02 | Phase 18 | Complete |
 | DEBT-03 | Phase 18 | Complete |
-| DEBT-04 | Phase 18 | Pending |
+| DEBT-04 | Phase 18 | Complete |
 | UAT-01 | Phase 19 | Pending |
 | UAT-02 | Phase 19 | Pending |
 | UAT-03 | Phase 19 | Pending |

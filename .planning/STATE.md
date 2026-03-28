@@ -1,15 +1,15 @@
 ---
 gsd_state_version: 1.0
-milestone: v3.1
-milestone_name: Demo Readiness
-status: complete
-stopped_at: Phase 17 complete — all plans executed, VERIFICATION.md written
-last_updated: "2026-03-28T08:00:00.000Z"
+milestone: v3.2
+milestone_name: Tech Debt Cleanup
+status: unknown
+stopped_at: Completed 18-01-PLAN.md — all 4 DEBT items fixed
+last_updated: "2026-03-28T18:51:14.349Z"
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 9
-  completed_plans: 9
+  total_phases: 7
+  completed_phases: 6
+  total_plans: 10
+  completed_plans: 10
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** A coordinator can use voice or text to command an AI assistant that orchestrates parallel agents for event discovery, speaker matching, and outreach, with human approval gating every action.
-**Current focus:** v3.1 complete — all phases delivered and verified.
+**Current focus:** Phase 18 — tech-debt-cleanup-code-fixes
 
 ## Current Position
 
-Phase: 17 (persistent-database-layer-web-crawler-live-feed) — COMPLETE
-All 3 plans executed. VERIFICATION.md written. Pre-demo 1.0 audit passed.
+Phase: 18 (tech-debt-cleanup-code-fixes) — EXECUTING
+Plan: 1 of 1
 
 ## Accumulated Context
 
@@ -66,6 +66,9 @@ All 3 plans executed. VERIFICATION.md written. Pre-demo 1.0 audit passed.
 - [Phase 17]: seed_smartmatch_db.py imports calendar/qr/feedback constants from seed_demo_db.py to avoid duplication for tables without CSV sources
 - [Phase 17]: SSE stream uses StreamingResponse (not EventSourceResponse) and asyncio.Queue(maxsize=100) for crawler live feed
 - [Phase 17]: Gemini/Tavily search failure degrades gracefully: Gemini -> Tavily -> seed-only, all via run_in_executor to avoid blocking event loop
+- [Phase 18]: isMockData boolean field added to WithSource<T> — canonical mock-data check replacing all source === 'demo' comparisons; also captures csv-sourced data
+- [Phase 18]: def now() factory pattern in crawler.py _run_crawl — each event call gets a fresh ISO-8601 timestamp
+- [Phase 18]: as const on motion ease tuples satisfies BezierDefinition in framer-motion TS types
 
 ### Pending Todos
 
@@ -88,6 +91,6 @@ All 3 plans executed. VERIFICATION.md written. Pre-demo 1.0 audit passed.
 
 ## Session Continuity
 
-Last session: 2026-03-28T08:00:00.000Z
-Stopped at: Phase 17 complete — router state fix applied, SUMMARY.md + VERIFICATION.md written
+Last session: 2026-03-28T18:51:14.323Z
+Stopped at: Completed 18-01-PLAN.md — all 4 DEBT items fixed
 Resume file: None

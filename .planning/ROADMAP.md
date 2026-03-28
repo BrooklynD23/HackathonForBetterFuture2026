@@ -290,7 +290,7 @@ Plans:
 
 ### Phases
 
-- [ ] **Phase 18: Tech Debt Cleanup — Code Fixes** — Fix 4 code-level items from v3.1 audit
+- [x] **Phase 18: Tech Debt Cleanup — Code Fixes** — Fix 4 code-level items from v3.1 audit (completed 2026-03-28)
 - [ ] **Phase 19: Human UAT Sign-off** — Complete all deferred human validation items from phases 14-16
 
 ### Phase Details
@@ -305,10 +305,10 @@ Plans:
   2. Crawler timestamp in `src/api/routers/crawler.py` calls `.isoformat()` (with parentheses) so each event gets a distinct timestamp
   3. DB-01–CRAWLER-03 requirements are added to REQUIREMENTS.md traceability table with Phase 17 mapped
   4. framer-motion TypeScript errors in LandingPage.tsx and LoginPage.tsx are resolved and `npm run build` reports zero TS errors from those files
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 Plans:
-- [ ] 18-01-PLAN.md — Fix WithSource csv type, crawler timestamp, REQUIREMENTS.md doc gap, framer-motion TS errors
+- [x] 18-01-PLAN.md — Fix WithSource csv type, crawler timestamp, REQUIREMENTS.md doc gap, framer-motion TS errors
 
 ### Phase 19: Human UAT Sign-off
 **Goal:** A human reviewer completes all deferred UAT walkthroughs from v3.1 and any remaining code cleanup (stale docstrings) is resolved, so the codebase has zero outstanding audit items.
@@ -331,7 +331,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 18. Tech Debt Cleanup — Code Fixes | 0/1 | Pending | — |
+| 18. Tech Debt Cleanup — Code Fixes | 1/1 | Complete   | 2026-03-28 |
 | 19. Human UAT Sign-off | 0/1 | Pending | — |
 
 ---
