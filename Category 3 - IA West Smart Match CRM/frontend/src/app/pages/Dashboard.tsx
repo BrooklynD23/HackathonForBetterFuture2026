@@ -55,6 +55,7 @@ import {
 import { DemoModeBadge } from "../components/ui/DemoModeBadge";
 
 import { MetricCard } from "../components/MetricCard";
+import { CrawlerFeed } from "@/components/CrawlerFeed";
 
 const funnelPalette = ["#005394", "#1f6fb2", "#2b87d1", "#56a4e4", "#a2c9ff"];
 
@@ -925,6 +926,9 @@ export function Dashboard() {
           )}
         </div>
       </div>
+
+      {/* Web Crawler Live Feed */}
+      <CrawlerFeed />
     </div>
   );
 }
