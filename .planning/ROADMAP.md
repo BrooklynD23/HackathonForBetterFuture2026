@@ -263,10 +263,10 @@ Plans:
   5. A `/api/crawler/feed` SSE endpoint streams real-time crawler activity (URL visited, title extracted, timestamp) to the frontend
   6. The coordinator dashboard shows a live scrolling feed of crawler activity (site names, crawl status) similar to ChatGPT deep research UI
   7. Coordinator can trigger a new crawl targeting IA West directed school pages from the UI
-**Plans:** 0/0 plans complete
+**Plans:** 1/3 plans executed
 
 Plans:
-- [ ] 17-01-PLAN.md — Create `smartmatch.db` schema, seed script with IA West data, and migrate Layer 0 into all API endpoints
+- [x] 17-01-PLAN.md — Create `smartmatch.db` schema, seed script with IA West data, and migrate Layer 0 into all API endpoints
 - [ ] 17-02-PLAN.md — Web crawler backend: Gemini/Tavily integration, SSE feed endpoint, `web_crawler_events` table
 - [ ] 17-03-PLAN.md — Frontend crawler live feed UI: real-time scrolling activity panel and trigger button
 
@@ -279,7 +279,7 @@ Plans:
 | 14. Visual Resilience | 2/2 | Complete    | 2026-03-27 |
 | 15. Build Quality + Playwright Evidence | 2/2 | Complete    | 2026-03-28 |
 | 16. Voice/Mic UAT Guide | 1/1 | Complete    | 2026-03-28 |
-| 17. Persistent Database Layer + Web Crawler Live Feed | 0/3 | Not Started | — |
+| 17. Persistent Database Layer + Web Crawler Live Feed | 1/3 | In Progress|  |
 
 ---
 

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v3.1
 milestone_name: Demo Readiness
 status: unknown
-stopped_at: Completed 16-01-PLAN.md
-last_updated: "2026-03-28T03:56:48.089Z"
+stopped_at: Completed 17-01-PLAN.md
+last_updated: "2026-03-28T05:56:58.492Z"
 progress:
-  total_phases: 4
+  total_phases: 5
   completed_phases: 4
-  total_plans: 6
-  completed_plans: 6
+  total_plans: 9
+  completed_plans: 7
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** A coordinator can use voice or text to command an AI assistant that orchestrates parallel agents for event discovery, speaker matching, and outreach, with human approval gating every action.
-**Current focus:** Phase 16 — voice-mic-uat-guide
+**Current focus:** Phase 17 — persistent-database-layer-web-crawler-live-feed
 
 ## Current Position
 
-Phase: 16
-Plan: Not started
+Phase: 17 (persistent-database-layer-web-crawler-live-feed) — EXECUTING
+Plan: 2 of 3
 
 ## Accumulated Context
 
@@ -62,6 +62,8 @@ Plan: Not started
 - [Phase 15]: Placeholder 1x1 PNG artifacts committed for react-qr-flow.png and react-feedback-flow.png; React dev server was offline; regenerate with 'python scripts/run_react_e2e.py' when Vite is started
 - [Phase 16]: UAT guide is text-only with exact UI strings from command_center.py -- no screenshots needed for judge review
 - [Phase 16]: Both voice and text input paths documented as parallel sections so guide works even without a microphone
+- [Phase 17]: Layer 0 smartmatch_db.py mirrors demo_db.py interface for drop-in substitution in 3-layer fallback chain
+- [Phase 17]: seed_smartmatch_db.py imports calendar/qr/feedback constants from seed_demo_db.py to avoid duplication for tables without CSV sources
 
 ### Pending Todos
 
@@ -84,6 +86,6 @@ Plan: Not started
 
 ## Session Continuity
 
-Last session: 2026-03-28T03:54:17.300Z
-Stopped at: Completed 16-01-PLAN.md
+Last session: 2026-03-28T05:56:58.393Z
+Stopped at: Completed 17-01-PLAN.md
 Resume file: None
