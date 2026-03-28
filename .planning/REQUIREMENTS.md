@@ -15,7 +15,7 @@ Requirements for the Demo Readiness milestone. Each maps to roadmap phases.
 
 ### Build Quality
 
-- [ ] **BUILD-01**: React production build completes without chunk-size warnings
+- [x] **BUILD-01**: React production build completes without chunk-size warnings
 
 ### Demo Polish
 
@@ -57,7 +57,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | POLISH-03 | Phase 13 | Complete |
 | POLISH-04 | Phase 14 | Complete |
 | POLISH-05 | Phase 14 | Complete |
-| BUILD-01 | Phase 15 | Pending |
+| BUILD-01 | Phase 15 | Complete |
 | VERIFY-01 | Phase 15 | Pending |
 | VERIFY-02 | Phase 15 | Pending |
 | VERIFY-03 | Phase 16 | Pending |

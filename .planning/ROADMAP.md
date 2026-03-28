@@ -231,10 +231,10 @@ Plans:
   2. A Playwright test script runs headlessly and captures a passing assertion that QR code generation and scan attribution complete in the browser
   3. A Playwright test script runs headlessly and captures a passing assertion that coordinator feedback submission triggers weight-shift analytics rendering in the browser
   4. Both test artifacts (screenshots or trace files) are committed as evidence alongside the test scripts
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
-- [ ] 15-01-PLAN.md — Fix React build chunk-size warning via manualChunks vendor splitting
+- [x] 15-01-PLAN.md — Fix React build chunk-size warning via manualChunks vendor splitting
 - [ ] 15-02-PLAN.md — Python Playwright E2E tests for QR and feedback flows with screenshot evidence
 
 ### Phase 16: Voice/Mic UAT Guide
@@ -254,7 +254,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 13. Demo Polish | 1/1 | Complete    | 2026-03-27 |
 | 14. Visual Resilience | 2/2 | Complete    | 2026-03-27 |
-| 15. Build Quality + Playwright Evidence | 0/2 | Planned | - |
+| 15. Build Quality + Playwright Evidence | 1/2 | In Progress|  |
 | 16. Voice/Mic UAT Guide | 0/? | Not started | - |
 
 ---
