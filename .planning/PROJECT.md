@@ -23,6 +23,7 @@ A coordinator can use voice or text to command an AI assistant that orchestrates
 - React + FastAPI coordinator surfaces now cover recovery-aware scheduling, QR attribution, and feedback-driven optimizer analytics.
 - Demo-first constraints remain in effect (single-tenant, no production auth/scaling).
 - All v3.0 phases through continuous-improvement feedback are complete and verified at the focused contract/build level.
+- **v3.1 Demo Readiness complete (2026-03-28):** All 4 phases shipped — demo polish, visual resilience, build quality + Playwright evidence, and human UAT guide for voice/mic path. Submission-ready.
 
 ## v3.0 Completion (Shipped: 2026-03-26)
 
@@ -70,4 +71,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-26 after v3.1 milestone initialized*
+*Last updated: 2026-03-28 after v3.1 Phase 16 complete — all v3.1 phases done*
