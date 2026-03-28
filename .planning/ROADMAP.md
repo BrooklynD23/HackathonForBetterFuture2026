@@ -245,7 +245,10 @@ Plans:
   1. The UAT guide lists every step in the voice/mic workflow in sequence, with the exact expected outcome for each step
   2. A reviewer following only the guide can trigger voice input, observe intent parsing, see an approval card, and confirm agent action gating without requiring any developer assistance
   3. The guide documents known edge cases (microphone permission prompt, fallback to text input) with explicit handling steps
-**Plans:** TBD
+**Plans:** 1 plan
+
+Plans:
+- [ ] 16-01-PLAN.md — Write and validate UAT voice/mic walkthrough guide
 
 
 ### Progress
@@ -255,7 +258,7 @@ Plans:
 | 13. Demo Polish | 1/1 | Complete    | 2026-03-27 |
 | 14. Visual Resilience | 2/2 | Complete    | 2026-03-27 |
 | 15. Build Quality + Playwright Evidence | 2/2 | Complete    | 2026-03-28 |
-| 16. Voice/Mic UAT Guide | 0/? | Not started | - |
+| 16. Voice/Mic UAT Guide | 0/1 | Planned | - |
 
 ---
 
@@ -265,4 +268,4 @@ Plans:
 
 ## Current Status
 
-v3.1 Demo Readiness is in progress. Phases 13-14 complete. Phase 15 is planned with 2 plans (build fix + Playwright evidence). Phase 16 remains to be planned.
+v3.1 Demo Readiness is in progress. Phases 13-15 complete. Phase 16 is planned with 1 plan (UAT guide creation + validation).
