@@ -167,18 +167,18 @@ export function Calendar() {
         let anyMock = false;
 
         if (eventResult.status === "fulfilled") {
-          const { data, source } = eventResult.value;
+          const { data, isMockData } = eventResult.value;
           setEvents(data);
-          if (source === "demo") anyMock = true;
+          if (isMockData) anyMock = true;
         } else {
           setEvents(MOCK_CALENDAR_EVENTS);
           anyMock = true;
         }
 
         if (assignmentResult.status === "fulfilled") {
-          const { data, source } = assignmentResult.value;
+          const { data, isMockData } = assignmentResult.value;
           setAssignments(data);
-          if (source === "demo") anyMock = true;
+          if (isMockData) anyMock = true;
         } else {
           setAssignments(MOCK_CALENDAR_ASSIGNMENTS);
           anyMock = true;

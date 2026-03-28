@@ -265,14 +265,14 @@ export function Volunteers() {
         let anyMock = false;
 
         setVolunteers(specialistResult.value.data);
-        if (specialistResult.value.source === "demo") anyMock = true;
+        if (specialistResult.value.isMockData) anyMock = true;
 
         setPipeline(pipelineResult.value.data);
-        if (pipelineResult.value.source === "demo") anyMock = true;
+        if (pipelineResult.value.isMockData) anyMock = true;
 
         if (assignmentResult.status === "fulfilled") {
           setAssignments(assignmentResult.value.data);
-          if (assignmentResult.value.source === "demo") anyMock = true;
+          if (assignmentResult.value.isMockData) anyMock = true;
         } else {
           setAssignments(MOCK_CALENDAR_ASSIGNMENTS);
           anyMock = true;
@@ -280,7 +280,7 @@ export function Volunteers() {
 
         if (qrResult.status === "fulfilled") {
           setQrStats(qrResult.value.data);
-          if (qrResult.value.source === "demo") anyMock = true;
+          if (qrResult.value.isMockData) anyMock = true;
         } else {
           setQrStats(MOCK_QR_STATS);
           anyMock = true;

@@ -341,7 +341,7 @@ export function AIMatching() {
         if (!hasMatch) {
           setSelectedEventName(data[0]?.["Event / Program"] ?? "");
         }
-        if (result.source === "demo") {
+        if (result.isMockData) {
           setIsMockData(true);
         }
       })
@@ -375,7 +375,7 @@ export function AIMatching() {
       .then((result) => {
         if (active) {
           setFeedbackStats(result.data);
-          if (result.source === "demo") {
+          if (result.isMockData) {
             setIsMockData(true);
           }
         }
@@ -406,7 +406,7 @@ export function AIMatching() {
       const [pipelineResult, assignmentResult] = results;
       if (pipelineResult.status === "fulfilled") {
         setPipeline(pipelineResult.value.data);
-        if (pipelineResult.value.source === "demo") {
+        if (pipelineResult.value.isMockData) {
           setIsMockData(true);
         }
       } else {
@@ -419,7 +419,7 @@ export function AIMatching() {
 
       if (assignmentResult.status === "fulfilled") {
         setAssignments(assignmentResult.value.data);
-        if (assignmentResult.value.source === "demo") {
+        if (assignmentResult.value.isMockData) {
           setIsMockData(true);
         }
       } else {

@@ -288,15 +288,14 @@ export function Dashboard() {
 
         const specialistRows = specialistResult.value.data;
         const eventRows = eventResult.value.data;
-        if (specialistResult.value.source === "demo") anyMock = true;
-        if (eventResult.value.source === "demo") anyMock = true;
+        if (specialistResult.value.isMockData) anyMock = true;
+        if (eventResult.value.isMockData) anyMock = true;
 
-        const pipelineRows =
-          pipelineResult.value.source === "demo" ? pipelineResult.value.data : pipelineResult.value.data;
-        if (pipelineResult.value.source === "demo") anyMock = true;
+        const pipelineRows = pipelineResult.value.data;
+        if (pipelineResult.value.isMockData) anyMock = true;
 
         const calendarRows = calendarResult.value.data;
-        if (calendarResult.value.source === "demo") anyMock = true;
+        if (calendarResult.value.isMockData) anyMock = true;
 
         setSpecialists(specialistRows);
         setEventCount(eventRows.length);
@@ -305,7 +304,7 @@ export function Dashboard() {
 
         if (assignmentResult.status === "fulfilled") {
           setCalendarAssignments(assignmentResult.value.data);
-          if (assignmentResult.value.source === "demo") anyMock = true;
+          if (assignmentResult.value.isMockData) anyMock = true;
         } else {
           setCalendarAssignments(MOCK_CALENDAR_ASSIGNMENTS);
           anyMock = true;
@@ -313,7 +312,7 @@ export function Dashboard() {
 
         if (feedbackResult.status === "fulfilled") {
           setFeedbackStats(feedbackResult.value.data);
-          if (feedbackResult.value.source === "demo") anyMock = true;
+          if (feedbackResult.value.isMockData) anyMock = true;
         } else {
           setFeedbackStats(MOCK_FEEDBACK_STATS);
           anyMock = true;

@@ -162,14 +162,14 @@ export function Pipeline() {
         let anyMock = false;
 
         setPipelineRecords(pipelineResult.value.data);
-        if (pipelineResult.value.source === "demo") anyMock = true;
+        if (pipelineResult.value.isMockData) anyMock = true;
 
         setEvents(eventResult.value.data);
-        if (eventResult.value.source === "demo") anyMock = true;
+        if (eventResult.value.isMockData) anyMock = true;
 
         if (qrResult.status === "fulfilled") {
           setQrStats(qrResult.value.data);
-          if (qrResult.value.source === "demo") anyMock = true;
+          if (qrResult.value.isMockData) anyMock = true;
         } else {
           setQrStats(MOCK_QR_STATS);
           anyMock = true;
@@ -177,7 +177,7 @@ export function Pipeline() {
 
         if (feedbackResult.status === "fulfilled") {
           setFeedbackStats(feedbackResult.value.data);
-          if (feedbackResult.value.source === "demo") anyMock = true;
+          if (feedbackResult.value.isMockData) anyMock = true;
         } else {
           setFeedbackStats(MOCK_FEEDBACK_STATS);
           anyMock = true;

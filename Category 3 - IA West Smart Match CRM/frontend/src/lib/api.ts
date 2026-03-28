@@ -863,28 +863,32 @@ export function splitTags(raw: string): string[] {
 
 export interface WithSource<T> {
   data: T;
-  source: "live" | "demo";
+  source: "live" | "demo" | "csv";
+  isMockData: boolean;
 }
 
 export async function fetchSpecialists(): Promise<WithSource<Specialist[]>> {
   const raw = await requestJson<unknown>("/api/data/specialists");
   const payload = toRecordArray(raw);
-  const source: "live" | "demo" = payload[0]?.source === "demo" ? "demo" : "live";
-  return { data: payload as unknown as Specialist[], source };
+  const rawSource = payload[0]?.source;
+  const source: "live" | "demo" | "csv" = rawSource === "demo" ? "demo" : rawSource === "csv" ? "csv" : "live";
+  return { data: payload as unknown as Specialist[], source, isMockData: source !== "live" };
 }
 
 export async function fetchEvents(): Promise<WithSource<CppEvent[]>> {
   const raw = await requestJson<unknown>("/api/data/events");
   const payload = toRecordArray(raw);
-  const source: "live" | "demo" = payload[0]?.source === "demo" ? "demo" : "live";
-  return { data: payload as unknown as CppEvent[], source };
+  const rawSource = payload[0]?.source;
+  const source: "live" | "demo" | "csv" = rawSource === "demo" ? "demo" : rawSource === "csv" ? "csv" : "live";
+  return { data: payload as unknown as CppEvent[], source, isMockData: source !== "live" };
 }
 
 export async function fetchPipeline(): Promise<WithSource<PipelineRecord[]>> {
   const raw = await requestJson<unknown>("/api/data/pipeline");
   const payload = toRecordArray(raw);
-  const source: "live" | "demo" = payload[0]?.source === "demo" ? "demo" : "live";
-  return { data: payload as unknown as PipelineRecord[], source };
+  const rawSource = payload[0]?.source;
+  const source: "live" | "demo" | "csv" = rawSource === "demo" ? "demo" : rawSource === "csv" ? "csv" : "live";
+  return { data: payload as unknown as PipelineRecord[], source, isMockData: source !== "live" };
 }
 
 export async function fetchCalendar(): Promise<CalendarRecord[]> {
@@ -894,15 +898,17 @@ export async function fetchCalendar(): Promise<CalendarRecord[]> {
 export async function fetchCalendarEvents(): Promise<WithSource<CalendarEventSummary[]>> {
   const payload = await requestJson<unknown>("/api/calendar/events");
   const rows = toRecordArray(payload);
-  const source: "live" | "demo" = (rows[0] as Record<string, unknown>)?.source === "demo" ? "demo" : "live";
-  return { data: rows.map((record, index) => normalizeCalendarEvent(record, index)), source };
+  const rawSource = (rows[0] as Record<string, unknown>)?.source;
+  const source: "live" | "demo" | "csv" = rawSource === "demo" ? "demo" : rawSource === "csv" ? "csv" : "live";
+  return { data: rows.map((record, index) => normalizeCalendarEvent(record, index)), source, isMockData: source !== "live" };
 }
 
 export async function fetchCalendarAssignments(): Promise<WithSource<CalendarAssignmentSummary[]>> {
   const payload = await requestJson<unknown>("/api/calendar/assignments");
   const rows = toRecordArray(payload);
-  const source: "live" | "demo" = (rows[0] as Record<string, unknown>)?.source === "demo" ? "demo" : "live";
-  return { data: rows.map((record, index) => normalizeCalendarAssignment(record, index)), source };
+  const rawSource = (rows[0] as Record<string, unknown>)?.source;
+  const source: "live" | "demo" | "csv" = rawSource === "demo" ? "demo" : rawSource === "csv" ? "csv" : "live";
+  return { data: rows.map((record, index) => normalizeCalendarAssignment(record, index)), source, isMockData: source !== "live" };
 }
 
 export async function fetchVolunteerRecovery(): Promise<VolunteerRecoverySummary[]> {
@@ -972,14 +978,16 @@ export function emptyFeedbackStatsSummary(): FeedbackStatsSummary {
 
 export async function fetchQrStats(): Promise<WithSource<QrStatsSummary>> {
   const payload = await requestJson<Record<string, unknown>>("/api/qr/stats");
-  const source: "live" | "demo" = payload?.source === "demo" ? "demo" : "live";
-  return { data: normalizeQrStats(payload), source };
+  const rawSource = payload?.source;
+  const source: "live" | "demo" | "csv" = rawSource === "demo" ? "demo" : rawSource === "csv" ? "csv" : "live";
+  return { data: normalizeQrStats(payload), source, isMockData: source !== "live" };
 }
 
 export async function fetchFeedbackStats(): Promise<WithSource<FeedbackStatsSummary>> {
   const payload = await requestJson<Record<string, unknown>>("/api/feedback/stats");
-  const source: "live" | "demo" = payload?.source === "demo" ? "demo" : "live";
-  return { data: normalizeFeedbackStats(payload), source };
+  const rawSource = payload?.source;
+  const source: "live" | "demo" | "csv" = rawSource === "demo" ? "demo" : rawSource === "csv" ? "csv" : "live";
+  return { data: normalizeFeedbackStats(payload), source, isMockData: source !== "live" };
 }
 
 export async function submitFeedback(
