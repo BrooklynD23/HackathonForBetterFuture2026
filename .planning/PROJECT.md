@@ -71,4 +71,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-28 after v3.1 Phase 16 complete — all v3.1 phases done*
+*Last updated: 2026-03-28 after v3.2 Phase 18 complete — tech debt cleanup done (DEBT-01–04 all resolved)*
