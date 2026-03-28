@@ -305,7 +305,7 @@ Plans:
   2. Crawler timestamp in `src/api/routers/crawler.py` calls `.isoformat()` (with parentheses) so each event gets a distinct timestamp
   3. DB-01–CRAWLER-03 requirements are added to REQUIREMENTS.md traceability table with Phase 17 mapped
   4. framer-motion TypeScript errors in LandingPage.tsx and LoginPage.tsx are resolved and `npm run build` reports zero TS errors from those files
-**Plans:** 0/1 plans
+**Plans:** 1 plan
 
 Plans:
 - [ ] 18-01-PLAN.md — Fix WithSource csv type, crawler timestamp, REQUIREMENTS.md doc gap, framer-motion TS errors
@@ -322,7 +322,7 @@ Plans:
   4. Playwright test docstrings updated to reference `smartmatch.db` as Layer 0 (Phase 15 doc fix)
   5. Human completes live voice/audio WebRTC end-to-end walkthrough via the UAT guide (Phase 16 UAT)
   6. Human confirms multi-card simultaneous rendering for `prepare_campaign` intent (Phase 16 UAT)
-**Plans:** 0/1 plans
+**Plans:** 1 plan
 
 Plans:
 - [ ] 19-01-PLAN.md — UAT checklist execution + Playwright docstring update
