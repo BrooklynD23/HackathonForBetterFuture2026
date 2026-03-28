@@ -192,6 +192,7 @@ Plans:
 - [x] **Phase 14: Visual Resilience** — Graceful fallback graphics with Demo Mode indicator (completed 2026-03-27)
 - [x] **Phase 15: Build Quality + Playwright Evidence** — Fix chunk-size warning and capture browser test evidence for QR and feedback flows (completed 2026-03-28)
 - [x] **Phase 16: Voice/Mic UAT Guide** — Structured human walkthrough document for live voice path (completed 2026-03-28)
+- [ ] **Phase 17: Persistent Database Layer + Web Crawler Live Feed** — Introduce Layer 0 (persistent SQLite), remap Layer 1 (demo.db) and Layer 2 (CSV), seed all layers with IA West data, and add real-time Gemini/Tavily web crawler activity feed for coordinators
 
 ### Phase Details
 
@@ -250,6 +251,25 @@ Plans:
 Plans:
 - [x] 16-01-PLAN.md — Write and validate UAT voice/mic walkthrough guide
 
+### Phase 17: Persistent Database Layer + Web Crawler Live Feed
+**Goal:** Replace the current 2-layer fallback (CSV → demo.db) with a 3-layer architecture where a persistent SQLite database is Layer 0 (always-on primary), demo.db becomes Layer 1, and CSVs are Layer 2 (last resort). Add a real-time web crawler feed so coordinators can watch Gemini/Tavily discover directed school pages live.
+**Depends on:** Phase 16
+**Requirements:** DB-01, DB-02, DB-03, DB-04, CRAWLER-01, CRAWLER-02, CRAWLER-03
+**Success Criteria** (what must be TRUE):
+  1. A persistent `data/smartmatch.db` SQLite database exists and is the primary data source for all API endpoints
+  2. All IA West CSV datasets are imported into `smartmatch.db` on first run (specialists, events, pipeline, calendar, QR, feedback)
+  3. Layer fallback order is: `smartmatch.db` → `demo.db` → CSV, with source tag (`live`, `demo`, `csv`) in every API response
+  4. Web crawler events discovered by Gemini/Tavily are stored in `smartmatch.db`'s `web_crawler_events` table
+  5. A `/api/crawler/feed` SSE endpoint streams real-time crawler activity (URL visited, title extracted, timestamp) to the frontend
+  6. The coordinator dashboard shows a live scrolling feed of crawler activity (site names, crawl status) similar to ChatGPT deep research UI
+  7. Coordinator can trigger a new crawl targeting IA West directed school pages from the UI
+**Plans:** 0/0 plans complete
+
+Plans:
+- [ ] 17-01-PLAN.md — Create `smartmatch.db` schema, seed script with IA West data, and migrate Layer 0 into all API endpoints
+- [ ] 17-02-PLAN.md — Web crawler backend: Gemini/Tavily integration, SSE feed endpoint, `web_crawler_events` table
+- [ ] 17-03-PLAN.md — Frontend crawler live feed UI: real-time scrolling activity panel and trigger button
+
 
 ### Progress
 
@@ -259,6 +279,7 @@ Plans:
 | 14. Visual Resilience | 2/2 | Complete    | 2026-03-27 |
 | 15. Build Quality + Playwright Evidence | 2/2 | Complete    | 2026-03-28 |
 | 16. Voice/Mic UAT Guide | 1/1 | Complete    | 2026-03-28 |
+| 17. Persistent Database Layer + Web Crawler Live Feed | 0/3 | Not Started | — |
 
 ---
 
@@ -268,4 +289,4 @@ Plans:
 
 ## Current Status
 
-v3.1 Demo Readiness is in progress. Phases 13-15 complete. Phase 16 is planned with 1 plan (UAT guide creation + validation).
+v3.1 extended with Phase 17. Phases 13-16 complete. Phase 17 (Persistent Database Layer + Web Crawler Live Feed) not started — 3 plans queued.
