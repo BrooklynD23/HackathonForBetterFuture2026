@@ -111,7 +111,8 @@ export function FeedbackForm({
       let stats = mergeSnapshotIntoStats(currentStats, submission.optimizer_snapshot);
 
       try {
-        stats = await fetchFeedbackStats();
+        const refreshResult = await fetchFeedbackStats();
+        stats = refreshResult.data;
         setSuccess("Feedback recorded and optimizer metrics refreshed.");
       } catch {
         setSuccess(
@@ -142,9 +143,6 @@ export function FeedbackForm({
               <p className="text-sm text-slate-600">{description}</p>
             </div>
           </div>
-        </div>
-        <div className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
-          Phase 12
         </div>
       </div>
 

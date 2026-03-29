@@ -5,6 +5,11 @@
 - ✅ **v1.0 Sprint 5 Closeout** — Phases 1-3 (shipped 2026-03-21) | [Archive](milestones/v1.0-ROADMAP.md)
 - ✅ **v2.0 Jarvis Agent Coordinator** — Phases 4-7 (shipped 2026-03-24) | [Archive](milestones/v2.0-ROADMAP.md)
 - ✅ **v3.0 Production UI & Demo Polish** — Phases 8-12 (shipped 2026-03-26) | [Archive](milestones/v3.0-ROADMAP.md)
+- ✅ **v3.1 Demo Readiness** — Phases 13-17 (shipped 2026-03-28)
+- 🚧 **v3.2 Tech Debt Cleanup** — Phases 18-19 (in progress)
+
+<details>
+<summary>✅ v3.0 Production UI & Demo Polish (Phases 8-12) - SHIPPED 2026-03-26</summary>
 
 ## v3.0 Phases
 
@@ -176,15 +181,165 @@ Plans:
 - [x] 12-01-PLAN.md - Backend feedback service, persisted optimizer snapshots, and FastAPI feedback contract
 - [x] 12-02-PLAN.md - React feedback form plus dashboard/pipeline optimizer analytics
 
+---
+
+</details>
+
+## v3.1 Demo Readiness
+
+### Phases
+
+- [x] **Phase 13: Demo Polish** — Remove internal labels, finalize all copy, and enable smooth scrolling (completed 2026-03-27)
+- [x] **Phase 14: Visual Resilience** — Graceful fallback graphics with Demo Mode indicator (completed 2026-03-27)
+- [x] **Phase 15: Build Quality + Playwright Evidence** — Fix chunk-size warning and capture browser test evidence for QR and feedback flows (completed 2026-03-28)
+- [x] **Phase 16: Voice/Mic UAT Guide** — Structured human walkthrough document for live voice path (completed 2026-03-28)
+- [x] **Phase 17: Persistent Database Layer + Web Crawler Live Feed** — Introduce Layer 0 (persistent SQLite), remap Layer 1 (demo.db) and Layer 2 (CSV), seed all layers with IA West data, and add real-time Gemini/Tavily web crawler activity feed for coordinators (completed 2026-03-28)
+
+### Phase Details
+
+### Phase 13: Demo Polish
+**Goal:** Every user-facing text string is submission-ready — no internal phase labels, no placeholder copy, and all page transitions scroll smoothly.
+**Depends on:** Nothing (first phase of v3.1)
+**Requirements:** POLISH-01, POLISH-02, POLISH-03
+**Success Criteria** (what must be TRUE):
+  1. No "Phase #N" or similar internal label appears anywhere in the rendered app across all pages
+  2. Every page heading, button label, and body copy reads as concrete, professional product text with no dev-flavored placeholders
+  3. Navigating between pages and scrolling within any page produces smooth animated transitions with no abrupt jumps
+**Plans:** 1/1 plans complete
+
+Plans:
+- [x] 13-01-PLAN.md — Remove Phase labels, replace dev copy, add scroll-to-top
+
+### Phase 14: Visual Resilience
+**Goal:** Charts, images, and data visualizations never show broken states — they render real data or silently fall back to hardcoded mock data, and the coordinator always knows when mock data is active.
+**Depends on:** Phase 13
+**Requirements:** POLISH-04, POLISH-05
+**Success Criteria** (what must be TRUE):
+  1. Every chart and visualization in the app renders without error regardless of whether the backend returns data or not
+  2. When a visualization uses fallback mock data, a discrete "Demo Mode" badge or indicator is visible on that view without disrupting the layout
+  3. The "Demo Mode" indicator is absent on any view that has successfully loaded real data
+**Plans:** 2/2 plans complete
+
+Plans:
+- [x] 14-01-PLAN.md — Backend demo.db seed, helper module, and router fallback wiring
+- [x] 14-02-PLAN.md — Frontend mockData constants, DemoModeBadge, and page-level isMockData wiring
+
+### Phase 15: Build Quality + Playwright Evidence
+**Goal:** The React production build is clean and browser-captured evidence proves the QR and feedback flows work end-to-end.
+**Depends on:** Phase 14
+**Requirements:** BUILD-01, VERIFY-01, VERIFY-02
+**Success Criteria** (what must be TRUE):
+  1. `npm run build` completes with zero chunk-size warnings
+  2. A Playwright test script runs headlessly and captures a passing assertion that QR code generation and scan attribution complete in the browser
+  3. A Playwright test script runs headlessly and captures a passing assertion that coordinator feedback submission triggers weight-shift analytics rendering in the browser
+  4. Both test artifacts (screenshots or trace files) are committed as evidence alongside the test scripts
+**Plans:** 2/2 plans complete
+
+Plans:
+- [x] 15-01-PLAN.md — Fix React build chunk-size warning via manualChunks vendor splitting
+- [x] 15-02-PLAN.md — Python Playwright E2E tests for QR and feedback flows with screenshot evidence
+
+### Phase 16: Voice/Mic UAT Guide
+**Goal:** A human reviewer can pick up the UAT guide and independently walk through the live voice/mic coordinator path with no prior knowledge of the implementation.
+**Depends on:** Phase 15
+**Requirements:** VERIFY-03
+**Success Criteria** (what must be TRUE):
+  1. The UAT guide lists every step in the voice/mic workflow in sequence, with the exact expected outcome for each step
+  2. A reviewer following only the guide can trigger voice input, observe intent parsing, see an approval card, and confirm agent action gating without requiring any developer assistance
+  3. The guide documents known edge cases (microphone permission prompt, fallback to text input) with explicit handling steps
+**Plans:** 1/1 plans complete
+
+Plans:
+- [x] 16-01-PLAN.md — Write and validate UAT voice/mic walkthrough guide
+
+### Phase 17: Persistent Database Layer + Web Crawler Live Feed
+**Goal:** Replace the current 2-layer fallback (CSV → demo.db) with a 3-layer architecture where a persistent SQLite database is Layer 0 (always-on primary), demo.db becomes Layer 1, and CSVs are Layer 2 (last resort). Add a real-time web crawler feed so coordinators can watch Gemini/Tavily discover directed school pages live.
+**Depends on:** Phase 16
+**Requirements:** DB-01, DB-02, DB-03, DB-04, CRAWLER-01, CRAWLER-02, CRAWLER-03
+**Success Criteria** (what must be TRUE):
+  1. A persistent `data/smartmatch.db` SQLite database exists and is the primary data source for all API endpoints
+  2. All IA West CSV datasets are imported into `smartmatch.db` on first run (specialists, events, pipeline, calendar, QR, feedback)
+  3. Layer fallback order is: `smartmatch.db` → `demo.db` → CSV, with source tag (`live`, `demo`, `csv`) in every API response
+  4. Web crawler events discovered by Gemini/Tavily are stored in `smartmatch.db`'s `web_crawler_events` table
+  5. A `/api/crawler/feed` SSE endpoint streams real-time crawler activity (URL visited, title extracted, timestamp) to the frontend
+  6. The coordinator dashboard shows a live scrolling feed of crawler activity (site names, crawl status) similar to ChatGPT deep research UI
+  7. Coordinator can trigger a new crawl targeting IA West directed school pages from the UI
+**Plans:** 2/3 plans executed
+
+Plans:
+- [x] 17-01-PLAN.md — Create `smartmatch.db` schema, seed script with IA West data, and migrate Layer 0 into all API endpoints
+- [x] 17-02-PLAN.md — Web crawler backend: Gemini/Tavily integration, SSE feed endpoint, `web_crawler_events` table
+- [x] 17-03-PLAN.md — Frontend crawler live feed UI: real-time scrolling activity panel and trigger button
+
+
+### Progress
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 13. Demo Polish | 1/1 | Complete    | 2026-03-27 |
+| 14. Visual Resilience | 2/2 | Complete    | 2026-03-27 |
+| 15. Build Quality + Playwright Evidence | 2/2 | Complete    | 2026-03-28 |
+| 16. Voice/Mic UAT Guide | 1/1 | Complete    | 2026-03-28 |
+| 17. Persistent Database Layer + Web Crawler Live Feed | 3/3 | Complete    | 2026-03-28 |
+
+---
+
+---
+
+## v3.2 Tech Debt Cleanup
+
+### Phases
+
+- [x] **Phase 18: Tech Debt Cleanup — Code Fixes** — Fix 4 code-level items from v3.1 audit (completed 2026-03-28)
+- [ ] **Phase 19: Human UAT Sign-off** — Complete all deferred human validation items from phases 14-16
+
+### Phase Details
+
+### Phase 18: Tech Debt Cleanup — Code Fixes
+**Goal:** Resolve all code-level tech debt identified in the v3.1 audit — type safety gap, frozen crawler timestamps, stale Playwright docstrings, and TypeScript build errors.
+**Depends on:** Phase 17
+**Requirements:** DEBT-01, DEBT-02, DEBT-03, DEBT-04
+**Gap Closure:** Closes code-fixable tech debt from v3.1 audit
+**Success Criteria** (what must be TRUE):
+  1. `WithSource<T>` in `frontend/src/lib/api.ts` includes `"csv"` as a valid source type and `isMockData` is true when source is `"csv"`
+  2. Crawler timestamp in `src/api/routers/crawler.py` calls `.isoformat()` (with parentheses) so each event gets a distinct timestamp
+  3. DB-01–CRAWLER-03 requirements are added to REQUIREMENTS.md traceability table with Phase 17 mapped
+  4. framer-motion TypeScript errors in LandingPage.tsx and LoginPage.tsx are resolved and `npm run build` reports zero TS errors from those files
+**Plans:** 1/1 plans complete
+
+Plans:
+- [x] 18-01-PLAN.md — Fix WithSource csv type, crawler timestamp, REQUIREMENTS.md doc gap, framer-motion TS errors
+
+### Phase 19: Human UAT Sign-off
+**Goal:** A human reviewer completes all deferred UAT walkthroughs from v3.1 and any remaining code cleanup (stale docstrings) is resolved, so the codebase has zero outstanding audit items.
+**Depends on:** Phase 18
+**Requirements:** UAT-01, UAT-02, UAT-03, UAT-04, UAT-05
+**Gap Closure:** Closes all human validation items from v3.1 audit
+**Success Criteria** (what must be TRUE):
+  1. Human confirms Demo Mode badge is visible when backend is offline (Phase 14 UAT)
+  2. Human confirms badge is absent when live data is returned (Phase 14 UAT)
+  3. Human inspects `react-qr-flow.png` and `react-feedback-flow.png` and confirms meaningful content is visible (Phase 15 UAT)
+  4. Playwright test docstrings updated to reference `smartmatch.db` as Layer 0 (Phase 15 doc fix)
+  5. Human completes live voice/audio WebRTC end-to-end walkthrough via the UAT guide (Phase 16 UAT)
+  6. Human confirms multi-card simultaneous rendering for `prepare_campaign` intent (Phase 16 UAT)
+**Plans:** 1 plan
+
+Plans:
+- [ ] 19-01-PLAN.md — UAT checklist execution + Playwright docstring update
+
+### Progress
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 18. Tech Debt Cleanup — Code Fixes | 1/1 | Complete    | 2026-03-28 |
+| 19. Human UAT Sign-off | 0/1 | Pending | — |
+
+---
+
 ## Backlog / Parking Lot
 
-- **Gmail Send Integration** — Wire generated outreach email to Gmail API (OAuth2) so coordinators can send directly from the modal instead of copy-pasting. Potential Phase 13 or post-hackathon.
+- **Gmail Send Integration** — Wire generated outreach email to Gmail API (OAuth2) so coordinators can send directly from the modal instead of copy-pasting. Potential post-hackathon.
 
 ## Current Status
 
-v3.0 shipped on 2026-03-26. All phases from 8 through 12 are complete.
-
-Manual follow-ups retained after closeout:
-- Browser-backed QR and feedback UAT once the Playwright runtime is available
-- Frontend bundle-size/code-splitting work if the React coordinator surface expands again
-- Gmail send integration remains parked in backlog
+v3.1 complete. All phases 13-17 complete. Pre-demo 1.0 audit passed (2026-03-28). v3.2 tech debt phases 18-19 added (2026-03-28).

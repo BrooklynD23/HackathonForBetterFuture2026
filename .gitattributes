@@ -1,2 +1,4 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+*.sh text eol=lf
+Category 3 - IA West Smart Match CRM/data/demo.db binary

@@ -5,6 +5,7 @@ import {
   BellRing,
   Briefcase,
   CalendarDays,
+  Mail,
   MapPinned,
   MessageSquareHeart,
   ShieldCheck,
@@ -36,6 +37,7 @@ import {
   fetchFeedbackStats,
   fetchPipeline,
   fetchSpecialists,
+  initiateWorkflow,
   rankSpeakers,
   splitTags,
   type CalendarAssignmentSummary,
@@ -44,9 +46,20 @@ import {
   type PipelineRecord,
   type RankedMatch,
   type Specialist,
+  type WorkflowResponse,
 } from "@/lib/api";
+import { OutreachWorkflowModal } from "@/components/OutreachWorkflowModal";
+import {
+  MOCK_CALENDAR_ASSIGNMENTS,
+  MOCK_CALENDAR_EVENTS,
+  MOCK_FEEDBACK_STATS,
+  MOCK_PIPELINE,
+  MOCK_SPECIALISTS,
+} from "@/lib/mockData";
+import { DemoModeBadge } from "../components/ui/DemoModeBadge";
 
 import { MetricCard } from "../components/MetricCard";
+import { CrawlerFeed } from "@/components/CrawlerFeed";
 
 const funnelPalette = ["#005394", "#1f6fb2", "#2b87d1", "#56a4e4", "#a2c9ff"];
 
@@ -219,8 +232,14 @@ export function Dashboard() {
   const [feedbackStats, setFeedbackStats] = useState<FeedbackStatsSummary>(
     emptyFeedbackStatsSummary(),
   );
+  const [isMockData, setIsMockData] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showWorkflowModal, setShowWorkflowModal] = useState(false);
+  const [selectedVolunteer, setSelectedVolunteer] = useState<RankedMatch | null>(null);
+  const [workflowResult, setWorkflowResult] = useState<WorkflowResponse | null>(null);
+  const [workflowLoading, setWorkflowLoading] = useState(false);
+  const [workflowError, setWorkflowError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -257,7 +276,7 @@ export function Dashboard() {
                 ? eventResult.reason
                 : pipelineResult.status === "rejected"
                   ? pipelineResult.reason
-                  : calendarResult.reason
+                  : (calendarResult as PromiseRejectedResult).reason
           );
         }
 
@@ -265,23 +284,41 @@ export function Dashboard() {
           return;
         }
 
-        const specialistRows = specialistResult.value;
-        const eventRows = eventResult.value;
-        const pipelineRows = pipelineResult.value;
-        const calendarRows = calendarResult.value;
+        let anyMock = false;
+
+        const specialistRows = specialistResult.value.data;
+        const eventRows = eventResult.value.data;
+        if (specialistResult.value.isMockData) anyMock = true;
+        if (eventResult.value.isMockData) anyMock = true;
+
+        const pipelineRows = pipelineResult.value.data;
+        if (pipelineResult.value.isMockData) anyMock = true;
+
+        const calendarRows = calendarResult.value.data;
+        if (calendarResult.value.isMockData) anyMock = true;
 
         setSpecialists(specialistRows);
         setEventCount(eventRows.length);
         setPipeline(pipelineRows);
         setCalendarEvents(calendarRows);
-        setCalendarAssignments(
-          assignmentResult.status === "fulfilled" ? assignmentResult.value : [],
-        );
-        setFeedbackStats(
-          feedbackResult.status === "fulfilled"
-            ? feedbackResult.value
-            : emptyFeedbackStatsSummary(),
-        );
+
+        if (assignmentResult.status === "fulfilled") {
+          setCalendarAssignments(assignmentResult.value.data);
+          if (assignmentResult.value.isMockData) anyMock = true;
+        } else {
+          setCalendarAssignments(MOCK_CALENDAR_ASSIGNMENTS);
+          anyMock = true;
+        }
+
+        if (feedbackResult.status === "fulfilled") {
+          setFeedbackStats(feedbackResult.value.data);
+          if (feedbackResult.value.isMockData) anyMock = true;
+        } else {
+          setFeedbackStats(MOCK_FEEDBACK_STATS);
+          anyMock = true;
+        }
+
+        setIsMockData(anyMock);
 
         const warnings = [];
         if (assignmentResult.status === "rejected") {
@@ -303,14 +340,12 @@ export function Dashboard() {
         const firstEventName = eventRows[0]?.["Event / Program"];
         if (firstEventName) {
           try {
-            const ranked = await rankSpeakers(
-              firstEventName,
-              4,
+            const feedbackWeights =
               feedbackResult.status === "fulfilled" &&
-                Object.keys(feedbackResult.value.current_weights).length > 0
-                ? feedbackResult.value.current_weights
-                : undefined,
-            );
+              Object.keys(feedbackResult.value.data.current_weights).length > 0
+                ? feedbackResult.value.data.current_weights
+                : undefined;
+            const ranked = await rankSpeakers(firstEventName, 4, feedbackWeights);
             if (active) {
               setTopMatches(ranked);
             }
@@ -322,6 +357,13 @@ export function Dashboard() {
         }
       } catch (err: unknown) {
         if (active) {
+          // Backend unreachable — use Layer-3 mock constants
+          setSpecialists(MOCK_SPECIALISTS);
+          setPipeline(MOCK_PIPELINE);
+          setCalendarEvents(MOCK_CALENDAR_EVENTS);
+          setCalendarAssignments(MOCK_CALENDAR_ASSIGNMENTS);
+          setFeedbackStats(MOCK_FEEDBACK_STATS);
+          setIsMockData(true);
           setError(err instanceof Error ? err.message : "Failed to load dashboard data.");
         }
       } finally {
@@ -388,6 +430,22 @@ export function Dashboard() {
       .filter((row) => row.memberInquiryCount > 0)
       .sort((left, right) => right.memberInquiryCount - left.memberInquiryCount)[0] ?? null;
 
+  const handleConnect = async (match: RankedMatch) => {
+    setSelectedVolunteer(match);
+    setShowWorkflowModal(true);
+    setWorkflowLoading(true);
+    setWorkflowError(null);
+    setWorkflowResult(null);
+    try {
+      const result = await initiateWorkflow(match.name, match.event_name);
+      setWorkflowResult(result);
+    } catch (err: unknown) {
+      setWorkflowError(err instanceof Error ? err.message : "Workflow failed.");
+    } finally {
+      setWorkflowLoading(false);
+    }
+  };
+
   const discoveryFeed = [
     {
       icon: BellRing,
@@ -451,7 +509,9 @@ export function Dashboard() {
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <div>
-        <h1 className="text-3xl font-semibold text-gray-900">Dashboard</h1>
+        <h1 className="text-3xl font-semibold text-gray-900">
+          Dashboard{isMockData && <DemoModeBadge />}
+        </h1>
         <p className="mt-1 text-gray-600">
           Live summary of the specialist roster, active opportunities, and pipeline movement.
         </p>
@@ -674,9 +734,6 @@ export function Dashboard() {
                 Live rollup built from calendar coverage, assignment overlays, and pipeline follow-through.
               </p>
             </div>
-            <div className="rounded-full border border-[#d5e0f7] bg-[#f7f9fc] px-3 py-1 text-xs font-medium text-[#005394]">
-              V1.2
-            </div>
           </div>
 
           <div className="mt-6 grid gap-4 lg:grid-cols-2">
@@ -884,7 +941,12 @@ export function Dashboard() {
                       {(match.score * 100).toFixed(0)}%
                     </p>
                   </div>
-                  <button className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-[#00477f]">
+                  <button
+                    onClick={() => void handleConnect(match)}
+                    disabled={workflowLoading}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-[#00477f] disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <Mail className="h-3.5 w-3.5" />
                     Connect
                   </button>
                 </div>
@@ -893,6 +955,19 @@ export function Dashboard() {
           )}
         </div>
       </div>
+
+      {/* Web Crawler Live Feed */}
+      <CrawlerFeed />
+
+      {showWorkflowModal && selectedVolunteer && (
+        <OutreachWorkflowModal
+          volunteer={selectedVolunteer}
+          result={workflowResult}
+          loading={workflowLoading}
+          error={workflowError}
+          onClose={() => setShowWorkflowModal(false)}
+        />
+      )}
     </div>
   );
 }

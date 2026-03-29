@@ -23,6 +23,7 @@ A coordinator can use voice or text to command an AI assistant that orchestrates
 - React + FastAPI coordinator surfaces now cover recovery-aware scheduling, QR attribution, and feedback-driven optimizer analytics.
 - Demo-first constraints remain in effect (single-tenant, no production auth/scaling).
 - All v3.0 phases through continuous-improvement feedback are complete and verified at the focused contract/build level.
+- **v3.1 Demo Readiness complete (2026-03-28):** All 4 phases shipped — demo polish, visual resilience, build quality + Playwright evidence, and human UAT guide for voice/mic path. Submission-ready.
 
 ## v3.0 Completion (Shipped: 2026-03-26)
 
@@ -33,6 +34,17 @@ A coordinator can use voice or text to command an AI assistant that orchestrates
 - ~~Phase 11: QR code generation + ROI tracking~~ ✅
 - ~~Phase 12: Continuous algorithm improvement via feedback loops~~ ✅
 
+## Current Milestone: v3.1 Demo Readiness
+
+**Goal:** Resolve all v3.0 tech debt and polish the coordinator demo to submission-ready quality.
+
+**Target features:**
+- Playwright browser evidence for QR and feedback flows
+- React production build without chunk-size warnings
+- Human UAT guide for live voice/mic path
+- Remove Phase #N references from UI, polish all copy, enable smooth scrolling
+- Graceful visual fallback to hardcoded mock data with discrete indicator
+
 ## Constraints
 
 - **Tech stack:** Python + FastAPI (backend) + React 18/Vite/Tailwind v4/shadcn-ui (frontend) + Gemini runtime + NemoClaw
@@ -41,5 +53,22 @@ A coordinator can use voice or text to command an AI assistant that orchestrates
 - **Verification standard:** No phase is complete without direct test/demo evidence.
 - **Human-in-the-loop:** No autonomous execution without coordinator approval.
 
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd:transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd:complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
+
 ---
-*Last updated: 2026-03-26 after v3.0 shipped*
+*Last updated: 2026-03-28 after v3.2 Phase 18 complete — tech debt cleanup done (DEBT-01–04 all resolved)*

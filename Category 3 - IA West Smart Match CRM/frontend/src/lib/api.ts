@@ -20,6 +20,19 @@ export interface CppEvent {
   "Contact Email / Phone (published)"?: string;
 }
 
+export interface CrawlerEvent {
+  url: string;
+  title: string;
+  status: "crawling" | "found" | "error" | "done";
+  timestamp: string;
+}
+
+export interface CrawlerResultsResponse {
+  events: Array<Record<string, unknown>>;
+  count: number;
+  source: string;
+}
+
 export interface PipelineRecord {
   event_name: string;
   speaker_name: string;
@@ -526,10 +539,10 @@ function normalizeCalendarEvent(record: Record<string, unknown>, index: number):
     ),
     coverage_status: coverageStatus,
     coverage_label: parseString(record.coverage_label ?? record.status_label, coverageLabel(coverageStatus)),
-    coverage_ratio,
-    assigned_volunteers,
-    assignment_count,
-    open_slots,
+    coverage_ratio: coverageRatio,
+    assigned_volunteers: assignedVolunteers,
+    assignment_count: assignmentCount,
+    open_slots: openSlots,
     status_color: parseString(record.status_color ?? record.color ?? coverageTone(coverageStatus)),
   };
 }
@@ -594,7 +607,7 @@ function normalizeVolunteerRecovery(record: Record<string, unknown>, assignments
     event_names: [...new Set(volunteerAssignments.map((assignment) => assignment.event_name).filter(Boolean))],
     event_count: volunteerAssignments.length,
     latest_event_date: lastEventDate,
-    volunteer_fatigue,
+    volunteer_fatigue: volunteerFatigue,
     recovery_status: recoveryStatus,
     recovery_label: parseString(record.recovery_label ?? record.recoveryLabel, recoveryLabel(recoveryStatus)),
     recent_assignment_count: parseNumber(record.recent_assignment_count ?? record.recentAssignments ?? volunteerAssignments.length, volunteerAssignments.length),
@@ -848,35 +861,58 @@ export function splitTags(raw: string): string[] {
     .filter(Boolean);
 }
 
-export async function fetchSpecialists(): Promise<Specialist[]> {
-  return requestJson<Specialist[]>("/api/data/specialists");
+export interface WithSource<T> {
+  data: T;
+  source: "live" | "demo" | "csv";
+  isMockData: boolean;
 }
 
-export async function fetchEvents(): Promise<CppEvent[]> {
-  return requestJson<CppEvent[]>("/api/data/events");
+export async function fetchSpecialists(): Promise<WithSource<Specialist[]>> {
+  const raw = await requestJson<unknown>("/api/data/specialists");
+  const payload = toRecordArray(raw);
+  const rawSource = payload[0]?.source;
+  const source: "live" | "demo" | "csv" = rawSource === "demo" ? "demo" : rawSource === "csv" ? "csv" : "live";
+  return { data: payload as unknown as Specialist[], source, isMockData: source !== "live" };
 }
 
-export async function fetchPipeline(): Promise<PipelineRecord[]> {
-  return requestJson<PipelineRecord[]>("/api/data/pipeline");
+export async function fetchEvents(): Promise<WithSource<CppEvent[]>> {
+  const raw = await requestJson<unknown>("/api/data/events");
+  const payload = toRecordArray(raw);
+  const rawSource = payload[0]?.source;
+  const source: "live" | "demo" | "csv" = rawSource === "demo" ? "demo" : rawSource === "csv" ? "csv" : "live";
+  return { data: payload as unknown as CppEvent[], source, isMockData: source !== "live" };
+}
+
+export async function fetchPipeline(): Promise<WithSource<PipelineRecord[]>> {
+  const raw = await requestJson<unknown>("/api/data/pipeline");
+  const payload = toRecordArray(raw);
+  const rawSource = payload[0]?.source;
+  const source: "live" | "demo" | "csv" = rawSource === "demo" ? "demo" : rawSource === "csv" ? "csv" : "live";
+  return { data: payload as unknown as PipelineRecord[], source, isMockData: source !== "live" };
 }
 
 export async function fetchCalendar(): Promise<CalendarRecord[]> {
   return requestJson<CalendarRecord[]>("/api/data/calendar");
 }
 
-export async function fetchCalendarEvents(): Promise<CalendarEventSummary[]> {
+export async function fetchCalendarEvents(): Promise<WithSource<CalendarEventSummary[]>> {
   const payload = await requestJson<unknown>("/api/calendar/events");
-  return toRecordArray(payload).map((record, index) => normalizeCalendarEvent(record, index));
+  const rows = toRecordArray(payload);
+  const rawSource = (rows[0] as Record<string, unknown>)?.source;
+  const source: "live" | "demo" | "csv" = rawSource === "demo" ? "demo" : rawSource === "csv" ? "csv" : "live";
+  return { data: rows.map((record, index) => normalizeCalendarEvent(record, index)), source, isMockData: source !== "live" };
 }
 
-export async function fetchCalendarAssignments(): Promise<CalendarAssignmentSummary[]> {
+export async function fetchCalendarAssignments(): Promise<WithSource<CalendarAssignmentSummary[]>> {
   const payload = await requestJson<unknown>("/api/calendar/assignments");
-  const rows = toRecordArray(payload).map((record, index) => normalizeCalendarAssignment(record, index));
-  return rows;
+  const rows = toRecordArray(payload);
+  const rawSource = (rows[0] as Record<string, unknown>)?.source;
+  const source: "live" | "demo" | "csv" = rawSource === "demo" ? "demo" : rawSource === "csv" ? "csv" : "live";
+  return { data: rows.map((record, index) => normalizeCalendarAssignment(record, index)), source, isMockData: source !== "live" };
 }
 
 export async function fetchVolunteerRecovery(): Promise<VolunteerRecoverySummary[]> {
-  const assignments = await fetchCalendarAssignments();
+  const { data: assignments } = await fetchCalendarAssignments();
   const byVolunteer = new Map<string, Record<string, unknown>>();
 
   for (const assignment of assignments) {
@@ -940,14 +976,18 @@ export function emptyFeedbackStatsSummary(): FeedbackStatsSummary {
   };
 }
 
-export async function fetchQrStats(): Promise<QrStatsSummary> {
-  const payload = await requestJson<unknown>("/api/qr/stats");
-  return normalizeQrStats(payload);
+export async function fetchQrStats(): Promise<WithSource<QrStatsSummary>> {
+  const payload = await requestJson<Record<string, unknown>>("/api/qr/stats");
+  const rawSource = payload?.source;
+  const source: "live" | "demo" | "csv" = rawSource === "demo" ? "demo" : rawSource === "csv" ? "csv" : "live";
+  return { data: normalizeQrStats(payload), source, isMockData: source !== "live" };
 }
 
-export async function fetchFeedbackStats(): Promise<FeedbackStatsSummary> {
-  const payload = await requestJson<unknown>("/api/feedback/stats");
-  return normalizeFeedbackStats(payload);
+export async function fetchFeedbackStats(): Promise<WithSource<FeedbackStatsSummary>> {
+  const payload = await requestJson<Record<string, unknown>>("/api/feedback/stats");
+  const rawSource = payload?.source;
+  const source: "live" | "demo" | "csv" = rawSource === "demo" ? "demo" : rawSource === "csv" ? "csv" : "live";
+  return { data: normalizeFeedbackStats(payload), source, isMockData: source !== "live" };
 }
 
 export async function submitFeedback(
@@ -1089,4 +1129,64 @@ export async function initiateWorkflow(
       event_name: eventName,
     }),
   });
+}
+
+export interface CppCourse {
+  course_key: string;
+  display_name: string;
+  Instructor: string;
+  Course: string;
+  Section: string;
+  Title: string;
+  Days: string;
+  "Start Time": string;
+  "End Time": string;
+  "Enrl Cap": number;
+  Mode: string;
+  "Guest Lecture Fit": string;
+  source: string;
+}
+
+export async function fetchCourses(): Promise<CppCourse[]> {
+  const raw = await requestJson<unknown>("/api/data/courses");
+  return toRecordArray(raw) as unknown as CppCourse[];
+}
+
+export async function rankSpeakersForCourse(
+  courseKey: string,
+  limit = 5,
+  weights?: FactorWeights,
+): Promise<RankedMatch[]> {
+  const payload = await requestJson<Array<Record<string, unknown>>>("/api/matching/rank-for-course", {
+    method: "POST",
+    body: JSON.stringify({ course_key: courseKey, limit, weights }),
+  });
+  return payload.map(normalizeRankedMatch);
+}
+
+export async function startCrawl(): Promise<{ status: string }> {
+  return requestJson<{ status: string }>("/api/crawler/start", {
+    method: "POST",
+  });
+}
+
+export async function fetchCrawlerResults(): Promise<CrawlerResultsResponse> {
+  return requestJson<CrawlerResultsResponse>("/api/crawler/results");
+}
+
+export async function clearCrawlerResults(): Promise<{ deleted: number; status: string }> {
+  return requestJson<{ deleted: number; status: string }>("/api/crawler/results", {
+    method: "DELETE",
+  });
+}
+
+export interface CrawlerStatusResponse {
+  state: "idle" | "running" | "done";
+  started_at: string | null;
+  finished_at: string | null;
+  error: string | null;
+}
+
+export async function fetchCrawlerStatus(): Promise<CrawlerStatusResponse> {
+  return requestJson<CrawlerStatusResponse>("/api/crawler/status");
 }

@@ -10,6 +10,7 @@ import pytest
 from starlette.requests import Request
 
 from src.api.main import app
+from src.api.routers import qr as qr_router
 from src.api.routers.qr import QRGenerateRequest, generate as generate_qr, scan as scan_qr, stats as stats_qr
 from src.qr import service as qr_service
 from src.ui import data_helpers
@@ -202,3 +203,51 @@ def test_scan_http_redirect_serializes_location_header(qr_storage) -> None:
     )
     assert response.status_code == 307
     assert response.headers["location"].startswith("http://testserver/join?")
+
+
+def test_qr_stats_fall_back_to_demo_payload_when_live_manifest_is_empty(monkeypatch) -> None:
+    monkeypatch.setattr(
+        qr_router,
+        "build_qr_stats",
+        lambda **_: {
+            "generated_count": 0,
+            "scan_count": 0,
+            "membership_interest_count": 0,
+            "conversion_rate": 0.0,
+            "referral_codes": [],
+            "recent_scans": [],
+            "filters": {"speaker_name": None, "event_name": None, "referral_code": None},
+            "unique_speakers": 0,
+            "unique_events": 0,
+        },
+    )
+    monkeypatch.setattr(
+        qr_router,
+        "load_demo_qr_stats",
+        lambda: {
+            "generated_count": 5,
+            "scan_count": 42,
+            "membership_interest_count": 12,
+            "conversion_rate": 0.2857,
+            "referral_codes": [
+                {
+                    "referral_code": "IAW-SARAHAI24",
+                    "speaker_name": "Dr. Sarah Chen",
+                    "event_name": "AI for a Better Future Hackathon",
+                    "scan_count": 15,
+                    "membership_interest_count": 5,
+                    "generated_at": "2026-03-18T09:00:00Z",
+                }
+            ],
+            "recent_scans": [],
+            "filters": {"speaker_name": None, "event_name": None, "referral_code": None},
+            "unique_speakers": 5,
+            "unique_events": 5,
+        },
+    )
+
+    payload = asyncio.run(qr_router.stats())
+
+    assert payload["generated_count"] == 5
+    assert payload["referral_codes"][0]["referral_code"] == "IAW-SARAHAI24"
+    assert payload["source"] == "demo"

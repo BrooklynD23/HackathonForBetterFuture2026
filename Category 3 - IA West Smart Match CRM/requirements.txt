@@ -41,3 +41,6 @@ https://github.com/KittenML/KittenTTS/releases/download/0.8.1/kittentts-0.8.1-py
 faster-whisper>=1.0.0
 streamlit-webrtc==0.64.5      # 0.6.x breaks on Streamlit 1.42+ (removed report_thread)
 soundfile
+
+# ── Web Crawler ───────────────────────────────────────────
+tavily-python>=0.7.0

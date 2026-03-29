@@ -23,6 +23,7 @@ import {
   type Specialist,
 } from "@/lib/api";
 import { QRCodeCard } from "@/components/QRCodeCard";
+import { CrawlerFeed } from "@/components/CrawlerFeed";
 
 type Template = {
   id: number;
@@ -96,10 +97,12 @@ export function Outreach() {
     let active = true;
 
     Promise.all([fetchSpecialists(), fetchEvents()])
-      .then(([specialistRows, eventRows]) => {
+      .then(([specialistResult, eventResult]) => {
         if (!active) {
           return;
         }
+        const specialistRows = specialistResult.data;
+        const eventRows = eventResult.data;
         setSpecialists(specialistRows);
         setEvents(eventRows);
         setSelectedSpeaker(specialistRows[0]?.name ?? "");
@@ -309,6 +312,9 @@ export function Outreach() {
               </button>
             </div>
           </div>
+
+          {/* Web Intelligence — left column so it persists visually alongside other menus */}
+          <CrawlerFeed />
         </div>
 
         <div className="lg:col-span-2 bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
@@ -521,6 +527,7 @@ export function Outreach() {
           </div>
         </div>
       ) : null}
+
     </div>
   );
 }

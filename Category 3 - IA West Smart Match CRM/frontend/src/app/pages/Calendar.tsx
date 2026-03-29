@@ -18,6 +18,8 @@ import {
   type CalendarAssignmentSummary,
   type CalendarEventSummary,
 } from "@/lib/api";
+import { MOCK_CALENDAR_ASSIGNMENTS, MOCK_CALENDAR_EVENTS } from "@/lib/mockData";
+import { DemoModeBadge } from "../components/ui/DemoModeBadge";
 
 type CalendarView = "month" | "week" | "day";
 type CoverageFilter = "all" | "covered" | "open";
@@ -151,6 +153,7 @@ export function Calendar() {
   const [assignments, setAssignments] = useState<CalendarAssignmentSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isMockData, setIsMockData] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -161,17 +164,24 @@ export function Calendar() {
           return;
         }
 
-        if (eventResult.status !== "fulfilled") {
-          throw eventResult.reason;
+        let anyMock = false;
+
+        if (eventResult.status === "fulfilled") {
+          const { data, isMockData } = eventResult.value;
+          setEvents(data);
+          if (isMockData) anyMock = true;
+        } else {
+          setEvents(MOCK_CALENDAR_EVENTS);
+          anyMock = true;
         }
 
-        const eventRows = eventResult.value;
-        setEvents(eventRows);
-
         if (assignmentResult.status === "fulfilled") {
-          setAssignments(assignmentResult.value);
+          const { data, isMockData } = assignmentResult.value;
+          setAssignments(data);
+          if (isMockData) anyMock = true;
         } else {
-          setAssignments([]);
+          setAssignments(MOCK_CALENDAR_ASSIGNMENTS);
+          anyMock = true;
           setError(
             assignmentResult.reason instanceof Error
               ? `Assignment overlays are unavailable: ${assignmentResult.reason.message}`
@@ -179,15 +189,15 @@ export function Calendar() {
           );
         }
 
-        const firstEvent = eventRows[0];
-        if (firstEvent?.event_date) {
-          setFocusDate(parseLocalDate(firstEvent.event_date));
-        }
+        setIsMockData(anyMock);
       })
       .catch((err: unknown) => {
         if (!active) {
           return;
         }
+        setEvents(MOCK_CALENDAR_EVENTS);
+        setAssignments(MOCK_CALENDAR_ASSIGNMENTS);
+        setIsMockData(true);
         setError(err instanceof Error ? err.message : "Failed to load calendar.");
       })
       .finally(() => {
@@ -287,7 +297,9 @@ export function Calendar() {
         <p className="text-sm font-medium uppercase tracking-[0.18em] text-blue-700">
           Master calendar
         </p>
-        <h1 className="text-3xl font-semibold text-slate-900">Coordinator scheduling view</h1>
+        <h1 className="inline-flex items-center gap-2 text-3xl font-semibold text-slate-900">
+          Coordinator scheduling view{isMockData && <DemoModeBadge />}
+        </h1>
         <p className="text-slate-600">
           Track coverage, assignment overlays, and volunteer recovery without leaving the calendar.
         </p>

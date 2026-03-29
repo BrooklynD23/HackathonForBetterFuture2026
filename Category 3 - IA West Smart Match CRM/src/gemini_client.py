@@ -182,3 +182,45 @@ def generate_text(
         timeout=timeout,
     )
     return _extract_text(response)
+
+
+def web_search(
+    query: str,
+    *,
+    api_key: str,
+    model: str = "gemini-2.0-flash",
+    timeout: float = 30.0,
+) -> list[dict[str, str]]:
+    """Search the web using Gemini's Google Search grounding tool.
+
+    Returns a list of dicts with keys ``url`` and ``title``.
+    """
+    payload: dict[str, Any] = {
+        "contents": [{"parts": [{"text": query}], "role": "user"}],
+        "tools": [{"googleSearch": {}}],
+    }
+    response = _post_json(
+        f"models/{model}:generateContent",
+        payload,
+        api_key,
+        timeout=timeout,
+    )
+    candidates = response.get("candidates", [])
+    if not candidates:
+        return []
+    first = candidates[0] if isinstance(candidates[0], dict) else {}
+    metadata = first.get("groundingMetadata", {})
+    if not isinstance(metadata, dict):
+        return []
+    chunks = metadata.get("groundingChunks", [])
+    results: list[dict[str, str]] = []
+    for chunk in chunks:
+        if not isinstance(chunk, dict):
+            continue
+        web = chunk.get("web")
+        if isinstance(web, dict) and "uri" in web:
+            results.append({
+                "url": str(web["uri"]),
+                "title": str(web.get("title", "")),
+            })
+    return results

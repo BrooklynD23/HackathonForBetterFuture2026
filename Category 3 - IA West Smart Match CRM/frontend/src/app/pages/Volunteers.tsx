@@ -26,6 +26,13 @@ import {
   type QrStatsSummary,
   type Specialist,
 } from "@/lib/api";
+import {
+  MOCK_CALENDAR_ASSIGNMENTS,
+  MOCK_PIPELINE,
+  MOCK_QR_STATS,
+  MOCK_SPECIALISTS,
+} from "@/lib/mockData";
+import { DemoModeBadge } from "@/app/components/ui/DemoModeBadge";
 import { QRCodeCard } from "@/components/QRCodeCard";
 
 function VolunteerSkeleton() {
@@ -230,6 +237,7 @@ export function Volunteers() {
   const [pipeline, setPipeline] = useState<PipelineRecord[]>([]);
   const [assignments, setAssignments] = useState<CalendarAssignmentSummary[]>([]);
   const [qrStats, setQrStats] = useState<QrStatsSummary>(emptyQrStatsSummary());
+  const [isMockData, setIsMockData] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -250,14 +258,35 @@ export function Volunteers() {
           throw (
             specialistResult.status === "rejected"
               ? specialistResult.reason
-              : pipelineResult.reason
+              : (pipelineResult as PromiseRejectedResult).reason
           );
         }
 
-        setVolunteers(specialistResult.value);
-        setPipeline(pipelineResult.value);
-        setAssignments(assignmentResult.status === "fulfilled" ? assignmentResult.value : []);
-        setQrStats(qrResult.status === "fulfilled" ? qrResult.value : emptyQrStatsSummary());
+        let anyMock = false;
+
+        setVolunteers(specialistResult.value.data);
+        if (specialistResult.value.isMockData) anyMock = true;
+
+        setPipeline(pipelineResult.value.data);
+        if (pipelineResult.value.isMockData) anyMock = true;
+
+        if (assignmentResult.status === "fulfilled") {
+          setAssignments(assignmentResult.value.data);
+          if (assignmentResult.value.isMockData) anyMock = true;
+        } else {
+          setAssignments(MOCK_CALENDAR_ASSIGNMENTS);
+          anyMock = true;
+        }
+
+        if (qrResult.status === "fulfilled") {
+          setQrStats(qrResult.value.data);
+          if (qrResult.value.isMockData) anyMock = true;
+        } else {
+          setQrStats(MOCK_QR_STATS);
+          anyMock = true;
+        }
+
+        setIsMockData(anyMock);
 
         const warnings = [];
         if (assignmentResult.status === "rejected") {
@@ -280,6 +309,12 @@ export function Volunteers() {
         if (!active) {
           return;
         }
+        // Backend unreachable — use Layer-3 mock constants
+        setVolunteers(MOCK_SPECIALISTS);
+        setPipeline(MOCK_PIPELINE);
+        setAssignments(MOCK_CALENDAR_ASSIGNMENTS);
+        setQrStats(MOCK_QR_STATS);
+        setIsMockData(true);
         setError(err instanceof Error ? err.message : "Failed to load volunteers.");
       })
       .finally(() => {
@@ -338,7 +373,9 @@ export function Volunteers() {
         <p className="text-sm font-medium uppercase tracking-[0.18em] text-blue-700">
           Volunteer management
         </p>
-        <h1 className="text-3xl font-semibold text-slate-900">Volunteer Profiles</h1>
+        <h1 className="text-3xl font-semibold text-slate-900">
+          Volunteer Profiles{isMockData && <DemoModeBadge />}
+        </h1>
         <p className="text-slate-600">
           Browse the live roster, inspect assignment load, and open a dashboard-style detail view
           for any volunteer.

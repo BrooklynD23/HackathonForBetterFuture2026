@@ -7,6 +7,8 @@ from typing import Any, Literal
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
+from src.api.demo_db import load_demo_feedback_stats
+from src.api.smartmatch_db import load_live_feedback_stats
 from src.feedback.service import build_feedback_stats, record_feedback
 
 router = APIRouter()
@@ -45,6 +47,18 @@ async def submit(body: FeedbackSubmitRequest) -> dict[str, Any]:
 async def stats() -> dict[str, Any]:
     """Return aggregate feedback stats, pain score, and weight history."""
     try:
-        return build_feedback_stats()
-    except Exception as exc:  # pragma: no cover - defensive API boundary
-        raise _server_error(exc) from exc
+        payload = load_live_feedback_stats()
+        if payload:
+            return {**payload, "source": "live"}
+    except Exception:
+        pass
+    try:
+        payload = build_feedback_stats()
+        if payload.get("total_feedback", 0):
+            return payload
+    except Exception:
+        pass
+    return {
+        **load_demo_feedback_stats(),
+        "source": "demo",
+    }
