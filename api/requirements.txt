@@ -1,0 +1,18 @@
+# Slim requirements for the Vercel Python serverless function.
+# Heavy dev/Streamlit deps (playwright, faster-whisper, streamlit, etc.) are
+# intentionally excluded — they are not needed by the FastAPI API layer.
+
+fastapi>=0.115.0
+mangum>=0.17.0
+pandas>=2.2.3
+numpy>=1.26.4,<2.0
+scipy>=1.14.0
+scikit-learn>=1.5.2
+fuzzywuzzy>=0.18.0
+python-Levenshtein>=0.12.0
+qrcode>=8.2
+Pillow>=11.0
+python-dotenv>=1.0.1
+beautifulsoup4>=4.12.3
+requests>=2.32.3
+tavily-python>=0.7.0

@@ -3,6 +3,7 @@
   "buildCommand": "cd \"Category 3 - IA West Smart Match CRM/frontend\" && npm run build",
   "outputDirectory": "Category 3 - IA West Smart Match CRM/frontend/dist",
   "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
