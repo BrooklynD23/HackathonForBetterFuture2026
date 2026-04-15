@@ -2,6 +2,25 @@
 
 ## Current Work
 
+### 2026-04-15 — PR #11 merge conflict resolution
+
+_Execution board for reconciling `feature/cat3-portals-rewards-outreach-routing` with `origin/main` while preserving both the portal/outreach work and the recent frontend UX cleanup._
+
+- [x] Fetch the live GitHub `main` branch and reproduce the merge conflicts locally.
+- [x] Inspect the conflicting frontend files and identify where `main` adds UX polish versus where the branch adds portal flows and outreach routing.
+- [x] Resolve the dependency/UI conflict by keeping the portal branch's required UI stack while preserving `main`'s dashboard and navigation polish.
+- [x] Regenerate the frontend lockfile from the merged dependency graph and restore any merge-deleted shared UI primitives still required by the portal pages.
+- [x] Run focused frontend verification and record the outcome below.
+
+#### Review
+
+- Merged `origin/main` into `feature/cat3-portals-rewards-outreach-routing` locally and resolved the four frontend conflicts: `package.json`, regenerated `package-lock.json`, `Dashboard.tsx`, and `LandingPage.tsx`.
+- Preserved the portal branch's UI dependency footprint and restored the shared `src/app/components/ui/` primitives so the student/coordinator portal pages still have their required Radix/shadcn wrappers.
+- Kept `main`'s navigation polish by retaining the grouped sidebar/tooltips and clickable dashboard metric cards, while preserving the branch's portal login CTAs and dashboard logout flow.
+- Verification:
+  - `cd "Category 3 - IA West Smart Match CRM/frontend" && npm install` -> passed.
+  - `cd "Category 3 - IA West Smart Match CRM/frontend" && npm run build` -> passed with Vite `6.4.2`.
+
 ### 2026-04-14 — Cat3 portals, demo DB, QR attendance, agentic outreach, UI hardening, demo narrative
 
 _Execution board closed: final verification and demo packaging for the React + FastAPI judge path._
