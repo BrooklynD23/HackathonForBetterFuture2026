@@ -59,14 +59,6 @@ const factorOrder = [
   "volunteer_fatigue",
 ] as const;
 
-const blueShades = [
-  "bg-blue-600",
-  "bg-blue-500",
-  "bg-sky-500",
-  "bg-cyan-600",
-  "bg-blue-700",
-  "bg-sky-600",
-];
 
 const workloadWeights: Record<string, number> = {
   Matched: 1,
@@ -299,13 +291,6 @@ function FactorRadar({ factors }: { factors: Record<string, number> }) {
   );
 }
 
-function ProgressBar({ value, tone }: { value: number; tone: string }) {
-  return (
-    <div className="h-2 rounded-full bg-slate-100">
-      <div className={`h-2 rounded-full ${tone}`} style={{ width: `${clamp(value, 0, 100)}%` }} />
-    </div>
-  );
-}
 
 export function AIMatching() {
   const location = useLocation();
@@ -912,45 +897,18 @@ export function AIMatching() {
                     <div className="space-y-4">
                       <FactorRadar factors={volunteer.factor_scores} />
 
-                      <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                        <div className="mb-4 flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-slate-600">Score breakdown</p>
-                            <p className="text-lg font-semibold text-slate-900">
-                              What pushes this volunteer into the top five
-                            </p>
-                          </div>
-                          <BarChart3 className="h-5 w-5 text-blue-600" />
-                        </div>
-
-                        <div className="space-y-4">
-                          {factorOrder.map((key, index) => {
-                            const value = clamp((volunteer.factor_scores[key] ?? 0) * 100, 0, 100);
-                            return (
-                              <div key={key}>
-                                <div className="mb-1 flex items-center justify-between text-sm">
-                                  <span className="text-slate-700">{factorLabels[key]}</span>
-                                  <span className="font-medium text-slate-900">{formatPercent(value)}</span>
-                                </div>
-                                <ProgressBar value={value} tone={blueShades[index % blueShades.length]} />
-                              </div>
-                            );
-                          })}
-                        </div>
-
-                        <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50/70 px-4 py-3">
-                          <p className="text-xs uppercase tracking-[0.2em] text-blue-700">
-                            Recovery summary
-                          </p>
-                          <p className="mt-1 text-sm font-semibold text-slate-900">
-                            {volunteer.load.recoveryLabel}
-                          </p>
-                          <p className="mt-1 text-sm text-slate-600">
-                            {volunteer.load.recoveryRows.length
-                              ? `${volunteer.load.recoveryRows.length} assignment overlay rows pulled from the backend contract.`
-                              : "Recovery falls back to the live pipeline load until assignment overlays are available."}
-                          </p>
-                        </div>
+                      <div className="rounded-2xl border border-blue-100 bg-blue-50/70 px-4 py-3">
+                        <p className="text-xs uppercase tracking-[0.2em] text-blue-700">
+                          Recovery summary
+                        </p>
+                        <p className="mt-1 text-sm font-semibold text-slate-900">
+                          {volunteer.load.recoveryLabel}
+                        </p>
+                        <p className="mt-1 text-sm text-slate-600">
+                          {volunteer.load.recoveryRows.length
+                            ? `${volunteer.load.recoveryRows.length} assignment overlay rows pulled from the backend contract.`
+                            : "Recovery falls back to the live pipeline load until assignment overlays are available."}
+                        </p>
                       </div>
                     </div>
                   </div>
