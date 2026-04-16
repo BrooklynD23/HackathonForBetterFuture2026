@@ -270,6 +270,43 @@ def load_demo_student_connection_suggestions(student_id: str) -> dict[str, Any]:
     }
 
 
+def load_demo_volunteers() -> list[dict[str, Any]]:
+    """Return all specialists from demo.db as volunteer profiles, or empty list if unavailable."""
+    try:
+        return _load_rows("SELECT * FROM specialists ORDER BY name")
+    except Exception:
+        return []
+
+
+def load_demo_volunteer_assignments(volunteer_name: str) -> list[dict[str, Any]]:
+    """Return calendar_assignments rows for a given volunteer name (case-insensitive)."""
+    try:
+        with _connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT
+                    assignment_id,
+                    event_id,
+                    event_name,
+                    event_date,
+                    region,
+                    stage,
+                    match_score,
+                    volunteer_fatigue,
+                    recovery_status,
+                    recovery_label,
+                    coverage_status
+                FROM calendar_assignments
+                WHERE LOWER(volunteer_name) = LOWER(?)
+                ORDER BY event_date DESC
+                """,
+                (volunteer_name,),
+            ).fetchall()
+        return [dict(row) for row in rows]
+    except Exception:
+        return []
+
+
 def load_demo_retention_nudges(student_id: str | None = None) -> list[dict[str, Any]]:
     """Return retention nudges, optionally filtered by student_id."""
     try:

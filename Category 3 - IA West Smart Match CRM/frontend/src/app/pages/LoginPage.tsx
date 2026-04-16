@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { motion } from "motion/react";
-import { GraduationCap, Building, ShieldCheck } from "lucide-react";
+import { GraduationCap, Building, ShieldCheck, Briefcase } from "lucide-react";
 import { mockLogin } from "../../lib/api";
 
 const panelReveal = {
@@ -32,13 +32,20 @@ const ROLES = [
     icon: ShieldCheck,
     email: "admin@iawest.org",
   },
+  {
+    key: "volunteer" as const,
+    label: "Volunteer / Speaker",
+    description: "View your assignments, match score & speaker profile",
+    icon: Briefcase,
+    email: "shana.demarinis@testset.com",
+  },
 ];
 
 export function LoginPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const roleFromUrl = searchParams.get("role") as "student" | "event_coordinator" | "ia_admin" | null;
-  const [selectedRole, setSelectedRole] = useState<"student" | "event_coordinator" | "ia_admin">(roleFromUrl ?? "student");
+  const roleFromUrl = searchParams.get("role") as "student" | "event_coordinator" | "ia_admin" | "volunteer" | null;
+  const [selectedRole, setSelectedRole] = useState<"student" | "event_coordinator" | "ia_admin" | "volunteer">(roleFromUrl ?? "student");
   const [email, setEmail] = useState(() => {
     const initial = roleFromUrl ?? "student";
     return ROLES.find((r) => r.key === initial)?.email ?? "";
@@ -99,7 +106,7 @@ export function LoginPage() {
         <motion.div
           {...panelReveal}
           transition={{ ...panelReveal.transition, delay: 0.06 }}
-          className="mb-10 grid gap-4 sm:grid-cols-3"
+          className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
         >
           {ROLES.map((role) => {
             const Icon = role.icon;
@@ -180,12 +187,13 @@ export function LoginPage() {
                   <select
                     id="login-role"
                     value={selectedRole}
-                    onChange={(e) => setSelectedRole(e.target.value as "student" | "event_coordinator" | "ia_admin")}
+                    onChange={(e) => setSelectedRole(e.target.value as "student" | "event_coordinator" | "ia_admin" | "volunteer")}
                     className="w-full rounded-2xl border border-border/70 bg-surface-container-low px-4 py-3 text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                   >
                     <option value="student">Student</option>
                     <option value="event_coordinator">Event Coordinator</option>
                     <option value="ia_admin">IA West Admin</option>
+                    <option value="volunteer">Volunteer / Speaker</option>
                   </select>
                 </div>
                 {error && (

@@ -1475,6 +1475,59 @@ export async function fetchCoordinatorEvents(coordinatorId: string): Promise<{ d
   };
 }
 
+// ---------------------------------------------------------------------------
+// Volunteer portal types
+// ---------------------------------------------------------------------------
+
+export interface VolunteerProfile {
+  volunteer_id: string;
+  name: string;
+  title: string;
+  company: string;
+  board_role: string;
+  metro_region: string;
+  expertise_tags: string;
+  initials: string;
+  recovery_status: string;
+  recovery_label: string;
+  volunteer_fatigue: number;
+  source?: string;
+}
+
+export type AssignmentStage = "Matched" | "Contacted" | "Confirmed" | "Attended";
+
+export interface VolunteerAssignment {
+  assignment_id: string;
+  event_id: string;
+  event_name: string;
+  event_date: string;
+  region: string;
+  stage: AssignmentStage;
+  match_score: number;
+  volunteer_fatigue: number;
+  recovery_status: string;
+  recovery_label: string;
+  coverage_status: string;
+}
+
+export async function fetchVolunteerProfile(
+  volunteerId: string,
+): Promise<VolunteerProfile & { source: string }> {
+  const res = await fetch(`${API_BASE}/portals/volunteers/${encodeURIComponent(volunteerId)}`);
+  if (!res.ok) throw new Error(`Volunteer not found: ${volunteerId}`);
+  return res.json();
+}
+
+export async function fetchVolunteerAssignments(
+  volunteerId: string,
+): Promise<{ data: VolunteerAssignment[]; total: number; source: string }> {
+  const res = await fetch(
+    `${API_BASE}/portals/volunteers/${encodeURIComponent(volunteerId)}/assignments`,
+  );
+  if (!res.ok) throw new Error(`Assignments not found for volunteer: ${volunteerId}`);
+  return res.json();
+}
+
 export interface AgentStepEvent {
   event: "workflow_start" | "agent_queued" | "agent_running" | "agent_done" | "workflow_complete";
   agent_id?: string;

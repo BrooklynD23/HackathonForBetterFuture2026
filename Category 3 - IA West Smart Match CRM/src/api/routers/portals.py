@@ -18,6 +18,8 @@ from src.api.demo_db import (
     load_demo_student_connection_suggestions,
     load_demo_student_registrations,
     load_demo_students,
+    load_demo_volunteers,
+    load_demo_volunteer_assignments,
 )
 
 router = APIRouter()
@@ -239,6 +241,164 @@ async def coordinator_events(coordinator_id: str) -> dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
+# Volunteer portal
+# ---------------------------------------------------------------------------
+
+_SHANA_FALLBACK: dict[str, Any] = {
+    "volunteer_id": "shana-demarinis",
+    "name": "Shana DeMarinis",
+    "title": "SVP, Customer Experience",
+    "company": "TestSet",
+    "board_role": "Co-Director of Membership",
+    "metro_region": "Ventura / Thousand Oaks",
+    "expertise_tags": "customer experience, market research, 13 yrs experience",
+    "initials": "SD",
+    "recovery_status": "Available",
+    "recovery_label": "Available",
+    "volunteer_fatigue": 0.15,
+}
+
+_SHANA_ASSIGNMENTS_FALLBACK: list[dict[str, Any]] = [
+    {
+        "assignment_id": "shana-assign-01",
+        "event_id": "demo-event-01",
+        "event_name": "AI for a Better Future Hackathon",
+        "event_date": "2026-04-09",
+        "region": "Los Angeles - West",
+        "stage": "Confirmed",
+        "match_score": 0.91,
+        "volunteer_fatigue": 0.15,
+        "recovery_status": "Available",
+        "recovery_label": "Available",
+        "coverage_status": "covered",
+    },
+    {
+        "assignment_id": "shana-assign-02",
+        "event_id": "demo-event-02",
+        "event_name": "ITC Conference",
+        "event_date": "2026-04-18",
+        "region": "Bay Area",
+        "stage": "Contacted",
+        "match_score": 0.87,
+        "volunteer_fatigue": 0.15,
+        "recovery_status": "Available",
+        "recovery_label": "Available",
+        "coverage_status": "partial",
+    },
+    {
+        "assignment_id": "shana-assign-03",
+        "event_id": "demo-event-03",
+        "event_name": "Bronco Startup Challenge",
+        "event_date": "2026-04-24",
+        "region": "San Diego",
+        "stage": "Matched",
+        "match_score": 0.83,
+        "volunteer_fatigue": 0.15,
+        "recovery_status": "Available",
+        "recovery_label": "Available",
+        "coverage_status": "needs_coverage",
+    },
+    {
+        "assignment_id": "shana-assign-04",
+        "event_id": "demo-event-past-01",
+        "event_name": "IA West Annual Summit",
+        "event_date": "2026-02-14",
+        "region": "Ventura / Thousand Oaks",
+        "stage": "Attended",
+        "match_score": 0.95,
+        "volunteer_fatigue": 0.15,
+        "recovery_status": "Available",
+        "recovery_label": "Available",
+        "coverage_status": "covered",
+    },
+]
+
+
+def _slug_to_name(slug: str) -> str:
+    """Convert 'shana-demarinis' -> 'Shana Demarinis' for DB lookups (casefold-compared)."""
+    return " ".join(part.capitalize() for part in slug.split("-"))
+
+
+def _name_to_slug(name: str) -> str:
+    return name.strip().lower().replace(" ", "-")
+
+
+def _specialist_to_volunteer(spec: dict[str, Any]) -> dict[str, Any]:
+    name = str(spec.get("name") or "")
+    parts = name.split()
+    initials = "".join(p[0].upper() for p in parts if p)[:2]
+    return {
+        "volunteer_id": _name_to_slug(name),
+        "name": name,
+        "title": str(spec.get("title") or ""),
+        "company": str(spec.get("company") or ""),
+        "board_role": str(spec.get("board_role") or ""),
+        "metro_region": str(spec.get("metro_region") or ""),
+        "expertise_tags": str(spec.get("expertise_tags") or ""),
+        "initials": initials,
+        "recovery_status": "Available",
+        "recovery_label": "Available",
+        "volunteer_fatigue": 0.0,
+    }
+
+
+@router.get("/volunteers/{volunteer_id}")
+async def get_volunteer(volunteer_id: str) -> dict[str, Any]:
+    """Return a volunteer's speaker profile by name slug (e.g. 'shana-demarinis')."""
+    if volunteer_id.casefold() == "shana-demarinis":
+        return {**_SHANA_FALLBACK, "source": "demo"}
+
+    display_name = _slug_to_name(volunteer_id)
+    try:
+        volunteers = load_demo_volunteers()
+    except Exception as exc:
+        raise _server_error(exc) from exc
+
+    for vol in volunteers:
+        if str(vol.get("name") or "").strip().casefold() == display_name.casefold():
+            return {**_specialist_to_volunteer(vol), "source": "demo"}
+
+    raise _not_found(f"Volunteer not found: {volunteer_id}")
+
+
+@router.get("/volunteers/{volunteer_id}/assignments")
+async def get_volunteer_assignments(volunteer_id: str) -> dict[str, Any]:
+    """Return pipeline assignments for a volunteer by name slug."""
+    if volunteer_id.casefold() == "shana-demarinis":
+        return {
+            "volunteer_id": volunteer_id,
+            "data": _SHANA_ASSIGNMENTS_FALLBACK,
+            "total": len(_SHANA_ASSIGNMENTS_FALLBACK),
+            "source": "demo",
+        }
+
+    display_name = _slug_to_name(volunteer_id)
+    try:
+        volunteers = load_demo_volunteers()
+    except Exception as exc:
+        raise _server_error(exc) from exc
+
+    matched = next(
+        (v for v in volunteers if str(v.get("name") or "").strip().casefold() == display_name.casefold()),
+        None,
+    )
+    if matched is None:
+        raise _not_found(f"Volunteer not found: {volunteer_id}")
+
+    try:
+        assignments = load_demo_volunteer_assignments(str(matched.get("name") or ""))
+    except Exception as exc:
+        raise _server_error(exc) from exc
+
+    return {
+        "volunteer_id": volunteer_id,
+        "data": assignments,
+        "total": len(assignments),
+        "source": "demo",
+    }
+
+
+# ---------------------------------------------------------------------------
 # Mock auth endpoint
 # ---------------------------------------------------------------------------
 
@@ -252,6 +412,8 @@ def _infer_role_from_email(email: str) -> str:
     """Infer default portal role from email (used when UI does not send an explicit role)."""
     if email.endswith("@iawest.org"):
         return "ia_admin"
+    if email.endswith("@testset.com"):
+        return "volunteer"
     if any(
         email.endswith(domain)
         for domain in ("@cpp.edu", "@uci.edu", "@csuf.edu", "@ucsd.edu", "@usc.edu")
@@ -265,6 +427,8 @@ def _redirect_for_role(role: str) -> str:
         return "/dashboard"
     if role == "event_coordinator":
         return "/coordinator-portal"
+    if role == "volunteer":
+        return "/volunteer-portal"
     return "/student-portal"
 
 
@@ -282,7 +446,7 @@ async def mock_login(body: MockLoginRequest) -> dict[str, Any]:
             raise HTTPException(status_code=400, detail="Valid email is required")
 
         raw_role = (body.role or "").strip().casefold().replace(" ", "_")
-        if raw_role in ("student", "event_coordinator", "ia_admin"):
+        if raw_role in ("student", "event_coordinator", "ia_admin", "volunteer"):
             role = raw_role
         else:
             role = _infer_role_from_email(email)
@@ -307,6 +471,8 @@ async def mock_login(body: MockLoginRequest) -> dict[str, Any]:
                 match = next((r for r in roles if str(r.get("email", "")).strip().casefold() == email), None)
                 if match:
                     user = dict(match)
+            elif role == "volunteer":
+                user = {**_SHANA_FALLBACK, "email": body.email.strip()}
         except Exception:
             pass
 

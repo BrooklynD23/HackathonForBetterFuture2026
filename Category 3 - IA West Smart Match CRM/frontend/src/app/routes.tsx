@@ -20,6 +20,10 @@ import { CoordinatorHome } from "./pages/coordinator/CoordinatorHome";
 import { CoordinatorEvents } from "./pages/coordinator/CoordinatorEvents";
 import { CoordinatorOutreach } from "./pages/coordinator/CoordinatorOutreach";
 import { CoordinatorMeetings } from "./pages/coordinator/CoordinatorMeetings";
+import { VolunteerPortalLayout } from "./components/VolunteerPortalLayout";
+import { VolunteerHome } from "./pages/volunteer/VolunteerHome";
+import { VolunteerAssignments } from "./pages/volunteer/VolunteerAssignments";
+import { VolunteerProfile } from "./pages/volunteer/VolunteerProfile";
 
 export const router = createBrowserRouter([
   // Public routes (no sidebar)
@@ -48,6 +52,17 @@ export const router = createBrowserRouter([
       { path: "events", Component: CoordinatorEvents },
       { path: "outreach", Component: CoordinatorOutreach },
       { path: "meetings", Component: CoordinatorMeetings },
+    ],
+  },
+
+  // Volunteer portal routes
+  {
+    path: "volunteer-portal",
+    Component: VolunteerPortalLayout,
+    children: [
+      { index: true, Component: VolunteerHome },
+      { path: "assignments", Component: VolunteerAssignments },
+      { path: "profile", Component: VolunteerProfile },
     ],
   },
 
