@@ -165,7 +165,7 @@ Same result as the scripts; useful for debugging.
 | `ModuleNotFoundError: No module named 'src'` | Run Streamlit from **this** directory (the Category 3 root), not from `src/`. Use `python -m streamlit run src/app.py`. |
 | Port already in use | Change ports: PowerShell `-FrontendPort 8502 -BackendPort 8001`, or set `FRONTEND_PORT` / `BACKEND_PORT` before `start_dev.sh`. |
 | No `.venv` | Follow [Environment setup](#environment-setup). |
-| Voice / WebRTC warnings | See [docs/handoffs/jarvis-voice-webrtc-enablement.md](docs/handoffs/jarvis-voice-webrtc-enablement.md). |
+| Voice / WebRTC warnings | See [docs/demos/UAT-VOICE-MIC.md](docs/demos/UAT-VOICE-MIC.md). |
 
 ---
 
@@ -204,7 +204,7 @@ Edit `.env` and set secrets as needed (never commit real keys). **`GEMINI_API_KE
 
 ### New venv on Python 3.12 (Jarvis TTS on a 3.13 machine)
 
-Step-by-step: **section 3** in [docs/handoffs/jarvis-voice-webrtc-enablement.md](docs/handoffs/jarvis-voice-webrtc-enablement.md).
+Step-by-step: **section 3** in [docs/demos/UAT-VOICE-MIC.md](docs/demos/UAT-VOICE-MIC.md).
 
 ---
 
@@ -236,20 +236,27 @@ Utilization analytics and geographic views.
 
 **Outreach** and **Dashboard** include a **Web Crawler Feed** that streams progress over Server-Sent Events (`/api/crawler/feed`). Configure **`GEMINI_API_KEY`** and/or **`TAVILY_API_KEY`** in `.env` (see [Environment setup](#environment-setup)) for live discovery beyond the built-in seed URLs.
 
-### Student & event coordinator portals (React + `demo.db`)
+### Portals — Student, Coordinator, IA Admin, Volunteer (React + `demo.db`)
 
-The Vite app adds **role-specific workspaces** on top of the existing coordinator surfaces:
+The Vite app provides **four role-specific workspaces** on the same React app. All portals use mock login (`POST /api/portals/auth/mock-login`) backed by seeded emails in `data/demo.db`. Deep-link to a role via `?role=student|event_coordinator|ia_admin|volunteer`.
 
-- **Landing** — entry CTAs for Student Portal and Event Coordinator (login supports **URL query pre-selection** of role, e.g. deep links from the landing page).
-- **Login** — three-role picker (student, event coordinator, IA West admin) with **mock login** backed by seeded emails in `data/demo.db` (`POST /api/portals/auth/mock-login`).
-- **Student portal** — Home (nudges, recommendations), Events, History (attendance / streak), Connect (shared-interest suggestions); data from `/api/portals/...` (see `src/api/routers/portals.py`).
-- **Event coordinator portal** — Home, Events (e.g. Request Match → AI Matching), Outreach (threads + **Launch AI Outreach Agents**), Meetings; same router prefix.
-- **Agentic outreach (demo)** — `POST /api/outreach/agentic-workflow/stream` streams five named agents (Scout → Copywriter → Scheduler → Planner → Pipeline) for the coordinator UI (`AgenticOutreachPanel`).
-- **QR attendance** — `POST /api/qr/attendance/checkin` and `GET /api/qr/attendance/history/{student_id}` extend the QR API for event check-in and history (see `src/api/routers/qr.py`, `src/qr/service.py`).
+| Portal | Route | Pages |
+|--------|-------|-------|
+| **Student** | `/student-portal` | Home (nudges + recommendations), Events, History (attendance / streak), Connect (peer suggestions) |
+| **Event Coordinator** | `/coordinator-portal` | Home, Events (Request Match → AI Matching), Outreach (threads + Launch AI Agents), Meetings |
+| **IA Admin** | `/dashboard` | Full Dashboard, AI Matching, Volunteers, Pipeline, Opportunities, Calendar, Outreach |
+| **Volunteer / Speaker** | `/volunteer-portal` | Home (match score + recovery status), Assignments (stage tracker), Speaker Profile |
+
+Additional portal features:
+- **Landing** — entry CTAs with URL query pre-selection of role (deep linkable from the landing page)
+- **Login** — four-role picker (`student`, `event_coordinator`, `ia_admin`, `volunteer`) with grid layout
+- **Agentic outreach (demo)** — `POST /api/outreach/agentic-workflow/stream` streams five named agents (Scout → Copywriter → Scheduler → Planner → Pipeline) as SSE to the coordinator UI
+- **QR attendance** — `POST /api/qr/attendance/checkin` and `GET /api/qr/attendance/history/{student_id}` for event check-in and history
+- **Volunteer assignments** — `GET /api/portals/volunteers/{id}` and `GET /api/portals/volunteers/{id}/assignments` expose match score, fatigue, recovery posture, and stage-by-stage assignment timeline
 
 **Demo database:** run `python scripts/seed_demo_db.py` from this directory to (re)build **`data/demo.db`** with synchronized students, coordinators, registrations, outreach threads, meetings, retention nudges, mock roles, and related calendar/pipeline/demo tables as defined in the script.
 
-**Judge / teammate walkthrough:** [docs/demo-narrative-2026-04-14.md](docs/demo-narrative-2026-04-14.md) — verification snapshot, six-scene narrative, competitor comparison, and notes for the next visual design pass.
+**Judge / teammate walkthrough:** [docs/demos/demo-narrative-2026-04-14.md](docs/demos/demo-narrative-2026-04-14.md) — verification snapshot, six-scene narrative, competitor comparison, and notes for the next visual design pass.
 
 ---
 
@@ -257,19 +264,31 @@ The Vite app adds **role-specific workspaces** on top of the existing coordinato
 
 ```
 src/
-  app.py                 # Streamlit entry
+  app.py                 # Streamlit entry (legacy operator UI)
   config.py              # Configuration
   data_loader.py         # CSV pipeline
-  api/                   # FastAPI app (main.py, routers: data, calendar, qr, feedback, matching, outreach, crawler, portals)
-  matching/              # Engine + factors
-  scraping/              # University scraper
-  coordinator/           # Intent, approval, tools, optional NemoClaw adapter
-  ui/                    # Pages, command center, tabs
-  voice/                 # TTS / STT wrappers
-  qr/                    # QR + attendance helpers used by API
-frontend/                # Vite + React (Dashboard, portals, agentic outreach UI, …)
+  api/                   # FastAPI app
+    main.py              # App + CORS + router registration
+    routers/             # portals · matching · outreach · crawler · qr · feedback · calendar · data
+  matching/              # 8-factor scoring engine + factors
+  scraping/              # University event scraper
+  extraction/            # Gemini-powered LLM event extractor
+  outreach/              # Email + ICS generation, pipeline updater
+  coordinator/           # Intent parsing, HITL approval, tool dispatch
+  feedback/              # Weight optimizer
+  qr/                    # QR code + attendance service
+  voice/                 # TTS / STT wrappers (KittenTTS + faster-whisper)
+frontend/                # Vite + React (TypeScript)
+  src/app/
+    pages/               # Dashboard · AIMatching · Volunteers · Pipeline · Outreach
+    pages/coordinator/   # CoordinatorHome · Events · Outreach · Meetings
+    pages/student/       # StudentHome · Events · History · Connect
+    pages/volunteer/     # VolunteerHome · Assignments · Profile  ← NEW
+    components/          # Layout shells: Layout, StudentPortalLayout, VolunteerPortalLayout
+    routes.tsx           # Browser router — all four portals
+    lib/api.ts           # Typed API client
 scripts/
-  seed_demo_db.py        # Seeds data/demo.db for portal + demo flows
+  seed_demo_db.py        # Builds data/demo.db (students, coordinators, volunteers, events, assignments)
 ```
 
 ---
